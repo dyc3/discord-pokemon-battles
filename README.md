@@ -5,9 +5,12 @@ SSW 215 Final Project
 # Setup
 
 Required:
-- docker
-- docker-compose
-  - https://docs.docker.com/compose/install/
+
+-   docker
+-   docker-compose
+    -   https://docs.docker.com/compose/install/
+
+Put your discord bot's token in the `token` file.
 
 # Developing
 
