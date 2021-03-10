@@ -2,13 +2,26 @@ version: "3.9"
 services:
   bot:
     build: .
-    network_mode: "bridge"
     ports:
       - "5000:5000"
+    expose:
+      - 5000
     volumes:
       - .:/code
+    networks:
+      main:
+        aliases:
+          - bot
   api:
     build: ./services/battle-api
-    network_mode: "bridge"
     ports:
       - "4000:4000"
+    expose:
+      - 4000
+    networks:
+      main:
+        aliases:
+          - api
+
+networks:
+  main:
