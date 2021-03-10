@@ -1,18 +1,17 @@
-from flask import Flask, Response
-from main import main
-import requests
-app = Flask(__name__)
+import aiohttp
+from quart import Quart, Response
+app = Quart(__name__)
 
 @app.route('/')
-def hello_world():
+async def hello_world():
 	return 'Hello, World!'
 
 @app.route('/agent/dumb', methods=["POST"])
-def agent_dumb():
+async def agent_dumb():
 	return Response('{"type": 0, "args": {"target": {"party":0, "slot": 0}, "move": 0}}', mimetype="application/json")
 
 @app.route('/test')
-def test():
+async def test():
 	start = {
 		"Parties": [
 			[
@@ -30,15 +29,12 @@ def test():
 			"http://bot:5000/agent/dumb"
 		]
 	}
-	print("creating battle")
-	resp = requests.post("http://api:4000/battle/new", json=start)
-	print(resp)
-	bid = int(resp.text)
-	print(f"simulating round for battle {bid}")
-	resp = requests.get(f"http://api:4000/battle/simulate?id={bid}", data=start)
-	print(resp)
+	async with aiohttp.ClientSession() as session:
+		print("creating battle")
+		async with session.post("http://api:4000/battle/new", json=start) as resp:
+			print(resp)
+			bid = int(await resp.text())
+		print(f"simulating round for battle {bid}")
+		async with session.get(f"http://api:4000/battle/simulate?id={bid}") as resp:
+			print(resp)
 	return "done"
-
-if __name__ == "__main__":
-	main()
-	app.run(host="0.0.0.0")
