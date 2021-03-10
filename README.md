@@ -33,4 +33,5 @@ Commands are subject to change since we are in the development stage at the mome
 Prefix: `p!`
 
 `ping` will return `pong`
+
 `sim bid` will simulate a pokemon battle, and will return `Simulating battle bid...`
