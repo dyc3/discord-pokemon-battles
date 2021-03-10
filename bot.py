@@ -18,10 +18,10 @@ async def sim(ctx: commands.Context, bid: str):
 		async with session.get(f"http://api:4000/battle/simulate?id={bid}") as resp:
 			if resp.status == 200:
 				print("simulate done")
-				results = await resp.json()
+				results = await resp.json(content_type="text/plain")
 				results = json.loads(await resp.read())
 				print(f"got {len(results['Transactions'])} transactions")
-				await msg.edit(f"Round Results: Processed {len(results['Transactions'])}")
+				await msg.edit(content=f"Round Results: Processed {len(results['Transactions'])}")
 			else:
 				await msg.edit(f"Simulation failed: got {resp.status} from service")
 
