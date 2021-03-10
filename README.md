@@ -23,3 +23,5 @@ To force a rebuild:
 ```
 docker-compose up --build
 ```
+
+The battle API is served over port 4000, and the flask server is served over port 5000.
