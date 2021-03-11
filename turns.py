@@ -1,19 +1,22 @@
 import json
 
 class Turn():
-	type = None
+	TurnType = None
 
 	def __init__(self) -> None:
 		pass
 
 	def toJSON(self) -> str:
 		return json.dumps({
-			"type": type,
-			"args": self,
+			"type": self.TurnType,
+			"args": self.get_args(),
 		})
 
-class FightTurn(Turn):
-	type = 0
+	def get_args(self):
+		return {}
+
+class FightTurn(Turn, json.JSONEncoder):
+	TurnType = 0
 
 	def __init__(self, **kwargs) -> None:
 		self.target = {
@@ -22,20 +25,35 @@ class FightTurn(Turn):
 		}
 		self.move = kwargs.pop("move")
 
+	def get_args(self):
+		return {
+			"target": self.target,
+			"move": self.move
+		}
+
 class ItemTurn(Turn):
-	type = 1
+	TurnType = 1
 
 	def __init__(self, **kwargs) -> None:
 		pass
+
+	def get_args(self):
+		return {}
 
 class SwitchTurn(Turn):
-	type = 2
+	TurnType = 2
 
 	def __init__(self, **kwargs) -> None:
 		pass
+
+	def get_args(self):
+		return {}
 
 class RunTurn(Turn):
-	type = 3
+	TurnType = 3
 
 	def __init__(self, **kwargs) -> None:
 		pass
+
+	def get_args(self):
+		return {}
