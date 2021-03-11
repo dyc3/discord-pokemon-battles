@@ -1,3 +1,4 @@
+import asyncio
 import json
 import aiohttp
 import discord
@@ -24,6 +25,18 @@ async def sim(ctx: commands.Context, bid: str):
 				await msg.edit(content=f"Round Results: Processed {len(results['Transactions'])}")
 			else:
 				await msg.edit(f"Simulation failed: got {resp.status} from service")
+
+@bot.command()
+async def challenge(ctx: commands.Context, opponent: str):
+	msg = await ctx.send(f"{ctx.author} challenging {opponent}")
+	if opponent.startswith("<@!") and opponent.endswith(">"):
+		pass # TODO: have the user that invoked the command challenge the user @'d here
+	else:
+		pass
+
+@bot.command()
+async def turn(ctx: commands.Context, turn_type: str, turn_arg: str):
+	pass
 
 def get_token():
 	with open("token", "r") as f:
