@@ -32,6 +32,7 @@ Commands are subject to change since we are in the development stage at the mome
 
 Prefix: `p!`
 
+- `help`
 - `ping` will return `pong`
 - `sim [BATTLE_ID]` will simulate a single round of a pokemon battle
 - `challenge OPPONENT`
