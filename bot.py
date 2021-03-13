@@ -377,6 +377,35 @@ async def turn(ctx: commands.Context):
 		})
 	await ctx.send(f"Turn: {type(turn)} {turn.toJSON()}")
 
+@bot.command()
+async def start(ctx: commands.Context):
+	msg = await ctx.send("Populating battle...")
+	async with aiohttp.ClientSession() as session:
+		pkmn = []
+		for i in range(2):
+			async with session.get("http://api:4000/pokedex/generate") as resp:
+				pkmn += [await resp.json(content_type="text/plain")]
+
+		start = {
+			"Parties": [
+				[pkmn[0]],
+				[pkmn[1]],
+			]
+		}
+		async with session.post("http://api:4000/battle/new", json=start) as resp:
+			logging.debug(f"battle created: {resp.status}")
+
+	bot.loop.create_task(coordinator.battles[0].simulate())
+	# asyncio.run_coroutine_threadsafe(coordinator.battles[0].simulate(), bot.loop)
+	await msg.edit(content="Battle started.")
+	# await coordinator.battles[0].simulate()
+
+@bot.command()
+async def qstart(ctx: commands.Context, opponent: str):
+	logging.debug("quick starting")
+	await challenge(ctx, opponent)
+	await start(ctx)
+
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
 async def prompt_for_turn(user: discord.User, battlecontext) -> Turn:
