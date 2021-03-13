@@ -13,6 +13,7 @@ class Battle():
 	def __init__(self, bid):
 		self.bid = bid
 		self.agents = []
+		self.transactions = []
 
 	def add_user(self, user: discord.User):
 		self.agents.push(Agent(user=user))
