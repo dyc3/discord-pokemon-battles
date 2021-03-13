@@ -2,10 +2,15 @@ import asyncio
 import json
 from turns import *
 import aiohttp
+import logging
 import discord
 from discord.ext import commands
 from discord.message import Message
-import serve
+import serve, coordinator
+
+logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger('discord')
+# logger.setLevel(logging.INFO)
 
 bot = commands.Bot(command_prefix='p!')
 
@@ -421,8 +426,10 @@ async def prompt_for_turn(user: discord.User, battlecontext) -> Turn:
 	for i in RESPONSE_REACTIONS:
 		await msg.add_reaction(i)
 	def check(payload):
+		logging.debug(f"checking payload {payload}")
 		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
 	try:
+		logging.debug("waiting for user's reaction")
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
 	except asyncio.TimeoutError:
