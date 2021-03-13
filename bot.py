@@ -29,11 +29,13 @@ async def sim(ctx: commands.Context, bid: str):
 
 @bot.command()
 async def challenge(ctx: commands.Context, opponent: str):
-	msg = await ctx.send(f"{ctx.author} challenging {opponent}")
+	await ctx.send(f"<@!{ctx.author.id}> challenging {opponent}")
+	coordinator.battles[0].add_user(ctx.author)
 	if opponent.startswith("<@!") and opponent.endswith(">"):
-		pass # TODO: have the user that invoked the command challenge the user @'d here
+		user = ctx.message.mensions[0]
+		coordinator.battles[0].add_user(user)
 	else:
-		pass
+		coordinator.battles[0].add_bot(opponent)
 
 @bot.command()
 async def turn(ctx: commands.Context):
