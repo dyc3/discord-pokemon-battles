@@ -2,7 +2,11 @@ import logging
 import aiohttp
 import discord
 from turns import *
-import bot
+import util
+
+def set_bot(b):
+	global bot
+	bot = b
 
 class Agent():
 	"""
@@ -18,7 +22,7 @@ class Agent():
 		if self.bot != None:
 			return FightTurn(party=0, slot=0, move=0)
 		if self.user != None:
-			return await bot.prompt_for_turn(self.user, context)
+			return await util.prompt_for_turn(bot, self.user, context)
 
 	def __str__(self):
 		if self.bot != None:

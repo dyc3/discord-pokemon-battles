@@ -1,16 +1,11 @@
 import asyncio
 import json
-from turns import *
 import aiohttp
 import logging
 import discord
 from discord.ext import commands
 from discord.message import Message
 import serve, coordinator
-
-logging.basicConfig(level=logging.DEBUG)
-# logger = logging.getLogger('discord')
-# logger.setLevel(logging.INFO)
 
 bot = commands.Bot(command_prefix='p!')
 
@@ -401,9 +396,7 @@ async def start(ctx: commands.Context):
 			logging.debug(f"battle created: {resp.status}")
 
 	bot.loop.create_task(coordinator.battles[0].simulate())
-	# asyncio.run_coroutine_threadsafe(coordinator.battles[0].simulate(), bot.loop)
 	await msg.edit(content="Battle started.")
-	# await coordinator.battles[0].simulate()
 
 @bot.command()
 async def qstart(ctx: commands.Context, opponent: str):
@@ -411,42 +404,12 @@ async def qstart(ctx: commands.Context, opponent: str):
 	await challenge(ctx, opponent)
 	await start(ctx)
 
-RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
-
-async def prompt_for_turn(user: discord.User, battlecontext) -> Turn:
-	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
-	# TODO: prompt user for what type of turn
-
-	if not user.dm_channel:
-		await user.create_dm()
-	embed = discord.Embed(title=battlecontext["Pokemon"]["Name"])
-	for move in battlecontext["Pokemon"]["Moves"]:
-		embed.add_field(name=move['Name'], value=f"{move['Type']} {move['CurrentPP']} {move['MaxPP']}")
-	msg: Message = await user.dm_channel.send(content="Select a move", embed=embed)
-	for i in RESPONSE_REACTIONS:
-		await msg.add_reaction(i)
-	def check(payload):
-		logging.debug(f"checking payload {payload}")
-		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
-	try:
-		logging.debug("waiting for user's reaction")
-		# HACK: reaction_add doesn't work in DMs
-		payload = await bot.wait_for("raw_reaction_add", check=check)
-	except asyncio.TimeoutError:
-		await user.dm_channel.send("timed out")
-		return
-
-	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
-
-	# TODO: prompt for which pokemon to target in double battles
-	target = battlecontext["Opponents"][0]
-	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
-
 def get_token():
 	with open("token", "r") as f:
 		return "".join(f.readlines()).strip()
 
 if __name__ == "__main__":
+	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
 	bot.run(get_token())
