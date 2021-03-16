@@ -20,7 +20,7 @@ async def sim(ctx: commands.Context, bid: str):
 		async with session.get(f"http://api:4000/battle/simulate?id={bid}") as resp:
 			if resp.status == 200:
 				print("simulate done")
-				results = await resp.json(content_type="text/plain")
+				results = await resp.json()
 				results = json.loads(await resp.read())
 				print(f"got {len(results['Transactions'])} transactions")
 				await msg.edit(content=f"Round Results: Processed {len(results['Transactions'])}")
@@ -384,7 +384,7 @@ async def start(ctx: commands.Context):
 		pkmn = []
 		for i in range(2):
 			async with session.get("http://api:4000/pokedex/generate") as resp:
-				pkmn += [await resp.json(content_type="text/plain")]
+				pkmn += [await resp.json()]
 
 		start = {
 			"Parties": [

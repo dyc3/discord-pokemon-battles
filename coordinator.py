@@ -50,7 +50,7 @@ class Battle():
 			for i, agent in enumerate(self.agents):
 				# FIXME: this breaks when
 				async with session.get(f"http://api:4000/battle/context?id={self.bid}&party={i}&slot=0") as resp:
-					context = await resp.json(content_type="text/plain")
+					context = await resp.json()
 				turn = await agent.get_turn(context)
 				logging.debug(f"posting turn {turn} from {agent}")
 				if not turn:
@@ -70,7 +70,7 @@ class Battle():
 				logging.debug("simulating round")
 				async with session.get(f"http://api:4000/battle/simulate?id={self.bid}") as resp:
 					# TODO: change battle API to give correct content type
-					results = await resp.json(content_type="text/plain")
+					results = await resp.json()
 			self.transactions += results["Transactions"]
 			if results["Ended"]:
 				break
