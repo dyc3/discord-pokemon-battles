@@ -395,6 +395,7 @@ async def start(ctx: commands.Context):
 		async with session.post("http://api:4000/battle/new", json=start) as resp:
 			logging.debug(f"battle created: {resp.status}")
 
+	coordinator.battles[0].original_channel = ctx.channel
 	bot.loop.create_task(coordinator.battles[0].simulate())
 	await msg.edit(content="Battle started.")
 

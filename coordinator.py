@@ -36,6 +36,7 @@ class Battle():
 		self.bid = bid
 		self.agents = []
 		self.transactions = []
+		self.original_channel: discord.TextChannel = None
 
 	def add_user(self, user: discord.User):
 		assert user != None
@@ -74,6 +75,14 @@ class Battle():
 			self.transactions += results["Transactions"]
 			if results["Ended"]:
 				break
+		if self.original_channel:
+			await self.original_channel.send(embed=self.__create_battle_summary_msg())
+
+	def __create_battle_summary_msg(self) -> discord.Embed:
+		embed = discord.Embed(title="Battle Results")
+		# TODO: show winner instead
+		embed.add_field(name="Total Transactions", value=len(self.transactions))
+		return embed
 
 battles = [
 	Battle(0) # temporary
