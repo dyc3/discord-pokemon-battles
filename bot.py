@@ -1,11 +1,11 @@
 import asyncio
 import json
-from turns import *
 import aiohttp
+import logging
 import discord
 from discord.ext import commands
 from discord.message import Message
-import serve
+import serve, coordinator
 
 bot = commands.Bot(command_prefix='p!')
 
@@ -20,7 +20,7 @@ async def sim(ctx: commands.Context, bid: str):
 		async with session.get(f"http://api:4000/battle/simulate?id={bid}") as resp:
 			if resp.status == 200:
 				print("simulate done")
-				results = await resp.json(content_type="text/plain")
+				results = await resp.json()
 				results = json.loads(await resp.read())
 				print(f"got {len(results['Transactions'])} transactions")
 				await msg.edit(content=f"Round Results: Processed {len(results['Transactions'])}")
@@ -29,11 +29,13 @@ async def sim(ctx: commands.Context, bid: str):
 
 @bot.command()
 async def challenge(ctx: commands.Context, opponent: str):
-	msg = await ctx.send(f"{ctx.author} challenging {opponent}")
+	await ctx.send(f"<@!{ctx.author.id}> challenging {opponent}")
+	coordinator.battles[0].add_user(ctx.author)
 	if opponent.startswith("<@!") and opponent.endswith(">"):
-		pass # TODO: have the user that invoked the command challenge the user @'d here
+		user = ctx.message.mensions[0]
+		coordinator.battles[0].add_user(user)
 	else:
-		pass
+		coordinator.battles[0].add_bot(opponent)
 
 @bot.command()
 async def turn(ctx: commands.Context):
@@ -375,40 +377,40 @@ async def turn(ctx: commands.Context):
 		})
 	await ctx.send(f"Turn: {type(turn)} {turn.toJSON()}")
 
-RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
+@bot.command()
+async def start(ctx: commands.Context):
+	msg = await ctx.send("Populating battle...")
+	async with aiohttp.ClientSession() as session:
+		pkmn = []
+		for i in range(2):
+			async with session.get("http://api:4000/pokedex/generate") as resp:
+				pkmn += [await resp.json()]
 
-async def prompt_for_turn(user: discord.User, battlecontext) -> Turn:
-	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
-	# TODO: prompt user for what type of turn
+		start = {
+			"Parties": [
+				[pkmn[0]],
+				[pkmn[1]],
+			]
+		}
+		async with session.post("http://api:4000/battle/new", json=start) as resp:
+			logging.debug(f"battle created: {resp.status}")
 
-	if not user.dm_channel:
-		await user.create_dm()
-	embed = discord.Embed(title=battlecontext["Pokemon"]["Name"])
-	for move in battlecontext["Pokemon"]["Moves"]:
-		embed.add_field(name=move['Name'], value=f"{move['Type']} {move['CurrentPP']} {move['MaxPP']}")
-	msg: Message = await user.dm_channel.send(content="Select a move", embed=embed)
-	for i in RESPONSE_REACTIONS:
-		await msg.add_reaction(i)
-	def check(payload):
-		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
-	try:
-		# HACK: reaction_add doesn't work in DMs
-		payload = await bot.wait_for("raw_reaction_add", check=check)
-	except asyncio.TimeoutError:
-		await user.dm_channel.send("timed out")
-		return
+	coordinator.battles[0].original_channel = ctx.channel
+	bot.loop.create_task(coordinator.battles[0].simulate())
+	await msg.edit(content="Battle started.")
 
-	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
-
-	# TODO: prompt for which pokemon to target in double battles
-	target = battlecontext["Opponents"][0]
-	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
+@bot.command()
+async def qstart(ctx: commands.Context, opponent: str):
+	logging.debug("quick starting")
+	await challenge(ctx, opponent)
+	await start(ctx)
 
 def get_token():
 	with open("token", "r") as f:
 		return "".join(f.readlines()).strip()
 
 if __name__ == "__main__":
+	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
 	bot.run(get_token())

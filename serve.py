@@ -1,10 +1,28 @@
 import aiohttp
 from quart import Quart, Response
+import quart
+import json
+import coordinator
 app = Quart(__name__)
 
 @app.route('/')
-async def hello_world():
-	return 'Hello, World!'
+async def status():
+	output = [
+		f'Active battles: {len(coordinator.battles)}',
+	]
+	for i, battle in enumerate(coordinator.battles):
+		output += [
+			f"Battle {i}:",
+			f"Agents: {[str(a) for a in battle.agents]}"
+			"",
+			"Transactions:",
+		]
+		for transaction in battle.transactions:
+			output += [
+				json.dumps(transaction)
+			]
+
+	return "<br>\n".join(map(quart.escape, output))
 
 @app.route('/agent/dumb', methods=["POST"])
 async def agent_dumb():
