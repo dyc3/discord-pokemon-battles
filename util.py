@@ -3,6 +3,8 @@ import logging, asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
+from typing import Union
+from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
@@ -34,3 +36,19 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext) 
 	# TODO: prompt for which pokemon to target in double battles
 	target = battlecontext["Opponents"][0]
 	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
+
+def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> list[Team]:
+	"""
+	Takes 2 parties of pokemon, creates a list of teams suitable to create a single battle.
+
+	:returns: List of teams with 1 party each.
+	"""
+	assert len(parties) == 2, "must be given 2 parties"
+	teams = []
+	for party in parties:
+		if isinstance(party, Party):
+			team = Team(parties=[party])
+		else:
+			team = Team(parties=[Party(pokemon=party)])
+		teams += [team]
+	return teams
