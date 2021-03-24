@@ -34,3 +34,39 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext) 
 	# TODO: prompt for which pokemon to target in double battles
 	target = battlecontext["Opponents"][0]
 	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
+
+def status_to_string(status):
+	"""Returns the human-readbale form of a Pokemon's Status Condition
+
+	:param status: pokemon battle status as defined in pokemonbattlelib
+	:type status: int
+
+	:return: the name of the status
+	:rtype: string
+	"""
+    statuses = {
+        0: "None",
+		# non volatile:
+        1: "Burn",
+        2: "Freeze",
+        3: "Paralyze",
+        4: "Poison",
+        5: "BadlyPoison",
+        6: "Sleep",
+        # volatile:
+        8: "Bound",
+        16: "CantEscape",
+        32: "Confusion",
+        64: "Cursed",
+        12: "Embargo",
+        25: "Flinch",
+        51: "HealBlock",
+        104: "Identified",
+        208: "Infatuation",
+        406: "LeechSeed",
+        812: "Nightmare",
+        1684: "PerishSong",
+        32768: "Taunt",
+        65536: "Torment",
+    }
+    return statuses[int(status)]
