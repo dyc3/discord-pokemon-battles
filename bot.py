@@ -6,6 +6,9 @@ import discord
 from discord.ext import commands
 from discord.message import Message
 import serve, coordinator
+from pkmntypes import *
+import util
+import battleapi
 
 bot = commands.Bot(command_prefix='p!')
 
@@ -386,24 +389,19 @@ async def start(ctx: commands.Context):
 			async with session.get("http://api:4000/pokedex/generate") as resp:
 				pkmn += [await resp.json()]
 
-		start = {
-			"Parties": [
-				[pkmn[0]],
-				[pkmn[1]],
-			]
-		}
-		async with session.post("http://api:4000/battle/new", json=start) as resp:
-			logging.debug(f"battle created: {resp.status}")
+		teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
+		args = await battleapi.create_battle(teams)
 
-	coordinator.battles[0].original_channel = ctx.channel
-	bot.loop.create_task(coordinator.battles[0].simulate())
+	battle = coordinator.Battle(**args, original_channel=ctx.channel)
+	coordinator.battles += [battle]
+	bot.loop.create_task(battle.simulate())
 	await msg.edit(content="Battle started.")
 
 @bot.command()
 async def qstart(ctx: commands.Context, opponent: str):
 	logging.debug("quick starting")
-	await challenge(ctx, opponent)
 	await start(ctx)
+	await challenge(ctx, opponent)
 
 def get_token():
 	with open("token", "r") as f:

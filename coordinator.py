@@ -32,11 +32,12 @@ class Agent():
 		return f"Agent<invalid>"
 
 class Battle():
-	def __init__(self, bid):
-		self.bid = bid
+	def __init__(self, **kwargs):
+		self.bid = kwargs.pop("bid")
+		self.active_pokemon = kwargs.pop("active_pokemon")
 		self.agents = []
 		self.transactions = []
-		self.original_channel: discord.TextChannel = None
+		self.original_channel: discord.TextChannel = kwargs.pop("original_channel")
 
 	def add_user(self, user: discord.User):
 		assert user != None
@@ -84,6 +85,4 @@ class Battle():
 		embed.add_field(name="Total Transactions", value=len(self.transactions))
 		return embed
 
-battles = [
-	Battle(0) # temporary
-]
+battles = []
