@@ -37,6 +37,55 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext) 
 	target = battlecontext["Opponents"][0]
 	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
 
+def status_to_string(status: int) -> set:
+	"""Returns the human-readbale form of a Pokemon's Status Condition
+
+	:param status: pokemon battle status as defined in pokemonbattlelib
+	:type status: int
+	:raises ValueError: raised if `status` is not of the proper format
+	:return: a set of status name strings
+	:rtype: set
+	"""
+
+	nonvolatile = [
+		"None",
+		"Burn",
+		"Freeze",
+		"Paralyze",
+		"Poison",
+		"BadlyPoison",
+		"Sleep",
+	]
+	volatile = [
+		"Bound",
+		"CantEscape",
+		"Confusion",
+		"Cursed",
+		"Embargo",
+		"Flinch",
+		"HealBlock",
+		"Identified",
+		"Infatuation",
+		"LeechSeed",
+		"Nightmare",
+		"PerishSong",
+		"Taunt",
+		"Torment",
+	]
+
+	try:
+		bitmask = status & ((1 << 3) - 1)
+		if bitmask != 0:
+			nonvolatile = [nonvolatile[bitmask]]
+		else:
+			nonvolatile = []
+
+		bitmask = status >> 3
+		volatile = [flag for (index, flag) in enumerate(volatile) if (bitmask & 1 << index)]
+		return set(nonvolatile + volatile)
+	except IndexError:
+		raise ValueError("invalid value for status")
+
 def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> list[Team]:
 	"""
 	Takes 2 parties of pokemon, creates a list of teams suitable to create a single battle.
@@ -52,3 +101,4 @@ def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> lis
 			team = Team(parties=[Party(pokemon=party)])
 		teams += [team]
 	return teams
+
