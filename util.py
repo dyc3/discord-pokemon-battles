@@ -82,5 +82,4 @@ def status_to_string(status: int) -> set:
 		volatile = [flag for (index, flag) in enumerate(volatile) if (bitmask & 2 ** index)]
 		return set(nonvolatile + volatile)
 	except:
-		print("invalid value for status")
-		raise ValueError
+		raise ValueError("invalid value for status")
