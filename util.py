@@ -35,38 +35,52 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext) 
 	target = battlecontext["Opponents"][0]
 	return FightTurn(party=target["Party"], slot=target["Slot"], move=moveId)
 
-def status_to_string(status):
+def status_to_string(status: int) -> set:
 	"""Returns the human-readbale form of a Pokemon's Status Condition
 
 	:param status: pokemon battle status as defined in pokemonbattlelib
 	:type status: int
-
-	:return: the name of the status
-	:rtype: string
+	:raises ValueError: raised if `status` is not of the proper format
+	:return: a set of status name strings
+	:rtype: set
 	"""
-    statuses = {
-        0: "None",
-		# non volatile:
-        1: "Burn",
-        2: "Freeze",
-        3: "Paralyze",
-        4: "Poison",
-        5: "BadlyPoison",
-        6: "Sleep",
-        # volatile:
-        8: "Bound",
-        16: "CantEscape",
-        32: "Confusion",
-        64: "Cursed",
-        12: "Embargo",
-        25: "Flinch",
-        51: "HealBlock",
-        104: "Identified",
-        208: "Infatuation",
-        406: "LeechSeed",
-        812: "Nightmare",
-        1684: "PerishSong",
-        32768: "Taunt",
-        65536: "Torment",
-    }
-    return statuses[int(status)]
+
+	nonvolatile = [
+		"None",
+		"Burn",
+		"Freeze",
+		"Paralyze",
+		"Poison",
+		"BadlyPoison",
+		"Sleep",
+	]
+	volatile = [
+		"Bound",
+		"CantEscape",
+		"Confusion",
+		"Cursed",
+		"Embargo",
+		"Flinch",
+		"HealBlock",
+		"Identified",
+		"Infatuation",
+		"LeechSeed",
+		"Nightmare",
+		"PerishSong",
+		"Taunt",
+		"Torment",
+	]
+
+	try:
+		bitmask = status & ((1 << 3) - 1)
+		if bitmask != 0:
+			nonvolatile = [nonvolatile[bitmask]]
+		else:
+			nonvolatile = []
+
+		bitmask = status >> 3
+		volatile = [flag for (index, flag) in enumerate(volatile) if (bitmask & 2 ** index)]
+		return set(nonvolatile + volatile)
+	except:
+		print("invalid value for status")
+		raise ValueError
