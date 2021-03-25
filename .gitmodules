@@ -1,0 +1,3 @@
+[submodule "services/battle-api/pokemonbattlelib"]
+	path = services/battle-api/pokemonbattlelib
+	url = https://github.com/StevensSEC/pokemonbattlelib
