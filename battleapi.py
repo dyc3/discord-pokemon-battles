@@ -47,3 +47,14 @@ async def submit_turn(battle_id: int, target: int, turn: Turn):
 	async with aiohttp.ClientSession() as session:
 		async with session.post(f"http://api:4000/battle/act?id={battle_id}&target={target}", data=turn.toJSON()) as resp:
 			pass
+
+async def simulate(battle_id: int) -> dict:
+	"""Simulate a round of the battle, and get the results of the round.
+
+	:returns: The results of the round.
+	"""
+	logging.debug(f"simulating round: battle={battle_id}")
+	async with aiohttp.ClientSession() as session:
+		async with session.get(f"{BASE_URL}/battle/simulate?id={battle_id}") as resp:
+			result = await resp.json()
+	return result
