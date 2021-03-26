@@ -1,0 +1,434 @@
+{
+    "Battle": {
+        "Weather": 0,
+        "ShiftSet": false,
+        "State": 1
+    },
+    "Pokemon": {
+        "Name": "Pichu",
+        "NatDex": 172,
+        "Level": 79,
+        "Ability": 98,
+        "TotalExperience": 493039,
+        "Gender": 0,
+        "IVs": [1, 2, 4, 0, 2, 1],
+        "EVs": [18, 17, 22, 32, 21, 41],
+        "Nature": 8,
+        "Stats": [124, 72, 35, 66, 65, 108],
+        "StatModifiers": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        "StatusEffects": 0,
+        "CurrentHP": 124,
+        "HeldItem": {
+            "Id": 0,
+            "Name": "",
+            "Category": 0,
+            "FlingPower": 0,
+            "FlingEffect": 0,
+            "Flags": 0
+        },
+        "Moves": [
+            {
+                "Id": 433,
+                "CurrentPP": 0,
+                "MaxPP": 0,
+                "Name": "Trick Room",
+                "Type": 8192,
+                "Category": 0,
+                "Targets": 12,
+                "Priority": -7,
+                "Power": 0,
+                "Accuracy": 0,
+                "InitialMaxPP": 0
+            },
+            {
+                "Id": 225,
+                "CurrentPP": 0,
+                "MaxPP": 0,
+                "Name": "Dragon Breath",
+                "Type": 32768,
+                "Category": 2,
+                "Targets": 10,
+                "Priority": 0,
+                "Power": 60,
+                "Accuracy": 100,
+                "InitialMaxPP": 0
+            },
+            {
+                "Id": 232,
+                "CurrentPP": 0,
+                "MaxPP": 0,
+                "Name": "Metal Claw",
+                "Type": 256,
+                "Category": 1,
+                "Targets": 10,
+                "Priority": 0,
+                "Power": 50,
+                "Accuracy": 95,
+                "InitialMaxPP": 0
+            },
+            {
+                "Id": 59,
+                "CurrentPP": 0,
+                "MaxPP": 0,
+                "Name": "Blizzard",
+                "Type": 16384,
+                "Category": 2,
+                "Targets": 11,
+                "Priority": 0,
+                "Power": 110,
+                "Accuracy": 70,
+                "InitialMaxPP": 0
+            }
+        ],
+        "Friendship": 0,
+        "OriginalTrainerID": 0,
+        "Type": 4096
+    },
+    "Team": 0,
+    "Allies": [
+        {
+            "Party": 0,
+            "Slot": 0,
+            "Team": 0,
+            "Pokemon": {
+                "Name": "Pichu",
+                "NatDex": 172,
+                "Level": 79,
+                "Ability": 98,
+                "TotalExperience": 493039,
+                "Gender": 0,
+                "IVs": [1, 2, 4, 0, 2, 1],
+                "EVs": [18, 17, 22, 32, 21, 41],
+                "Nature": 8,
+                "Stats": [124, 72, 35, 66, 65, 108],
+                "StatModifiers": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                "StatusEffects": 0,
+                "CurrentHP": 124,
+                "HeldItem": {
+                    "Id": 0,
+                    "Name": "",
+                    "Category": 0,
+                    "FlingPower": 0,
+                    "FlingEffect": 0,
+                    "Flags": 0
+                },
+                "Moves": [
+                    {
+                        "Id": 433,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Trick Room",
+                        "Type": 8192,
+                        "Category": 0,
+                        "Targets": 12,
+                        "Priority": -7,
+                        "Power": 0,
+                        "Accuracy": 0,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 225,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Dragon Breath",
+                        "Type": 32768,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 60,
+                        "Accuracy": 100,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 232,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Metal Claw",
+                        "Type": 256,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 50,
+                        "Accuracy": 95,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 59,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Blizzard",
+                        "Type": 16384,
+                        "Category": 2,
+                        "Targets": 11,
+                        "Priority": 0,
+                        "Power": 110,
+                        "Accuracy": 70,
+                        "InitialMaxPP": 0
+                    }
+                ],
+                "Friendship": 0,
+                "OriginalTrainerID": 0,
+                "Type": 4096
+            }
+        }
+    ],
+    "Opponents": [
+        {
+            "Party": 0,
+            "Slot": 0,
+            "Team": 1,
+            "Pokemon": {
+                "Name": "Mew",
+                "NatDex": 151,
+                "Level": 6,
+                "Ability": 108,
+                "TotalExperience": 179,
+                "Gender": 0,
+                "IVs": [3, 1, 1, 4, 0, 3],
+                "EVs": [7, 24, 41, 11, 3, 20],
+                "Nature": 8,
+                "Stats": [28, 17, 17, 17, 17, 17],
+                "StatModifiers": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                "StatusEffects": 0,
+                "CurrentHP": 28,
+                "HeldItem": {
+                    "Id": 0,
+                    "Name": "",
+                    "Category": 0,
+                    "FlingPower": 0,
+                    "FlingEffect": 0,
+                    "Flags": 0
+                },
+                "Moves": [
+                    {
+                        "Id": 61,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Bubble Beam",
+                        "Type": 1024,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 65,
+                        "Accuracy": 100,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 457,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Head Smash",
+                        "Type": 32,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 150,
+                        "Accuracy": 80,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 434,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Draco Meteor",
+                        "Type": 32768,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 130,
+                        "Accuracy": 90,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 359,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Hammer Arm",
+                        "Type": 2,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 100,
+                        "Accuracy": 90,
+                        "InitialMaxPP": 0
+                    }
+                ],
+                "Friendship": 0,
+                "OriginalTrainerID": 0,
+                "Type": 8192
+            }
+        }
+    ],
+    "Targets": [
+        {
+            "Party": 0,
+            "Slot": 0,
+            "Team": 0,
+            "Pokemon": {
+                "Name": "Pichu",
+                "NatDex": 172,
+                "Level": 79,
+                "Ability": 98,
+                "TotalExperience": 493039,
+                "Gender": 0,
+                "IVs": [1, 2, 4, 0, 2, 1],
+                "EVs": [18, 17, 22, 32, 21, 41],
+                "Nature": 8,
+                "Stats": [124, 72, 35, 66, 65, 108],
+                "StatModifiers": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                "StatusEffects": 0,
+                "CurrentHP": 124,
+                "HeldItem": {
+                    "Id": 0,
+                    "Name": "",
+                    "Category": 0,
+                    "FlingPower": 0,
+                    "FlingEffect": 0,
+                    "Flags": 0
+                },
+                "Moves": [
+                    {
+                        "Id": 433,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Trick Room",
+                        "Type": 8192,
+                        "Category": 0,
+                        "Targets": 12,
+                        "Priority": -7,
+                        "Power": 0,
+                        "Accuracy": 0,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 225,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Dragon Breath",
+                        "Type": 32768,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 60,
+                        "Accuracy": 100,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 232,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Metal Claw",
+                        "Type": 256,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 50,
+                        "Accuracy": 95,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 59,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Blizzard",
+                        "Type": 16384,
+                        "Category": 2,
+                        "Targets": 11,
+                        "Priority": 0,
+                        "Power": 110,
+                        "Accuracy": 70,
+                        "InitialMaxPP": 0
+                    }
+                ],
+                "Friendship": 0,
+                "OriginalTrainerID": 0,
+                "Type": 4096
+            }
+        },
+        {
+            "Party": 0,
+            "Slot": 0,
+            "Team": 1,
+            "Pokemon": {
+                "Name": "Mew",
+                "NatDex": 151,
+                "Level": 6,
+                "Ability": 108,
+                "TotalExperience": 179,
+                "Gender": 0,
+                "IVs": [3, 1, 1, 4, 0, 3],
+                "EVs": [7, 24, 41, 11, 3, 20],
+                "Nature": 8,
+                "Stats": [28, 17, 17, 17, 17, 17],
+                "StatModifiers": [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                "StatusEffects": 0,
+                "CurrentHP": 28,
+                "HeldItem": {
+                    "Id": 0,
+                    "Name": "",
+                    "Category": 0,
+                    "FlingPower": 0,
+                    "FlingEffect": 0,
+                    "Flags": 0
+                },
+                "Moves": [
+                    {
+                        "Id": 61,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Bubble Beam",
+                        "Type": 1024,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 65,
+                        "Accuracy": 100,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 457,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Head Smash",
+                        "Type": 32,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 150,
+                        "Accuracy": 80,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 434,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Draco Meteor",
+                        "Type": 32768,
+                        "Category": 2,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 130,
+                        "Accuracy": 90,
+                        "InitialMaxPP": 0
+                    },
+                    {
+                        "Id": 359,
+                        "CurrentPP": 0,
+                        "MaxPP": 0,
+                        "Name": "Hammer Arm",
+                        "Type": 2,
+                        "Category": 1,
+                        "Targets": 10,
+                        "Priority": 0,
+                        "Power": 100,
+                        "Accuracy": 90,
+                        "InitialMaxPP": 0
+                    }
+                ],
+                "Friendship": 0,
+                "OriginalTrainerID": 0,
+                "Type": 8192
+            }
+        }
+    ]
+}
