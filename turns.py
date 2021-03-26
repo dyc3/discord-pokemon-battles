@@ -15,7 +15,7 @@ class Turn():
 	def get_args(self):
 		return {}
 
-class FightTurn(Turn, json.JSONEncoder):
+class FightTurn(Turn):
 	TurnType = 0
 
 	def __init__(self, **kwargs) -> None:
@@ -57,3 +57,6 @@ class RunTurn(Turn):
 
 	def get_args(self):
 		return {}
+
+def test_turns_to_json():
+	assert FightTurn(party=0, slot=0, move=0).toJSON()["type"] == 0
