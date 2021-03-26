@@ -71,13 +71,10 @@ class Battle():
 		Simulate the entire battle. Asynchronously blocks until the battle is completed.
 		"""
 		while True:
-			async with aiohttp.ClientSession() as session:
-				logging.debug("asking agents for turns")
-				await self.queue_turns()
-				logging.debug("simulating round")
-				async with session.get(f"http://api:4000/battle/simulate?id={self.bid}") as resp:
-					# TODO: change battle API to give correct content type
-					results = await resp.json()
+			logging.debug("asking agents for turns")
+			await self.queue_turns()
+			logging.debug("simulating round")
+			results = await battleapi.simulate(self.bid)
 			self.transactions += results["Transactions"]
 			if results["Ended"]:
 				break
