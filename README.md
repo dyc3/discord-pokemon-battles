@@ -37,5 +37,3 @@ Prefix: `p!`
 - `sim [BATTLE_ID]` will simulate a single round of a pokemon battle
 - `challenge OPPONENT`
 - `turn`
-- `start`
-- `qstart`

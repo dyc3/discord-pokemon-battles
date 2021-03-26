@@ -33,12 +33,20 @@ async def sim(ctx: commands.Context, bid: str):
 @bot.command()
 async def challenge(ctx: commands.Context, opponent: str):
 	await ctx.send(f"<@!{ctx.author.id}> challenging {opponent}")
-	coordinator.battles[0].add_user(ctx.author)
+	msg = await ctx.send("Populating battle...")
+	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
+
+	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
+	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
+	battle.add_user(ctx.author)
 	if opponent.startswith("<@!") and opponent.endswith(">"):
 		user = ctx.message.mensions[0]
-		coordinator.battles[0].add_user(user)
+		battle.add_user(user)
 	else:
-		coordinator.battles[0].add_bot(opponent)
+		battle.add_bot(opponent)
+	coordinator.battles += [battle]
+	await battle.start()
+	await msg.edit(content="Battle started.")
 
 @bot.command()
 async def turn(ctx: commands.Context):
@@ -379,29 +387,6 @@ async def turn(ctx: commands.Context):
 			}]
 		})
 	await ctx.send(f"Turn: {type(turn)} {turn.toJSON()}")
-
-@bot.command()
-async def start(ctx: commands.Context):
-	msg = await ctx.send("Populating battle...")
-	async with aiohttp.ClientSession() as session:
-		pkmn = []
-		for i in range(2):
-			async with session.get("http://api:4000/pokedex/generate") as resp:
-				pkmn += [await resp.json()]
-
-		teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
-		args = await battleapi.create_battle(teams)
-
-	battle = coordinator.Battle(**args, original_channel=ctx.channel)
-	coordinator.battles += [battle]
-	bot.loop.create_task(battle.simulate())
-	await msg.edit(content="Battle started.")
-
-@bot.command()
-async def qstart(ctx: commands.Context, opponent: str):
-	logging.debug("quick starting")
-	await start(ctx)
-	await challenge(ctx, opponent)
 
 def get_token():
 	with open("token", "r") as f:
