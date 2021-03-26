@@ -35,3 +35,10 @@ Prefix: `p!`
 - `help`
 - `ping` will return `pong`
 - `challenge OPPONENT`
+
+# Testing
+
+Run unit tests:
+```
+./test.sh
+```
