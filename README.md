@@ -44,6 +44,17 @@ docker-compose run bot sh ./scripts/test.sh
 ```
 
 Run integration tests:
+1. Make sure Brock is running
+```
+docker-compose up -d
+```
+2. Run the tests
 ```
 docker-compose run bot sh ./scripts/integration-test.sh
+```
+If `tests/config` is not present, it will be created for you when you run the script. It requires another bot (the tester) to send messages and interact with Brock (the testee).
+
+3. You can now stop Brock
+```
+docker-compose down
 ```
