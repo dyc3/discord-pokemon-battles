@@ -40,5 +40,10 @@ Prefix: `p!`
 
 Run unit tests:
 ```
-docker-compose run bot sh ./test.sh
+docker-compose run bot sh ./scripts/test.sh
+```
+
+Run integration tests:
+```
+docker-compose run bot sh ./scripts/integration-test.sh
 ```

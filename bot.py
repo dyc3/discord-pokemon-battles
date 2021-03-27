@@ -10,7 +10,19 @@ from pkmntypes import *
 import util
 import battleapi
 
-bot = commands.Bot(command_prefix='p!')
+class PkmnBot(commands.Bot):
+	"""
+	A class that allows the bot to listen for other bots.
+
+	:: note
+		Required because of https://github.com/Rapptz/discord.py/issues/2238
+	"""
+	async def on_message(self, message):
+		ctx = await self.get_context(message)
+		if ctx.valid:
+			await self.invoke(ctx)
+
+bot = PkmnBot(command_prefix='p!')
 
 @bot.command()
 async def ping(ctx: commands.Context):

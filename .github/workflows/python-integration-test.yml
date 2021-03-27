@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Integration Tests
 
 on:
   push:
@@ -13,6 +13,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: true
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
@@ -22,6 +24,14 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-    - name: Run unit tests
+    - name: Start CI bot
       run: |
-        ./scripts/test.sh
+        echo ${{ secrets.BOT_TOKEN }} > token
+        docker-compose up -d
+    - name: Run integration tests
+      env:
+        CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
+        CI_BOT_TARGET: "825183030347431969"
+        CI_TEST_CHANNEL: "825164146596380702"
+      run: |
+        ./scripts/integration-test.sh
