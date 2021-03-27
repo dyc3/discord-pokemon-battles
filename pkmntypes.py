@@ -29,9 +29,7 @@ class BattleContext():
 	"""
 	# will add make the docstrings comply with the sphinx format once this class is looking good
 
-	def __init__(self):
-		with open('data.json') as d:
-			data = json.load(d)
+	def __init__(self, **kwargs):
 
 		self.battle = data['Battle']
 		self.pokemon = data['Pokemon']
