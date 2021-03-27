@@ -3,6 +3,8 @@ import aiohttp
 import discord
 from turns import *
 import util
+import battleapi
+from pkmntypes import *
 
 def set_bot(b):
 	global bot
@@ -33,11 +35,12 @@ class Agent():
 
 class Battle():
 	def __init__(self, **kwargs):
-		self.bid = kwargs.pop("bid")
-		self.active_pokemon = kwargs.pop("active_pokemon")
+		self.bid: int = None
+		self.active_pokemon: int = None
 		self.agents = []
 		self.transactions = []
 		self.original_channel: discord.TextChannel = kwargs.pop("original_channel")
+		self.teams: list[Team] = kwargs.pop("teams")
 
 	def add_user(self, user: discord.User):
 		assert user != None
@@ -47,32 +50,31 @@ class Battle():
 	def add_bot(self, botname: str):
 		self.agents.append(Agent(bot=botname))
 
+	async def start(self):
+		"""Creates the battle on the battle API, making the battle ready to simulate, and starts the task to simulate the battle.
+		"""
+		args = await battleapi.create_battle(self.teams)
+		self.bid = args["bid"]
+		self.active_pokemon = args["active_pokemon"]
+		bot.loop.create_task(self.simulate())
+
 	async def queue_turns(self):
-		async with aiohttp.ClientSession() as session:
-			for i, agent in enumerate(self.agents):
-				# FIXME: this breaks when
-				async with session.get(f"http://api:4000/battle/context?id={self.bid}&party={i}&slot=0") as resp:
-					context = await resp.json()
-				turn = await agent.get_turn(context)
-				logging.debug(f"posting turn {turn} from {agent}")
-				if not turn:
-					# HACK: fucking async
-					turn = FightTurn(party=0, slot=0, move=0)
-				async with session.post(f"http://api:4000/battle/act?id={self.bid}&agent={i}", data=turn.toJSON()) as resp:
-					pass
+		logging.debug(f"asking {len(self.agents)} agents")
+		for i, agent in enumerate(self.agents):
+			context = await battleapi.get_battle_context(self.bid, i)
+			turn = await agent.get_turn(context)
+			logging.debug(f"posting turn {turn} from {agent}")
+			await battleapi.submit_turn(self.bid, i, turn)
 
 	async def simulate(self):
 		"""
 		Simulate the entire battle. Asynchronously blocks until the battle is completed.
 		"""
 		while True:
-			async with aiohttp.ClientSession() as session:
-				logging.debug("asking agents for turns")
-				await self.queue_turns()
-				logging.debug("simulating round")
-				async with session.get(f"http://api:4000/battle/simulate?id={self.bid}") as resp:
-					# TODO: change battle API to give correct content type
-					results = await resp.json()
+			logging.debug("asking agents for turns")
+			await self.queue_turns()
+			logging.debug("simulating round")
+			results = await battleapi.simulate(self.bid)
 			self.transactions += results["Transactions"]
 			if results["Ended"]:
 				break
