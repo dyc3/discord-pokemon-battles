@@ -77,7 +77,7 @@ class BattleContext():
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
 		self.pokemon: dict = kwargs['Pokemon']
-		self.team: dict = kwargs['Team']
+		self.team: int = kwargs['Team']
 		self.targets: dict = kwargs['Targets']
-		self.allies: dict = kwargs['Allies']
-		self.opponents: dict = kwargs['Opponents']
+		self.allies: list = kwargs['Allies']
+		self.opponents: list = kwargs['Opponents']
