@@ -19,12 +19,12 @@ class Agent():
 		self.user: discord.User = user
 		self.bot: str = bot
 
-	async def get_turn(self, context) -> Turn:
+	async def get_turn(self, context, original_channel: discord.TextChannel) -> Turn:
 		logging.debug(f"getting turn from {self}")
 		if self.bot != None:
 			return FightTurn(party=0, slot=0, move=0)
 		if self.user != None:
-			return await util.prompt_for_turn(bot, self.user, context)
+			return await util.prompt_for_turn(bot, self.user, context, use_channel=original_channel if self.user.bot else None)
 
 	def __str__(self):
 		if self.bot != None:
@@ -62,7 +62,7 @@ class Battle():
 		logging.debug(f"asking {len(self.agents)} agents")
 		for i, agent in enumerate(self.agents):
 			context = await battleapi.get_battle_context(self.bid, i)
-			turn = await agent.get_turn(context)
+			turn = await agent.get_turn(context, self.original_channel)
 			logging.debug(f"posting turn {turn} from {agent}")
 			await battleapi.submit_turn(self.bid, i, turn)
 
