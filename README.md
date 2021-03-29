@@ -38,12 +38,23 @@ Prefix: `p!`
 
 # Testing
 
-Run unit tests:
+## Unit Tests
+
 ```
 docker-compose run bot sh ./scripts/test.sh
 ```
 
-Run integration tests:
+## Integration Tests
+### Setup
+1. Create another bot. This will be the "tester".
+2. Make sure these settings are enabled under the `Bot` section.
+
+![Both Privileged Gateway Intents enabled](docs/img/ci-runner-required-intents.png)
+
+3. Run `docker-compose run bot sh ./scripts/integration-test.sh` to create the config file at `tests/config`
+4. Fill out the fields in the newly generated `tests/config`
+
+### Running the Integration Tests
 1. Make sure Brock is running
 ```
 docker-compose up -d
