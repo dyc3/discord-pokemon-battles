@@ -81,3 +81,13 @@ class BattleContext():
 		self.targets: dict = kwargs['Targets']
 		self.allies: list = kwargs['Allies']
 		self.opponents: list = kwargs['Opponents']
+
+class Target():
+    """
+    Represents a target identified by it's party and slot.
+    """
+    def __init__(self, **kwargs):
+        self.party: int = kwargs.pop("Party", -1)
+        self.slot: int = kwargs.pop("Slot", -1)
+        self.team: int = kwargs.pop("Team", -1)
+        self.pokemon: Pokemon = Pokemon(**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
