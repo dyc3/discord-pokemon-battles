@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -exo
-
 CONFIG_FILE="tests/config"
 __config_template="
 token=token of the tester bot
@@ -30,4 +28,4 @@ if [ -z "$CI_BOT_TOKEN$CI_BOT_TARGET$CI_TEST_CHANNEL" ] && [ ! -f "$CONFIG_FILE"
 fi
 
 pip install -r requirements-dev.txt
-find tests/integration -type f -print | grep -v "__pycache__" | xargs -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
+find tests/integration -type f -name "*.py" -print0 | xargs -0 -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
