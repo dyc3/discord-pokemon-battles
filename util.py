@@ -8,14 +8,14 @@ from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
-async def prompt_for_turn(bot: commands.Bot, user: discord.User, BattleContext) -> Turn:
+async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: BattleContext) -> Turn:
 	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
 	# TODO: prompt user for what type of turn
 
 	if not user.dm_channel:
 		await user.create_dm()
-	embed = discord.Embed(title=BattleContext.pokemon.Name)
-	for move in BattleContext.pokemon.Moves:
+	embed = discord.Embed(title=battlecontext.pokemon.Name)
+	for move in battlecontext.pokemon.Moves:
 		embed.add_field(name=move['Name'], value=f"{move['Type']} {move['CurrentPP']} {move['MaxPP']}")
 	msg: Message = await user.dm_channel.send(content="Select a move", embed=embed)
 	for i in RESPONSE_REACTIONS:
@@ -34,7 +34,7 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, BattleContext) 
 	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
 
 	# TODO: prompt for which pokemon to target in double battles
-	target = BattleContext.opponents[0]
+	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
 
 def status_to_string(status: int) -> set:
