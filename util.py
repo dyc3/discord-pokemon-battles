@@ -134,3 +134,9 @@ def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> lis
 		teams += [team]
 	return teams
 
+def taggify(s: Iterable[str]) -> str:
+	"""Pretty print the outputs from `status_to_string` and `type_to_string`, surounding each item with square brackets.
+
+	:returns: A prettier representation.
+	"""
+	return ''.join([f'[{x}]' for x in s])
