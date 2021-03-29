@@ -53,7 +53,7 @@ class Pokemon():
 		self.EVs: list[int] = kwargs['EVs']
 		self.Nature: int = kwargs['Nature']
 		self.Stats: list[int] = kwargs['Stats']
-		self.StatusModifiers: list[int] = kwargs['StatModifiers'] # TODO: clarify if this should read Stat or Status
+		self.StatModifiers: list[int] = kwargs['StatModifiers']
 		self.StatusEffects: int = kwargs['StatusEffects']
 		self.CurrentHP: int = kwargs['CurrentHP']
 		self.HeldItem: dict = kwargs['HeldItem']
