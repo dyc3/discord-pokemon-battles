@@ -53,7 +53,7 @@ class Pokemon():
 		self.EVs: list[int] = kwargs['EVs']
 		self.Nature: int = kwargs['Nature']
 		self.Stats: list[int] = kwargs['Stats']
-		self.StatusModifiers: list[int] = kwargs['StatusModifiers']
+		self.StatusModifiers: list[int] = kwargs['StatModifiers'] # TODO: clarify if this should read Stat or Status
 		self.StatusEffects: int = kwargs['StatusEffects']
 		self.CurrentHP: int = kwargs['CurrentHP']
 		self.HeldItem: dict = kwargs['HeldItem']
@@ -76,11 +76,11 @@ class BattleContext():
 	
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
-		self.pokemon: dict = kwargs['Pokemon']
+		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
 		self.team: int = kwargs['Team']
-		self.targets: dict = kwargs['Targets']
-		self.allies: list = kwargs['Allies']
-		self.opponents: list = kwargs['Opponents']
+		self.targets: list[Target] = [Target(**d) for d in kwargs.pop('Targets', [])]
+		self.allies: list[Target] = [Target(**d) for d in kwargs.pop('Allies', [])]
+		self.opponents: list[Target] = [Target(**d) for d in kwargs.pop('Opponents', [])]
 
 class Target():
     """
