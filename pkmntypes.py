@@ -59,12 +59,12 @@ class Pokemon():
 		self.HeldItem: dict = kwargs['HeldItem']
 		self.Moves: list[dict] = kwargs['Moves']
 		self.Friendship: int = kwargs['Friendship']
-		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']	
+		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']
 		self.Type: int = kwargs['Type']
 
 class BattleContext():
 	"""This is a class that describes the point of view of a given Pokemon on the battlefield. It provides
-	enough information for a user to make an informed decision about what turn to make next. 
+	enough information for a user to make an informed decision about what turn to make next.
 
 	:param battle: The state of the battlefield
 	:param pokemon: The pokemon that this context belongs to
@@ -73,7 +73,7 @@ class BattleContext():
 	:param allies: Ally targets in relation to the `Pokemon`
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
-	
+
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
 		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
@@ -83,11 +83,11 @@ class BattleContext():
 		self.opponents: list[Target] = [Target(**d) for d in kwargs.pop('Opponents', [])]
 
 class Target():
-    """
-    Represents a target identified by it's party and slot.
-    """
-    def __init__(self, **kwargs):
-        self.party: int = kwargs.pop("Party", -1)
-        self.slot: int = kwargs.pop("Slot", -1)
-        self.team: int = kwargs.pop("Team", -1)
-        self.pokemon: Pokemon = Pokemon(**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
+	"""
+	Represents a target identified by it's party and slot.
+	"""
+	def __init__(self, **kwargs):
+		self.party: int = kwargs.pop("Party", -1)
+		self.slot: int = kwargs.pop("Slot", -1)
+		self.team: int = kwargs.pop("Team", -1)
+		self.pokemon: Pokemon = Pokemon(**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
