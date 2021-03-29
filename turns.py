@@ -1,8 +1,8 @@
 import json
-from typing import Union
+from typing import Optional, Union
 
 class Turn():
-	TurnType: Union[int, None] = None
+	TurnType: Optional[int] = None
 
 	def __init__(self) -> None:
 		pass
