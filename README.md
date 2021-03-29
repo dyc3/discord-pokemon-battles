@@ -41,7 +41,7 @@ Prefix: `p!`
 ## Unit Tests
 
 ```
-docker-compose run bot sh ./scripts/test.sh
+docker-compose run bot ./scripts/test.sh
 ```
 
 ## Integration Tests
@@ -51,7 +51,7 @@ docker-compose run bot sh ./scripts/test.sh
 
 ![Both Privileged Gateway Intents enabled](docs/img/ci-runner-required-intents.png)
 
-3. Run `docker-compose run bot sh ./scripts/integration-test.sh` to create the config file at `tests/config`
+3. Run `docker-compose run bot ./scripts/integration-test.sh` to create the config file at `tests/config`
 4. Fill out the fields in the newly generated `tests/config`
 
 ### Running the Integration Tests
@@ -61,7 +61,7 @@ docker-compose up -d
 ```
 2. Run the tests
 ```
-docker-compose run bot sh ./scripts/integration-test.sh
+docker-compose run bot ./scripts/integration-test.sh
 ```
 If `tests/config` is not present, it will be created for you when you run the script. It requires another bot (the tester) to send messages and interact with Brock (the testee).
 
