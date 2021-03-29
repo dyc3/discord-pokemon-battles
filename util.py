@@ -86,6 +86,34 @@ def status_to_string(status: int) -> set:
 	except IndexError:
 		raise ValueError("invalid value for status")
 
+def type_to_string(elemental_type: int) -> set[str]:
+	"""Converts a bit mask of elemental types to human readable strings.
+
+	:param elemental_type: A bit mask of elemental types.
+	:returns: A set of all elemental types indicated by the bit mask.
+	"""
+
+	elements = [
+		"Normal",
+		"Fighting",
+		"Flying",
+		"Poison",
+		"Ground",
+		"Rock",
+		"Bug",
+		"Ghost",
+		"Steel",
+		"Fire",
+		"Water",
+		"Grass",
+		"Electric",
+		"Psychic",
+		"Ice",
+		"Dragon",
+		"Dark",
+	]
+	return set([flag for (index, flag) in enumerate(elements) if (elemental_type & 1 << index)])
+
 def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> list[Team]:
 	"""
 	Takes 2 parties of pokemon, creates a list of teams suitable to create a single battle.
