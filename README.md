@@ -35,3 +35,37 @@ Prefix: `p!`
 - `help`
 - `ping` will return `pong`
 - `challenge OPPONENT`
+
+# Testing
+
+## Unit Tests
+
+```
+docker-compose run bot ./scripts/test.sh
+```
+
+## Integration Tests
+### Setup
+1. Create another bot. This will be the "tester".
+2. Make sure these settings are enabled under the `Bot` section.
+
+![Both Privileged Gateway Intents enabled](docs/img/ci-runner-required-intents.png)
+
+3. Run `docker-compose run bot ./scripts/integration-test.sh` to create the config file at `tests/config`
+4. Fill out the fields in the newly generated `tests/config`
+
+### Running the Integration Tests
+1. Make sure Brock is running
+```
+docker-compose up -d
+```
+2. Run the tests
+```
+docker-compose run bot ./scripts/integration-test.sh
+```
+If `tests/config` is not present, it will be created for you when you run the script. It requires another bot (the tester) to send messages and interact with Brock (the testee).
+
+3. You can now stop Brock
+```
+docker-compose down
+```

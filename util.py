@@ -3,23 +3,27 @@ import logging, asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Union
+from typing import Iterable, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
-async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: BattleContext) -> Turn:
+async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: BattleContext, use_channel: discord.TextChannel=None) -> Turn:
 	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
 	# TODO: prompt user for what type of turn
 
-	if not user.dm_channel:
-		await user.create_dm()
-	embed = discord.Embed(title=battlecontext.pokemon.Name)
-	for move in battlecontext.pokemon.Moves:
-		embed.add_field(name=move['Name'], value=f"{move['Type']} {move['CurrentPP']} {move['MaxPP']}")
-	msg: Message = await user.dm_channel.send(content="Select a move", embed=embed)
-	for i in RESPONSE_REACTIONS:
-		await msg.add_reaction(i)
+	if use_channel:
+		channel = use_channel
+	else:
+		if not user.dm_channel:
+			await user.create_dm()
+		channel = user.dm_channel
+	embed = discord.Embed(title=battlecontext.pokemon.Name, description=f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}")
+	for i, move in enumerate(battlecontext.pokemon.Moves):
+		embed.add_field(name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}", value=f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}", inline=False)
+	msg: Message = await channel.send(content="Select a move", embed=embed)
+	for r in RESPONSE_REACTIONS:
+		await msg.add_reaction(r)
 	def check(payload):
 		logging.debug(f"checking payload {payload}")
 		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
@@ -27,9 +31,9 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 		logging.debug("waiting for user's reaction")
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
-	except asyncio.TimeoutError:
-		await user.dm_channel.send("timed out")
-		return
+	except asyncio.TimeoutError as e:
+		await channel.send("timed out")
+		raise e
 
 	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
 
@@ -130,3 +134,9 @@ def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> lis
 		teams += [team]
 	return teams
 
+def taggify(s: Iterable[str]) -> str:
+	"""Pretty print the outputs from `status_to_string` and `type_to_string`, surounding each item with square brackets.
+
+	:returns: A prettier representation.
+	"""
+	return ''.join([f'[{x}]' for x in s])

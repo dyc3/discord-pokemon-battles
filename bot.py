@@ -10,7 +10,19 @@ from pkmntypes import *
 import util
 import battleapi
 
-bot = commands.Bot(command_prefix='p!')
+class PkmnBot(commands.Bot):
+	"""
+	A class that allows the bot to listen for other bots.
+
+	:: note
+		Required because of https://github.com/Rapptz/discord.py/issues/2238
+	"""
+	async def on_message(self, message):
+		ctx = await self.get_context(message)
+		if ctx.valid:
+			await self.invoke(ctx)
+
+bot = PkmnBot(command_prefix='p!')
 
 @bot.command()
 async def ping(ctx: commands.Context):
@@ -18,11 +30,13 @@ async def ping(ctx: commands.Context):
 
 @bot.command()
 async def challenge(ctx: commands.Context, opponent: str):
-	await ctx.send(f"<@!{ctx.author.id}> challenging {opponent}")
-	msg = await ctx.send("Populating battle...")
+	base_msg = f"<@!{ctx.author.id}> challenging {opponent}"
+	msg: Message = await ctx.send(base_msg)
+	await msg.edit(content=f"{base_msg} (Populating battle...)")
 	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
 
-	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
+	# FIXME: temporarily ignored type check
+	teams = util.build_teams_single([pkmn[0]], [pkmn[1]]) # type: ignore
 	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
 	battle.add_user(ctx.author)
 	if opponent.startswith("<@!") and opponent.endswith(">"):
@@ -32,7 +46,7 @@ async def challenge(ctx: commands.Context, opponent: str):
 		battle.add_bot(opponent)
 	coordinator.battles += [battle]
 	await battle.start()
-	await msg.edit(content="Battle started.")
+	await msg.edit(content=f"{base_msg} (Started)")
 
 def get_token():
 	with open("token", "r") as f:

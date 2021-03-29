@@ -1,7 +1,8 @@
 import json
+from typing import Optional, Union
 
 class Turn():
-	TurnType = None
+	TurnType: Optional[int] = None
 
 	def __init__(self) -> None:
 		pass
@@ -15,7 +16,7 @@ class Turn():
 	def get_args(self):
 		return {}
 
-class FightTurn(Turn, json.JSONEncoder):
+class FightTurn(Turn):
 	TurnType = 0
 
 	def __init__(self, **kwargs) -> None:
