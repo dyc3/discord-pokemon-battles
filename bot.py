@@ -35,7 +35,8 @@ async def challenge(ctx: commands.Context, opponent: str):
 	await msg.edit(content=f"{base_msg} (Populating battle...)")
 	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
 
-	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
+	# FIXME: temporarily ignored type check
+	teams = util.build_teams_single([pkmn[0]], [pkmn[1]]) # type: ignore
 	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
 	battle.add_user(ctx.author)
 	if opponent.startswith("<@!") and opponent.endswith(">"):

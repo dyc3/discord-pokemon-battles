@@ -6,6 +6,7 @@ import util
 import battleapi
 from pkmntypes import *
 
+bot: discord.Bot = None
 def set_bot(b):
 	global bot
 	bot = b
@@ -25,6 +26,7 @@ class Agent():
 			return FightTurn(party=0, slot=0, move=0)
 		if self.user != None:
 			return await util.prompt_for_turn(bot, self.user, context, use_channel=original_channel if self.user.bot else None)
+		raise Exception("Failed to get turn from agent")
 
 	def __str__(self):
 		if self.bot != None:
@@ -87,4 +89,4 @@ class Battle():
 		embed.add_field(name="Total Transactions", value=len(self.transactions))
 		return embed
 
-battles = []
+battles: list[Battle] = []

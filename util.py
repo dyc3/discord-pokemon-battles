@@ -31,9 +31,9 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 		logging.debug("waiting for user's reaction")
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
-	except asyncio.TimeoutError:
+	except asyncio.TimeoutError as e:
 		await channel.send("timed out")
-		return
+		raise e
 
 	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
 
