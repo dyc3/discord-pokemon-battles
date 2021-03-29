@@ -13,7 +13,8 @@ async def generate_pokemon() -> dict:
 	"""
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
-			return await resp.json()
+			result = await resp.json()
+			return Pokemon(**result)
 
 async def create_battle(teams: list[Team]) -> dict:
 	"""
