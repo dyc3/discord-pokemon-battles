@@ -45,8 +45,7 @@ async def get_battle_context(battle_id: int, target: int) -> dict:
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/battle/context?id={battle_id}&target={target}") as resp:
 			result = await resp.json()
-			battlecontext = BattleContext(**result)
-	return battlecontext
+	return BattleContext(**result)
 
 async def submit_turn(battle_id: int, target: int, turn: Turn):
 	"""Submit a turn for the given target.
