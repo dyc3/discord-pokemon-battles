@@ -22,8 +22,8 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 	for i, move in enumerate(battlecontext.pokemon.Moves):
 		embed.add_field(name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}", value=f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}", inline=False)
 	msg: Message = await channel.send(content="Select a move", embed=embed)
-	for i in RESPONSE_REACTIONS:
-		await msg.add_reaction(i)
+	for r in RESPONSE_REACTIONS:
+		await msg.add_reaction(r)
 	def check(payload):
 		logging.debug(f"checking payload {payload}")
 		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
