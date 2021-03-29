@@ -3,7 +3,7 @@ import logging, asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Union
+from typing import Iterable, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
@@ -18,9 +18,9 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 		if not user.dm_channel:
 			await user.create_dm()
 		channel = user.dm_channel
-	embed = discord.Embed(title=battlecontext.pokemon.Name)
-	for move in battlecontext.pokemon.Moves:
-		embed.add_field(name=move['Name'], value=f"{move['Type']} {move['CurrentPP']} {move['MaxPP']}")
+	embed = discord.Embed(title=battlecontext.pokemon.Name, description=f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}")
+	for i, move in enumerate(battlecontext.pokemon.Moves):
+		embed.add_field(name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}", value=f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}", inline=False)
 	msg: Message = await channel.send(content="Select a move", embed=embed)
 	for i in RESPONSE_REACTIONS:
 		await msg.add_reaction(i)
