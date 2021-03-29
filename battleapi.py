@@ -8,7 +8,7 @@ from turns import *
 
 BASE_URL = "http://api:4000"
 
-async def generate_pokemon() -> dict:
+async def generate_pokemon() -> Pokemon:
 	"""Get a randomly generated pokemon from the API.
 	"""
 	async with aiohttp.ClientSession() as session:
@@ -36,7 +36,7 @@ async def create_battle(teams: list[Team]) -> dict:
 				"active_pokemon": result["ActivePokemon"],
 			}
 
-async def get_battle_context(battle_id: int, target: int) -> dict:
+async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 	"""Get the battle context for a given target.
 
 	:returns: The battle context.
