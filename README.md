@@ -34,6 +34,4 @@ Prefix: `p!`
 
 - `help`
 - `ping` will return `pong`
-- `sim [BATTLE_ID]` will simulate a single round of a pokemon battle
 - `challenge OPPONENT`
-- `turn`
