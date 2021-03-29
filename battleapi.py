@@ -13,7 +13,8 @@ async def generate_pokemon() -> dict:
 	"""
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
-			return await resp.json()
+			result = await resp.json()
+			return Pokemon(**result)
 
 async def create_battle(teams: list[Team]) -> dict:
 	"""
@@ -44,7 +45,7 @@ async def get_battle_context(battle_id: int, target: int) -> dict:
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/battle/context?id={battle_id}&target={target}") as resp:
 			result = await resp.json()
-	return result
+	return BattleContext(**result)
 
 async def submit_turn(battle_id: int, target: int, turn: Turn):
 	"""Submit a turn for the given target.

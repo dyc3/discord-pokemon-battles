@@ -53,18 +53,18 @@ class Pokemon():
 		self.EVs: list[int] = kwargs['EVs']
 		self.Nature: int = kwargs['Nature']
 		self.Stats: list[int] = kwargs['Stats']
-		self.StatusModifiers: list[int] = kwargs['StatusModifiers']
+		self.StatModifiers: list[int] = kwargs['StatModifiers']
 		self.StatusEffects: int = kwargs['StatusEffects']
 		self.CurrentHP: int = kwargs['CurrentHP']
 		self.HeldItem: dict = kwargs['HeldItem']
 		self.Moves: list[dict] = kwargs['Moves']
 		self.Friendship: int = kwargs['Friendship']
-		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']	
+		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']
 		self.Type: int = kwargs['Type']
 
 class BattleContext():
 	"""This is a class that describes the point of view of a given Pokemon on the battlefield. It provides
-	enough information for a user to make an informed decision about what turn to make next. 
+	enough information for a user to make an informed decision about what turn to make next.
 
 	:param battle: The state of the battlefield
 	:param pokemon: The pokemon that this context belongs to
@@ -73,11 +73,21 @@ class BattleContext():
 	:param allies: Ally targets in relation to the `Pokemon`
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
-	
+
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
-		self.pokemon: dict = kwargs['Pokemon']
+		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
 		self.team: int = kwargs['Team']
-		self.targets: dict = kwargs['Targets']
-		self.allies: list = kwargs['Allies']
-		self.opponents: list = kwargs['Opponents']
+		self.targets: list[Target] = [Target(**d) for d in kwargs.pop('Targets', [])]
+		self.allies: list[Target] = [Target(**d) for d in kwargs.pop('Allies', [])]
+		self.opponents: list[Target] = [Target(**d) for d in kwargs.pop('Opponents', [])]
+
+class Target():
+	"""
+	Represents a target identified by it's party and slot.
+	"""
+	def __init__(self, **kwargs):
+		self.party: int = kwargs.pop("Party", -1)
+		self.slot: int = kwargs.pop("Slot", -1)
+		self.team: int = kwargs.pop("Team", -1)
+		self.pokemon: Pokemon = Pokemon(**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
