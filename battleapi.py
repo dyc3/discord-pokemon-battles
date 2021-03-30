@@ -9,8 +9,7 @@ BASE_URL = "http://api:4000"
 
 
 async def generate_pokemon() -> Pokemon:
-	"""Get a randomly generated pokemon from the API.
-	"""
+	"""Get a randomly generated pokemon from the API."""
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
 			result = await resp.json()
@@ -18,8 +17,7 @@ async def generate_pokemon() -> Pokemon:
 
 
 async def create_battle(teams: list[Team]) -> dict:
-	"""
-	Creates a new battle from a list of teams.
+	"""Create a new battle from a list of teams.
 
 	:param teams: The list of teams
 	:returns: The parameters to be applied to an instance of a `Battle`.
@@ -56,8 +54,7 @@ async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 
 
 async def submit_turn(battle_id: int, target: int, turn: Turn):
-	"""Submit a turn for the given target.
-	"""
+	"""Submit a turn for the given target."""
 	logging.debug(
 		f"submitting turn: battle={battle_id} target={target} turn={type(turn)}"
 	)
