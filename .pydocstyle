@@ -1,0 +1,4 @@
+[pydocstyle]
+convention=numpy
+match=.*\.py
+match-dir=(?!tests)

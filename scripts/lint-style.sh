@@ -37,8 +37,8 @@ parse_params "$@"
 
 yapf_opts=(--recursive --parallel)
 if [[ -n "$QUIET" ]]; then
-	yapf_opts+=("--quiet")
+	yapf_opts+=(--quiet)
 else
-	yapf_opts+=("--in-place")
+	yapf_opts+=(--verbose --in-place)
 fi
-yapf "${yapf_opts[@]}" .
+yapf "${yapf_opts[@]}" . && pydocstyle
