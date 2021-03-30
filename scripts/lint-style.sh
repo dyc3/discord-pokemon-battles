@@ -41,4 +41,5 @@ if [[ -n "$QUIET" ]]; then
 else
 	yapf_opts+=(--verbose --in-place)
 fi
-yapf "${yapf_opts[@]}" . && pydocstyle
+yapf "${yapf_opts[@]}" . || exit 1
+pydocstyle || exit 2
