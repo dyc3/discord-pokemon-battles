@@ -102,4 +102,17 @@ class Transaction:
 
 	def pretty(self) -> str:
 		"""Get a human-readable representation of this transaction."""
-		pass
+		if self.type == 0:
+			user = Pokemon(**self.args["User"])
+			target = Target(**self.args["Target"])
+			move = self.args["Move"]
+
+			return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
+		elif self.type == 8:
+			target = Target(**self.args["Target"])
+
+			return f"{target.pokemon.Name} fainted."
+		elif self.type == 11:
+			return f"The battle has ended."
+		else:
+			return f"TODO: {self.name}<{self.type}> {self.args}"
