@@ -15,8 +15,15 @@ async def prompt_for_turn(
 	battlecontext: BattleContext,
 	use_channel: Optional[discord.TextChannel] = None
 ) -> Turn:
-	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
-	# TODO: prompt user for what type of turn
+	"""Prompt the given user for a turn.
+
+	:param bot: The discord bot
+	:param user: The discord user
+	:param battlecontext: The :class:`BattleContext` that will be given to the user.
+	:param use_channel: Override the channel that is used to communicate with the user. By default, it will use the user's :class:`discord.DMChannel` to send the prompt. Primarily used for tests.
+	:returns: The turn that the user made.
+	TODO: prompt user for what type of turn
+	"""
 
 	if use_channel:
 		channel = use_channel
@@ -62,7 +69,7 @@ async def prompt_for_turn(
 
 
 def status_to_string(status: int) -> set:
-	"""Returns the human-readbale form of a Pokemon's Status Condition
+	"""Get the human-readbale form of a Pokemon's Status Condition.
 
 	:param status: pokemon battle status as defined in pokemonbattlelib
 	:type status: int

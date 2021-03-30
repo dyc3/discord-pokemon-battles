@@ -12,14 +12,13 @@ import battleapi
 
 
 class PkmnBot(commands.Bot):
-	"""
-	A class that allows the bot to listen for other bots.
+	"""A class that allows the bot to listen for other bots.
 
 	:: note
 		Required because of https://github.com/Rapptz/discord.py/issues/2238
 	"""
 
-	async def on_message(self, message): # noqa: D103
+	async def on_message(self, message): # noqa: D102
 		ctx = await self.get_context(message)
 		if ctx.valid:
 			await self.invoke(ctx)
@@ -55,6 +54,7 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 
 
 def get_token():
+	"""Read the bot's token from disk."""
 	with open("token", "r") as f:
 		return "".join(f.readlines()).strip()
 
