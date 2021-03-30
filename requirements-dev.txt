@@ -1,2 +1,5 @@
 distest==0.6.1
 mypy==0.812
+pydocstyle
+yapf
+pre-commit
