@@ -51,7 +51,7 @@ class Battle():
 		self.bid: int = None
 		self.active_pokemon: int = None
 		self.agents = []
-		self.transactions = []
+		self.transactions: list[Transaction] = []
 		self.original_channel: discord.TextChannel = kwargs.pop("original_channel")
 		self.teams: list[Team] = kwargs.pop("teams")
 
@@ -91,8 +91,8 @@ class Battle():
 			await self.queue_turns()
 			logging.debug("simulating round")
 			results = await battleapi.simulate(self.bid)
-			self.transactions += results["Transactions"]
-			if results["Ended"]:
+			self.transactions += results.transactions
+			if results.ended:
 				break
 		if self.original_channel:
 			await self.original_channel.send(embed=self.__create_battle_summary_msg())

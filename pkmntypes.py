@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 
 class Team():
@@ -89,3 +90,16 @@ class Target():
 		self.pokemon: Pokemon = Pokemon(
 			**kwargs["Pokemon"]
 		) if "Pokemon" in kwargs else None
+
+
+class Transaction:
+	"""Describes something that happened during a battle."""
+
+	def __init__(self, **kwargs):
+		self.type: int = kwargs["type"]
+		self.name: str = kwargs["name"]
+		self.args: dict[str, Any] = kwargs["args"]
+
+	def pretty(self) -> str:
+		"""Get a human-readable representation of this transaction."""
+		pass

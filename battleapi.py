@@ -8,6 +8,16 @@ from turns import *
 BASE_URL = "http://api:4000"
 
 
+class BattleRoundResults:
+	"""Results of a single round of battle."""
+
+	def __init__(self, **kwargs) -> None:
+		self.transactions: list[Transaction] = [
+			Transaction(**t) for t in kwargs["Transactions"]
+		]
+		self.ended: bool = kwargs["Ended"]
+
+
 async def generate_pokemon() -> Pokemon:
 	"""Get a randomly generated pokemon from the API."""
 	async with aiohttp.ClientSession() as session:
@@ -65,7 +75,7 @@ async def submit_turn(battle_id: int, target: int, turn: Turn):
 			pass
 
 
-async def simulate(battle_id: int) -> dict:
+async def simulate(battle_id: int) -> BattleRoundResults:
 	"""Simulate a round of the battle, and get the results of the round.
 
 	:returns: The results of the round.
@@ -74,4 +84,4 @@ async def simulate(battle_id: int) -> dict:
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/battle/simulate?id={battle_id}") as resp:
 			result = await resp.json()
-	return result
+	return BattleRoundResults(**result)
