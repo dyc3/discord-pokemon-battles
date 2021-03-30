@@ -1,6 +1,7 @@
 import json
 from typing import Optional, Union
 
+
 class Turn():
 	TurnType: Optional[int] = None
 
@@ -16,6 +17,7 @@ class Turn():
 	def get_args(self):
 		return {}
 
+
 class FightTurn(Turn):
 	TurnType = 0
 
@@ -27,10 +29,8 @@ class FightTurn(Turn):
 		self.move = kwargs.pop("move")
 
 	def get_args(self):
-		return {
-			"target": self.target,
-			"move": self.move
-		}
+		return {"target": self.target, "move": self.move}
+
 
 class ItemTurn(Turn):
 	TurnType = 1
@@ -41,6 +41,7 @@ class ItemTurn(Turn):
 	def get_args(self):
 		return {}
 
+
 class SwitchTurn(Turn):
 	TurnType = 2
 
@@ -49,6 +50,7 @@ class SwitchTurn(Turn):
 
 	def get_args(self):
 		return {}
+
 
 class RunTurn(Turn):
 	TurnType = 3

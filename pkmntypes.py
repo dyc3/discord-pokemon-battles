@@ -1,5 +1,6 @@
 import json
 
+
 class Team():
 	"""
 	Represents a list of parties of pokemon.
@@ -10,6 +11,7 @@ class Team():
 	# def toJSON(self) -> str:
 	# 	json.dumps(self, default=lambda o: o.__dict__)
 
+
 class Party():
 	"""
 	Represents a party of pokemon.
@@ -19,6 +21,7 @@ class Party():
 
 	# def toJSON(self) -> str:
 	# 	json.dumps(self, default=lambda o: o.__dict__)
+
 
 class Pokemon():
 	"""This class provides all the information useful to a Pokemon
@@ -62,6 +65,7 @@ class Pokemon():
 		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']
 		self.Type: int = kwargs['Type']
 
+
 class BattleContext():
 	"""This is a class that describes the point of view of a given Pokemon on the battlefield. It provides
 	enough information for a user to make an informed decision about what turn to make next.
@@ -73,7 +77,6 @@ class BattleContext():
 	:param allies: Ally targets in relation to the `Pokemon`
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
-
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
 		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
@@ -81,6 +84,7 @@ class BattleContext():
 		self.targets: list[Target] = [Target(**d) for d in kwargs.pop('Targets', [])]
 		self.allies: list[Target] = [Target(**d) for d in kwargs.pop('Allies', [])]
 		self.opponents: list[Target] = [Target(**d) for d in kwargs.pop('Opponents', [])]
+
 
 class Target():
 	"""
@@ -90,4 +94,5 @@ class Target():
 		self.party: int = kwargs.pop("Party", -1)
 		self.slot: int = kwargs.pop("Slot", -1)
 		self.team: int = kwargs.pop("Team", -1)
-		self.pokemon: Pokemon = Pokemon(**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
+		self.pokemon: Pokemon = Pokemon(
+			**kwargs["Pokemon"]) if "Pokemon" in kwargs else None

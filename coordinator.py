@@ -6,15 +6,16 @@ import util
 import battleapi
 from pkmntypes import *
 
+
 def set_bot(b):
 	global bot
 	bot = b
+
 
 class Agent():
 	"""
 	An handles grabbing input from the user or AI and makes it available for the `Battle`.
 	"""
-
 	def __init__(self, user=None, bot=None):
 		self.user: discord.User = user
 		self.bot: str = bot
@@ -24,7 +25,11 @@ class Agent():
 		if self.bot != None:
 			return FightTurn(party=0, slot=0, move=0)
 		if self.user != None:
-			return await util.prompt_for_turn(bot, self.user, context, use_channel=original_channel if self.user.bot else None) # type: ignore
+			return await util.prompt_for_turn(
+				bot,
+				self.user,
+				context,
+				use_channel=original_channel if self.user.bot else None) # type: ignore
 		raise Exception("Failed to get turn from agent")
 
 	def __str__(self):
@@ -33,6 +38,7 @@ class Agent():
 		if self.user != None:
 			return f"Agent<User: {self.user.name}>"
 		return f"Agent<invalid>"
+
 
 class Battle():
 	def __init__(self, **kwargs):
@@ -45,7 +51,8 @@ class Battle():
 
 	def add_user(self, user: discord.User):
 		assert user != None
-		assert isinstance(user, discord.User) or isinstance(user, discord.Member), f"user should not be {type(user)}"
+		assert isinstance(user, discord.User) or isinstance(
+			user, discord.Member), f"user should not be {type(user)}"
 		self.agents.append(Agent(user=user))
 
 	def add_bot(self, botname: str):
@@ -87,5 +94,6 @@ class Battle():
 		# TODO: show winner instead
 		embed.add_field(name="Total Transactions", value=len(self.transactions))
 		return embed
+
 
 battles: list[Battle] = []

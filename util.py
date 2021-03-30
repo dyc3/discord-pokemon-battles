@@ -8,7 +8,11 @@ from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
-async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: BattleContext, use_channel: discord.TextChannel=None) -> Turn:
+
+async def prompt_for_turn(bot: commands.Bot,
+							user: discord.User,
+							battlecontext: BattleContext,
+							use_channel: discord.TextChannel = None) -> Turn:
 	# TODO: create an actual class for battlecontext instead of just parsing the json into a dict like a monkey
 	# TODO: prompt user for what type of turn
 
@@ -18,15 +22,26 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 		if not user.dm_channel:
 			await user.create_dm()
 		channel = user.dm_channel
-	embed = discord.Embed(title=battlecontext.pokemon.Name, description=f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}")
+	embed = discord.Embed(
+		title=battlecontext.pokemon.Name,
+		description=
+		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	)
 	for i, move in enumerate(battlecontext.pokemon.Moves):
-		embed.add_field(name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}", value=f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}", inline=False)
+		embed.add_field(
+			name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}",
+			value=
+			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
+			inline=False)
 	msg: Message = await channel.send(content="Select a move", embed=embed)
 	for r in RESPONSE_REACTIONS:
 		await msg.add_reaction(r)
+
 	def check(payload):
 		logging.debug(f"checking payload {payload}")
-		return payload.message_id == msg.id and payload.user_id == user.id and str(payload.emoji) in RESPONSE_REACTIONS
+		return payload.message_id == msg.id and payload.user_id == user.id and str(
+			payload.emoji) in RESPONSE_REACTIONS
+
 	try:
 		logging.debug("waiting for user's reaction")
 		# HACK: reaction_add doesn't work in DMs
@@ -40,6 +55,7 @@ async def prompt_for_turn(bot: commands.Bot, user: discord.User, battlecontext: 
 	# TODO: prompt for which pokemon to target in double battles
 	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
+
 
 def status_to_string(status: int) -> set:
 	"""Returns the human-readbale form of a Pokemon's Status Condition
@@ -85,10 +101,13 @@ def status_to_string(status: int) -> set:
 			nonvolatile = []
 
 		bitmask = status >> 3
-		volatile = [flag for (index, flag) in enumerate(volatile) if (bitmask & 1 << index)]
+		volatile = [
+			flag for (index, flag) in enumerate(volatile) if (bitmask & 1 << index)
+		]
 		return set(nonvolatile + volatile)
 	except IndexError:
 		raise ValueError("invalid value for status")
+
 
 def type_to_string(elemental_type: int) -> set[str]:
 	"""Converts a bit mask of elemental types to human readable strings.
@@ -116,7 +135,9 @@ def type_to_string(elemental_type: int) -> set[str]:
 		"Dragon",
 		"Dark",
 	]
-	return set([flag for (index, flag) in enumerate(elements) if (elemental_type & 1 << index)])
+	return set(
+		[flag for (index, flag) in enumerate(elements) if (elemental_type & 1 << index)])
+
 
 def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> list[Team]:
 	"""
@@ -133,6 +154,7 @@ def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> lis
 			team = Team(parties=[Party(pokemon=party)])
 		teams += [team]
 	return teams
+
 
 def taggify(s: Iterable[str]) -> str:
 	"""Pretty print the outputs from `status_to_string` and `type_to_string`, surounding each item with square brackets.

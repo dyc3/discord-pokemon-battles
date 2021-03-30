@@ -1,4 +1,3 @@
-
 from pkmntypes import *
 import aiohttp
 import logging
@@ -8,6 +7,7 @@ from turns import *
 
 BASE_URL = "http://api:4000"
 
+
 async def generate_pokemon() -> Pokemon:
 	"""Get a randomly generated pokemon from the API.
 	"""
@@ -15,6 +15,7 @@ async def generate_pokemon() -> Pokemon:
 		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
 			result = await resp.json()
 			return Pokemon(**result)
+
 
 async def create_battle(teams: list[Team]) -> dict:
 	"""
@@ -28,13 +29,16 @@ async def create_battle(teams: list[Team]) -> dict:
 		assert isinstance(team, Team), f"each team must be type `Team`, not {type(team)}"
 	logging.debug("creating battle")
 	async with aiohttp.ClientSession() as session:
-		async with session.post(f"{BASE_URL}/battle/new", data=jsonpickle.encode({ "teams": teams }, unpicklable=False)) as resp:
+		async with session.post(f"{BASE_URL}/battle/new",
+								data=jsonpickle.encode({"teams": teams},
+														unpicklable=False)) as resp:
 			logging.debug(f"battle created: {resp.status}")
 			result = await resp.json(content_type=None)
 			return {
 				"bid": result["BattleId"],
 				"active_pokemon": result["ActivePokemon"],
 			}
+
 
 async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 	"""Get the battle context for a given target.
@@ -43,17 +47,22 @@ async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 	"""
 	logging.debug(f"getting battle context: battle={battle_id} target={target}")
 	async with aiohttp.ClientSession() as session:
-		async with session.get(f"{BASE_URL}/battle/context?id={battle_id}&target={target}") as resp:
+		async with session.get(
+			f"{BASE_URL}/battle/context?id={battle_id}&target={target}") as resp:
 			result = await resp.json()
 	return BattleContext(**result)
+
 
 async def submit_turn(battle_id: int, target: int, turn: Turn):
 	"""Submit a turn for the given target.
 	"""
-	logging.debug(f"submitting turn: battle={battle_id} target={target} turn={type(turn)}")
+	logging.debug(
+		f"submitting turn: battle={battle_id} target={target} turn={type(turn)}")
 	async with aiohttp.ClientSession() as session:
-		async with session.post(f"{BASE_URL}/battle/act?id={battle_id}&target={target}", data=turn.toJSON()) as resp:
+		async with session.post(f"{BASE_URL}/battle/act?id={battle_id}&target={target}",
+								data=turn.toJSON()) as resp:
 			pass
+
 
 async def simulate(battle_id: int) -> dict:
 	"""Simulate a round of the battle, and get the results of the round.
