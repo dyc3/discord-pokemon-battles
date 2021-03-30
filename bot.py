@@ -39,8 +39,8 @@ async def challenge(ctx: commands.Context, opponent: str):
 	teams = util.build_teams_single([pkmn[0]], [pkmn[1]]) # type: ignore
 	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
 	battle.add_user(ctx.author)
-	if opponent.startswith("<@!") and opponent.endswith(">"):
-		user = ctx.message.mensions[0]
+	if opponent.startswith("<@") and opponent.endswith(">"):
+		user = ctx.message.mentions[0]
 		battle.add_user(user)
 	else:
 		battle.add_bot(opponent)
