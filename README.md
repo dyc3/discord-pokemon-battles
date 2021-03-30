@@ -12,7 +12,13 @@ Required:
 
 Put your discord bot's token in the `token` file.
 
-You can optioanally set up a virtual environment, and then install the development dependencies.
+You can optioanally set up a virtual environment,
+```bash
+conda env create -f environment.yml
+conda env update -f environment.yml --prune # update an existing environment
+conda activate pkmn-discord
+```
+and then install the development dependencies.
 ```bash
 pip install -r requirements-dev.txt
 pre-commit install
