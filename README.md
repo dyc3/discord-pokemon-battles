@@ -12,6 +12,12 @@ Required:
 
 Put your discord bot's token in the `token` file.
 
+You can optioanally set up a virtual environment, and then install the development dependencies.
+```bash
+pip install -r requirements-dev.txt
+pre-commit install
+```
+
 # Developing
 
 ```
@@ -25,6 +31,13 @@ docker-compose up --build
 ```
 
 The battle API is served over port 4000, and the flask server is served over port 5000.
+
+### Linting
+You can run these scripts to check your code. (Requires the packages in requirements-dev.txt to be installed.)
+```
+./scripts/lint-style.sh
+./scripts/lint-check-types.sh
+```
 
 # Commands
 
