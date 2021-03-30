@@ -10,3 +10,7 @@ repos:
   rev: '41eff28'
   hooks:
     - id: yapf
+- repo: https://github.com/pycqa/pydocstyle
+  rev: 6.0.0  # pick a git hash / tag to point to
+  hooks:
+  - id: pydocstyle
