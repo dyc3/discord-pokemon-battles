@@ -6,12 +6,15 @@ repos:
   - id: end-of-file-fixer
   - id: check-yaml
   - id: check-added-large-files
+  - id: check-ast
+  - id: check-case-conflict
+  - id: check-executables-have-shebangs
 - repo: https://github.com/pre-commit/mirrors-yapf
   rev: '41eff28'
   hooks:
     - id: yapf
 - repo: https://github.com/pycqa/pydocstyle
-  rev: 6.0.0  # pick a git hash / tag to point to
+  rev: 6.0.0
   hooks:
   - id: pydocstyle
     exclude: (?!tests)
