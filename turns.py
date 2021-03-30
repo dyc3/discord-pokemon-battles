@@ -34,8 +34,8 @@ class FightTurn(Turn):
 		}
 		self.move = kwargs.pop("move")
 
-	@overload
-	def get_args(self):
+	def get_args(self) -> dict:
+		"""Get the turn's parameters."""
 		return {"target": self.target, "move": self.move}
 
 
@@ -47,8 +47,8 @@ class ItemTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	@overload
-	def get_args(self):
+	def get_args(self) -> dict:
+		"""Get the turn's parameters."""
 		return {}
 
 
@@ -60,8 +60,8 @@ class SwitchTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	@overload
-	def get_args(self):
+	def get_args(self) -> dict:
+		"""Get the turn's parameters."""
 		return {}
 
 
@@ -73,6 +73,6 @@ class RunTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	@overload
-	def get_args(self):
+	def get_args(self) -> dict:
+		"""Get the turn's parameters."""
 		return {}
