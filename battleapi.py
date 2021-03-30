@@ -29,9 +29,10 @@ async def create_battle(teams: list[Team]) -> dict:
 		assert isinstance(team, Team), f"each team must be type `Team`, not {type(team)}"
 	logging.debug("creating battle")
 	async with aiohttp.ClientSession() as session:
-		async with session.post(f"{BASE_URL}/battle/new",
-								data=jsonpickle.encode({"teams": teams},
-														unpicklable=False)) as resp:
+		async with session.post(
+			f"{BASE_URL}/battle/new",
+			data=jsonpickle.encode({"teams": teams}, unpicklable=False)
+		) as resp:
 			logging.debug(f"battle created: {resp.status}")
 			result = await resp.json(content_type=None)
 			return {
@@ -48,7 +49,8 @@ async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 	logging.debug(f"getting battle context: battle={battle_id} target={target}")
 	async with aiohttp.ClientSession() as session:
 		async with session.get(
-			f"{BASE_URL}/battle/context?id={battle_id}&target={target}") as resp:
+			f"{BASE_URL}/battle/context?id={battle_id}&target={target}"
+		) as resp:
 			result = await resp.json()
 	return BattleContext(**result)
 
@@ -57,10 +59,12 @@ async def submit_turn(battle_id: int, target: int, turn: Turn):
 	"""Submit a turn for the given target.
 	"""
 	logging.debug(
-		f"submitting turn: battle={battle_id} target={target} turn={type(turn)}")
+		f"submitting turn: battle={battle_id} target={target} turn={type(turn)}"
+	)
 	async with aiohttp.ClientSession() as session:
-		async with session.post(f"{BASE_URL}/battle/act?id={battle_id}&target={target}",
-								data=turn.toJSON()) as resp:
+		async with session.post(
+			f"{BASE_URL}/battle/act?id={battle_id}&target={target}", data=turn.toJSON()
+		) as resp:
 			pass
 
 

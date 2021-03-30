@@ -4,6 +4,7 @@ import json
 
 
 class TestTurns(unittest.TestCase):
+
 	def test_turns_to_json(self):
 		turn = FightTurn(party=0, slot=0, move=0)
 		self.assertEqual(json.loads(turn.toJSON())["type"], 0)

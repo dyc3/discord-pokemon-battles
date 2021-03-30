@@ -18,7 +18,8 @@ class PkmnBot(commands.Bot):
 	:: note
 		Required because of https://github.com/Rapptz/discord.py/issues/2238
 	"""
-	async def on_message(self, message):
+
+	async def on_message(self, message): # noqa: D103
 		ctx = await self.get_context(message)
 		if ctx.valid:
 			await self.invoke(ctx)
@@ -28,12 +29,12 @@ bot = PkmnBot(command_prefix='p!')
 
 
 @bot.command()
-async def ping(ctx: commands.Context):
+async def ping(ctx: commands.Context): # noqa: D103
 	await ctx.send('pong')
 
 
 @bot.command()
-async def challenge(ctx: commands.Context, opponent: str):
+async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	base_msg = f"<@!{ctx.author.id}> challenging {opponent}"
 	msg: Message = await ctx.send(base_msg)
 	await msg.edit(content=f"{base_msg} (Populating battle...)")

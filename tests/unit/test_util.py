@@ -5,6 +5,7 @@ import util
 
 
 class TestUtil(unittest.TestCase):
+
 	def test_taggify(self):
 		self.assertEqual(util.taggify({"a"}), "[a]")
 		# using a list to guarentee iteration order

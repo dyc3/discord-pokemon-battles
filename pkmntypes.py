@@ -5,6 +5,7 @@ class Team():
 	"""
 	Represents a list of parties of pokemon.
 	"""
+
 	def __init__(self, **kwargs):
 		self.parties: list[Party] = kwargs.pop("parties")
 
@@ -16,6 +17,7 @@ class Party():
 	"""
 	Represents a party of pokemon.
 	"""
+
 	def __init__(self, **kwargs):
 		self.pokemon: list[Pokemon] = kwargs.pop("pokemon")
 
@@ -45,6 +47,7 @@ class Pokemon():
 	:param OriginalTrainerID: The ID of the trainer of the Pokemon
 	:param Type: The type of Pokemon
 	"""
+
 	def __init__(self, **kwargs):
 		self.Name: str = kwargs['Name']
 		self.NatDex: int = kwargs['NatDex']
@@ -77,6 +80,7 @@ class BattleContext():
 	:param allies: Ally targets in relation to the `Pokemon`
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
+
 	def __init__(self, **kwargs):
 		self.battle: dict = kwargs['Battle']
 		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
@@ -90,9 +94,11 @@ class Target():
 	"""
 	Represents a target identified by it's party and slot.
 	"""
+
 	def __init__(self, **kwargs):
 		self.party: int = kwargs.pop("Party", -1)
 		self.slot: int = kwargs.pop("Slot", -1)
 		self.team: int = kwargs.pop("Team", -1)
 		self.pokemon: Pokemon = Pokemon(
-			**kwargs["Pokemon"]) if "Pokemon" in kwargs else None
+			**kwargs["Pokemon"]
+		) if "Pokemon" in kwargs else None

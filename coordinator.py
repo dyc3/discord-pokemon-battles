@@ -16,6 +16,7 @@ class Agent():
 	"""
 	An handles grabbing input from the user or AI and makes it available for the `Battle`.
 	"""
+
 	def __init__(self, user=None, bot=None):
 		self.user: discord.User = user
 		self.bot: str = bot
@@ -29,7 +30,8 @@ class Agent():
 				bot,
 				self.user,
 				context,
-				use_channel=original_channel if self.user.bot else None) # type: ignore
+				use_channel=original_channel if self.user.bot else None
+			) # type: ignore
 		raise Exception("Failed to get turn from agent")
 
 	def __str__(self):
@@ -41,6 +43,7 @@ class Agent():
 
 
 class Battle():
+
 	def __init__(self, **kwargs):
 		self.bid: int = None
 		self.active_pokemon: int = None
@@ -52,7 +55,8 @@ class Battle():
 	def add_user(self, user: discord.User):
 		assert user != None
 		assert isinstance(user, discord.User) or isinstance(
-			user, discord.Member), f"user should not be {type(user)}"
+			user, discord.Member
+		), f"user should not be {type(user)}"
 		self.agents.append(Agent(user=user))
 
 	def add_bot(self, botname: str):
