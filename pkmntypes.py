@@ -9,7 +9,7 @@ def _case_insensitive_pop(
 	if name in kwargs:
 		return kwargs.pop(name)
 	if name.lower() in kwargs:
-		return kwargs.pop(name)
+		return kwargs.pop(name.lower())
 	if default != None:
 		return default
 	raise KeyError(name)
