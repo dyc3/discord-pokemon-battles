@@ -2,21 +2,34 @@ import unittest
 from turns import *
 from pkmntypes import *
 import util
+from parameterized import parameterized, parameterized_class
+from hypothesis import given
+from hypothesis.strategies import text
 
 
-class TestUtil(unittest.TestCase):
+class TestHumanReadables(unittest.TestCase):
 
-	def test_taggify(self):
-		self.assertEqual(util.taggify({"a"}), "[a]")
-		# using a list to guarentee iteration order
-		self.assertEqual(util.taggify(["a", "b", "c"]), "[a][b][c]")
+	@parameterized.expand(
+		[
+			({"a"}, "[a]"),
+			(["a", "b", "c"], "[a][b][c]"), # using a list to guarentee iteration order
+		]
+	)
+	def test_taggify(self, tags: set[str], pretty: str):
+		self.assertEqual(util.taggify(tags), pretty)
 
-	def test_types_to_string(self):
-		self.assertEqual(util.type_to_string(1 << 2 | 1 << 5), {"Flying", "Rock"})
+	@parameterized.expand([
+		(1 << 2 | 1 << 5, {"Flying", "Rock"}),
+	])
+	def test_types_to_string(self, mask: int, tags: set[str]):
+		self.assertEqual(util.type_to_string(mask), tags)
 
-	def test_status_to_string(self):
-		self.assertEqual(util.status_to_string(3), {"Paralyze"})
-		self.assertEqual(util.status_to_string(4 | 1 << 8), {"Poison", "Flinch"})
+	@parameterized.expand([
+		(3, {"Paralyze"}),
+		(4 | 1 << 8, {"Poison", "Flinch"}),
+	])
+	def test_status_to_string(self, status: int, tags: set[str]):
+		self.assertEqual(util.status_to_string(status), tags)
 
 
 if __name__ == "__main__":
