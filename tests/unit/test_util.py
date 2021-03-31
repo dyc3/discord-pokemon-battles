@@ -3,8 +3,7 @@ from turns import *
 from pkmntypes import *
 import util
 from parameterized import parameterized, parameterized_class
-from hypothesis import given
-from hypothesis.strategies import text
+from hypothesis import given, strategies as st
 
 
 class TestHumanReadables(unittest.TestCase):
@@ -30,6 +29,29 @@ class TestHumanReadables(unittest.TestCase):
 	])
 	def test_status_to_string(self, status: int, tags: set[str]):
 		self.assertEqual(util.status_to_string(status), tags)
+
+
+class TestTeamBuilders(unittest.TestCase):
+
+	@given(
+		st.lists(
+			st.one_of(
+				st.lists(st.builds(Pokemon), min_size=1, max_size=6), st.builds(Party)
+			),
+			min_size=2,
+			max_size=2,
+		)
+	)
+	def test_build_teams_single(self, args: list[Union[Party, list[Pokemon]]]):
+		teams = util.build_teams_single(*args)
+		self.assertEqual(len(teams), 2, "should create 2 teams")
+		for team in teams:
+			self.assertIsInstance(team, Team)
+			self.assertEqual(len(team.parties), 1, "each team should have 1 party")
+			for party in team.parties:
+				self.assertIsInstance(party, Party)
+				for pokemon in party.pokemon:
+					self.assertIsInstance(pokemon, Pokemon)
 
 
 if __name__ == "__main__":
