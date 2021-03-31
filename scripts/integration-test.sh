@@ -27,5 +27,6 @@ if [ -z "$CI_BOT_TOKEN$CI_BOT_TARGET$CI_TEST_CHANNEL" ] && [ ! -f "$CONFIG_FILE"
 	exit 1
 fi
 
-pip install -r requirements-dev.txt
-find tests/integration -type f -name "*.py" -print0 | xargs -0 -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
+grep -v -e pydocstyle -e yapf -e pre-commit requirements-dev.txt | xargs pip install
+find tests/integration/bot -type f -name "*.py" -print0 | xargs -0 -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
+python -m unittest discover "tests/integration/api"
