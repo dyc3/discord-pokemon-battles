@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m unittest discover "tests/unit"
+find tests/unit -type d | grep -v __pycache__ | xargs -n 1 python -m unittest discover
