@@ -1,22 +1,25 @@
 import json
+from dataclasses import dataclass
+from typing import Any, Optional
 
 
-class Team():
-	"""Represents a list of parties of pokemon."""
-
-	def __init__(self, **kwargs):
-		self.parties: list[Party] = kwargs.pop("parties")
-
-
-class Party():
-	"""Represents a party of pokemon."""
-
-	def __init__(self, **kwargs):
-		self.pokemon: list[Pokemon] = kwargs.pop("pokemon")
+def _case_insensitive_pop(
+	kwargs: dict[str, Any], name: str, default: Optional[Any] = None
+) -> Any:
+	if name in kwargs:
+		return kwargs.pop(name)
+	if name.lower() in kwargs:
+		return kwargs.pop(name)
+	if default != None:
+		return default
+	raise KeyError(name)
 
 
+@dataclass(init=False, repr=False)
 class Pokemon():
 	"""A Pokemon.
+
+	FIXME: make all props snake case
 
 	:param Name: The name of the Pokemon
 	:param NatDex: The National Pokedex number for the Pokemon
@@ -38,27 +41,81 @@ class Pokemon():
 	:param Type: The type of Pokemon
 	"""
 
+	Name: str
+	NatDex: int
+	Level: int
+	Ability: int
+	TotalExperience: int
+	Gender: int
+	IVs: list[int]
+	EVs: list[int]
+	Nature: int
+	Stats: list[int]
+	StatModifiers: list[int]
+	StatusEffects: int
+	CurrentHP: int
+	HeldItem: dict
+	Moves: list[dict]
+	Friendship: int
+	OriginalTrainerID: int
+	Type: int
+
 	def __init__(self, **kwargs):
-		self.Name: str = kwargs['Name']
-		self.NatDex: int = kwargs['NatDex']
-		self.Level: int = kwargs['Level']
-		self.Ability: int = kwargs['Ability']
-		self.TotalExperience: int = kwargs['TotalExperience']
-		self.Gender: int = kwargs['Gender']
-		self.IVs: list[int] = kwargs['IVs']
-		self.EVs: list[int] = kwargs['EVs']
-		self.Nature: int = kwargs['Nature']
-		self.Stats: list[int] = kwargs['Stats']
-		self.StatModifiers: list[int] = kwargs['StatModifiers']
-		self.StatusEffects: int = kwargs['StatusEffects']
-		self.CurrentHP: int = kwargs['CurrentHP']
-		self.HeldItem: dict = kwargs['HeldItem']
-		self.Moves: list[dict] = kwargs['Moves']
-		self.Friendship: int = kwargs['Friendship']
-		self.OriginalTrainerID: int = kwargs['OriginalTrainerID']
-		self.Type: int = kwargs['Type']
+		if len(kwargs) == 0:
+			return
+		self.Name: str = _case_insensitive_pop(kwargs, 'Name')
+		self.NatDex: int = _case_insensitive_pop(kwargs, 'NatDex')
+		self.Level: int = _case_insensitive_pop(kwargs, 'Level')
+		self.Ability: int = _case_insensitive_pop(kwargs, 'Ability')
+		self.TotalExperience: int = _case_insensitive_pop(kwargs, 'TotalExperience')
+		self.Gender: int = _case_insensitive_pop(kwargs, 'Gender')
+		self.IVs: list[int] = _case_insensitive_pop(kwargs, 'IVs')
+		self.EVs: list[int] = _case_insensitive_pop(kwargs, 'EVs')
+		self.Nature: int = _case_insensitive_pop(kwargs, 'Nature')
+		self.Stats: list[int] = _case_insensitive_pop(kwargs, 'Stats')
+		self.StatModifiers: list[int] = _case_insensitive_pop(kwargs, 'StatModifiers')
+		self.StatusEffects: int = _case_insensitive_pop(kwargs, 'StatusEffects')
+		self.CurrentHP: int = _case_insensitive_pop(kwargs, 'CurrentHP')
+		self.HeldItem: dict = _case_insensitive_pop(kwargs, 'HeldItem')
+		self.Moves: list[dict] = _case_insensitive_pop(kwargs, 'Moves')
+		self.Friendship: int = _case_insensitive_pop(kwargs, 'Friendship')
+		self.OriginalTrainerID: int = _case_insensitive_pop(kwargs, 'OriginalTrainerID')
+		self.Type: int = _case_insensitive_pop(kwargs, 'Type')
 
 
+@dataclass
+class Party():
+	"""Represents a party of pokemon."""
+
+	pokemon: list[Pokemon]
+
+
+@dataclass
+class Team():
+	"""Represents a list of parties of pokemon."""
+
+	parties: list[Party]
+
+
+@dataclass(init=False)
+class Target():
+	"""Represents a target identified by it's party and slot."""
+
+	party: int
+	slot: int
+	team: int
+	pokemon: Pokemon
+
+	def __init__(self, **kwargs):
+		self.party: int = _case_insensitive_pop(kwargs, "Party", -1)
+		self.slot: int = _case_insensitive_pop(kwargs, "Slot", -1)
+		self.team: int = _case_insensitive_pop(kwargs, "Team", -1)
+		self.pokemon: Pokemon = Pokemon(
+			**_case_insensitive_pop(kwargs, "Pokemon")
+		) if "Pokemon" in kwargs or "pokemon" in kwargs else None
+
+
+@dataclass(init=False)
 class BattleContext():
 	"""Describes the point of view of a given Pokemon on the battlefield. It provides enough information for a user to make an informed decision about what turn to make next.
 
@@ -70,22 +127,23 @@ class BattleContext():
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
 
-	def __init__(self, **kwargs):
-		self.battle: dict = kwargs['Battle']
-		self.pokemon: Pokemon = Pokemon(**kwargs['Pokemon'])
-		self.team: int = kwargs['Team']
-		self.targets: list[Target] = [Target(**d) for d in kwargs.pop('Targets', [])]
-		self.allies: list[Target] = [Target(**d) for d in kwargs.pop('Allies', [])]
-		self.opponents: list[Target] = [Target(**d) for d in kwargs.pop('Opponents', [])]
-
-
-class Target():
-	"""Represents a target identified by it's party and slot."""
+	battle: dict
+	pokemon: Pokemon
+	team: int
+	targets: list[Target]
+	allies: list[Target]
+	opponents: list[Target]
 
 	def __init__(self, **kwargs):
-		self.party: int = kwargs.pop("Party", -1)
-		self.slot: int = kwargs.pop("Slot", -1)
-		self.team: int = kwargs.pop("Team", -1)
-		self.pokemon: Pokemon = Pokemon(
-			**kwargs["Pokemon"]
-		) if "Pokemon" in kwargs else None
+		self.battle: dict = _case_insensitive_pop(kwargs, 'Battle')
+		self.pokemon: Pokemon = Pokemon(**_case_insensitive_pop(kwargs, 'Pokemon'))
+		self.team: int = _case_insensitive_pop(kwargs, 'Team')
+		self.targets: list[Target] = [
+			Target(**d) for d in _case_insensitive_pop(kwargs, 'Targets', [])
+		]
+		self.allies: list[Target] = [
+			Target(**d) for d in _case_insensitive_pop(kwargs, 'Allies', [])
+		]
+		self.opponents: list[Target] = [
+			Target(**d) for d in _case_insensitive_pop(kwargs, 'Opponents', [])
+		]
