@@ -3,7 +3,7 @@
 CONFIG_FILE="tests/config"
 __config_template="
 token=token of the tester bot
-target_bot_id=id of bot being tested
+target_bot_id=id of your existing bot that the tester bot will interact with
 channel_id=channel to use for your tests
 "
 function get_config {
