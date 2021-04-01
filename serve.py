@@ -20,6 +20,6 @@ async def status(): # noqa: D103
 			"Transactions:",
 		]
 		for transaction in battle.transactions:
-			output += [json.dumps(transaction)]
+			output += [f"{transaction.name}<{transaction.type}>: {transaction.pretty()}"]
 
 	return "<br>\n".join(map(quart.escape, output))

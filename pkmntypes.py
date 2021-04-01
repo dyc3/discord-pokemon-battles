@@ -147,3 +147,29 @@ class BattleContext():
 		self.opponents: list[Target] = [
 			Target(**d) for d in _case_insensitive_pop(kwargs, 'Opponents', [])
 		]
+
+
+class Transaction:
+	"""Describes something that happened during a battle."""
+
+	def __init__(self, **kwargs):
+		self.type: int = kwargs["type"]
+		self.name: str = kwargs["name"]
+		self.args: dict[str, Any] = kwargs["args"]
+
+	def pretty(self) -> str:
+		"""Get a human-readable representation of this transaction."""
+		if self.type == 0:
+			user = Pokemon(**self.args["User"])
+			target = Target(**self.args["Target"])
+			move = self.args["Move"]
+
+			return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
+		elif self.type == 8:
+			target = Target(**self.args["Target"])
+
+			return f"{target.pokemon.Name} fainted."
+		elif self.type == 11:
+			return f"The battle has ended."
+		else:
+			return f"TODO: {self.name}<{self.type}> {self.args}"
