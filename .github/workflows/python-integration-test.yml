@@ -33,5 +33,6 @@ jobs:
         CI_BOT_TOKEN: ${{ secrets.CI_BOT_TOKEN }}
         CI_BOT_TARGET: "825183030347431969"
         CI_TEST_CHANNEL: "825164146596380702"
+        BATTLE_API_BASE_URL: "http://localhost:4000"
       run: |
         ./scripts/integration-test.sh

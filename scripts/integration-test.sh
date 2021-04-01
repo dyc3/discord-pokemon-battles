@@ -3,7 +3,7 @@
 CONFIG_FILE="tests/config"
 __config_template="
 token=token of the tester bot
-target_bot_id=id of bot being tested
+target_bot_id=id of your existing bot that the tester bot will interact with
 channel_id=channel to use for your tests
 "
 function get_config {
@@ -27,5 +27,6 @@ if [ -z "$CI_BOT_TOKEN$CI_BOT_TARGET$CI_TEST_CHANNEL" ] && [ ! -f "$CONFIG_FILE"
 	exit 1
 fi
 
-pip install -r requirements-dev.txt
-find tests/integration -type f -name "*.py" -print0 | xargs -0 -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
+grep -v -e pydocstyle -e yapf -e pre-commit requirements-dev.txt | xargs pip install
+find tests/integration/bot -type f -name "*.py" -print0 | xargs -0 -n 1 -I {} python3 {} "$CI_BOT_TARGET" "$CI_BOT_TOKEN" -c "$CI_TEST_CHANNEL" -r all
+python -m unittest discover "tests/integration/api"

@@ -151,7 +151,7 @@ def type_to_string(elemental_type: int) -> set[str]:
 	)
 
 
-def build_teams_single(*parties: Union[list[Party], list[list[Pokemon]]]) -> list[Team]:
+def build_teams_single(*parties: Union[Party, list[Pokemon]]) -> list[Team]:
 	"""Take 2 parties of pokemon, creates a list of teams suitable to create a single battle.
 
 	:returns: List of teams with 1 party each.
