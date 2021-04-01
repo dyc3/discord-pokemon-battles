@@ -13,3 +13,5 @@ dependencies:
     - pydocstyle
     - yapf
     - pre-commit
+    - parameterized==0.8.1
+    - hypothesis
