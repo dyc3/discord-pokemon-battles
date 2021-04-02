@@ -8,6 +8,8 @@ from pkmntypes import *
 
 RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 
+log = logging.getLogger(__name__)
+
 
 async def prompt_for_turn(
 	bot: commands.Bot,
@@ -48,13 +50,13 @@ async def prompt_for_turn(
 		await msg.add_reaction(r)
 
 	def check(payload):
-		logging.debug(f"checking payload {payload}")
+		log.debug(f"checking payload {payload}")
 		return payload.message_id == msg.id and payload.user_id == user.id and str(
 			payload.emoji
 		) in RESPONSE_REACTIONS
 
 	try:
-		logging.debug("waiting for user's reaction")
+		log.debug("waiting for user's reaction")
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
 	except asyncio.TimeoutError as e:
