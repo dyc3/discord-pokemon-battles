@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   bot:
+    tty: true
     build: .
     ports:
       - "5000:5000"

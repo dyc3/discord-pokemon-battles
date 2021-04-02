@@ -1,11 +1,8 @@
 import json
 from typing import Optional, Union, overload
-import logging, coloredlogs
+import logging
 
-logger = logging.getLogger('turns')
-coloredlogs.install(level='DEBUG', logger=logger)
-
-logger.debug("this is a debugging message")
+log = logging.getLogger(__name__)
 
 
 class Turn():

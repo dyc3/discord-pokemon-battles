@@ -6,6 +6,8 @@ import util
 import battleapi
 from pkmntypes import *
 
+log = logging.getLogger(__name__)
+
 
 def set_bot(b):
 	"""Set the bot that the coordinator should use."""
@@ -24,7 +26,7 @@ class Agent():
 	async def get_turn(self, context, original_channel: discord.TextChannel) -> Turn:
 		"""Get a turn from the Agent."""
 
-		logging.debug(f"getting turn from {self}")
+		log.debug(f"getting turn from {self}")
 		if self.bot != None:
 			return FightTurn(party=0, slot=0, move=0)
 		if self.user != None:
@@ -76,20 +78,20 @@ class Battle():
 
 	async def queue_turns(self):
 		"""Request and queue turns from all agents in the battle."""
-		logging.debug(f"asking {len(self.agents)} agents")
+		log.debug(f"asking {len(self.agents)} agents")
 		for i, agent in enumerate(self.agents):
 			context = await battleapi.get_battle_context(self.bid, i)
 			turn = await agent.get_turn(context, self.original_channel)
-			logging.debug(f"posting turn {turn} from {agent}")
+			log.debug(f"posting turn {turn} from {agent}")
 			await battleapi.submit_turn(self.bid, i, turn)
 
 	async def simulate(self):
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
 
 		while True:
-			logging.debug("asking agents for turns")
+			log.debug("asking agents for turns")
 			await self.queue_turns()
-			logging.debug("simulating round")
+			log.debug("simulating round")
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
 			if results.ended:
