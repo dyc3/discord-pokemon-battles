@@ -2,3 +2,4 @@ aiohttp
 discord.py
 jsonpickle
 quart
+coloredlogs

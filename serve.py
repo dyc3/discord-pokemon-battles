@@ -3,6 +3,7 @@ from quart import Quart, Response
 import quart
 import json
 import coordinator
+import logging
 
 app = Quart(__name__)
 
