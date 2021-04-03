@@ -47,7 +47,7 @@ async def prompt_for_turn(
 		)
 	msg: Message = await channel.send(content="Select a move", embed=embed)
 	for r in RESPONSE_REACTIONS:
-		await msg.add_reaction(r)
+		bot.loop.create_task(msg.add_reaction(r))
 
 	def check(payload):
 		log.debug(f"checking payload {payload}")
