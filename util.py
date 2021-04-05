@@ -47,7 +47,7 @@ async def prompt_for_turn(
 		)
 	msg: Message = await channel.send(content="Select a move", embed=embed)
 	for r in RESPONSE_REACTIONS:
-		await msg.add_reaction(r)
+		bot.loop.create_task(msg.add_reaction(r))
 
 	def check(payload):
 		log.debug(f"checking payload {payload}")
@@ -64,6 +64,15 @@ async def prompt_for_turn(
 		raise e
 
 	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
+	embed.clear_fields()
+	move = battlecontext.pokemon.Moves[moveId]
+	embed.add_field(
+		name=f"{move['Name']}",
+		value=
+		f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
+		inline=False
+	)
+	await msg.edit(content="Selected", embed=embed)
 
 	# TODO: prompt for which pokemon to target in double battles
 	target = battlecontext.opponents[0]

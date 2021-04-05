@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import aiohttp
 import discord
 from turns import *
@@ -79,11 +80,14 @@ class Battle():
 	async def queue_turns(self):
 		"""Request and queue turns from all agents in the battle."""
 		log.debug(f"asking {len(self.agents)} agents")
-		for i, agent in enumerate(self.agents):
+
+		async def _do(i: int, agent: Agent):
 			context = await battleapi.get_battle_context(self.bid, i)
 			turn = await agent.get_turn(context, self.original_channel)
 			log.debug(f"posting turn {turn} from {agent}")
 			await battleapi.submit_turn(self.bid, i, turn)
+
+		await asyncio.gather(*[_do(i, agent) for i, agent in enumerate(self.agents)])
 
 	async def simulate(self):
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
