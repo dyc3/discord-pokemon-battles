@@ -3,9 +3,10 @@ import unittest
 from motor.motor_asyncio import AsyncIOMotorClient
 from turns import *
 from pkmntypes import *
-from unittest.mock import patch
 import asyncio
 import storage
+from userprofile import UserProfile
+from hypothesis import given, strategies as st
 
 
 class TestStorage(unittest.TestCase):
@@ -30,6 +31,15 @@ class TestStorage(unittest.TestCase):
 			pkmn = Pokemon()
 			await pkmn.save()
 			self.assertIsNotNone(pkmn._id)
+
+		return self.loop.run_until_complete(go())
+
+	def test_profile_save(self):
+
+		async def go():
+			profile = UserProfile()
+			await profile.save()
+			self.assertIsNotNone(profile._id)
 
 		return self.loop.run_until_complete(go())
 
