@@ -7,6 +7,7 @@ import asyncio
 import storage
 from userprofile import UserProfile
 from hypothesis import given, strategies as st
+import battleapi
 
 
 class TestStorage(unittest.TestCase):
@@ -40,6 +41,22 @@ class TestStorage(unittest.TestCase):
 			profile = UserProfile()
 			await profile.save()
 			self.assertIsNotNone(profile._id)
+
+		return self.loop.run_until_complete(go())
+
+	def test_profile_with_pokemon(self):
+
+		async def go():
+			pkmn = await battleapi.generate_pokemon()
+			await pkmn.save()
+			profile = UserProfile()
+			profile.pokemon += [pkmn._id]
+			await profile.save()
+			self.assertIsNotNone(profile._id)
+			all_pokemon = [p async for p in profile.pokemon_iter()]
+			self.assertEqual(len(all_pokemon), 1)
+			self.assertIsNotNone(all_pokemon[0]._id)
+			self.assertEqual(all_pokemon[0]._id, pkmn._id)
 
 		return self.loop.run_until_complete(go())
 
