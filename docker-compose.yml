@@ -23,6 +23,18 @@ services:
       main:
         aliases:
           - api
+  db:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      main:
+        aliases:
+          - db
 
 networks:
   main:
+volumes:
+  mongodb_data_container:
