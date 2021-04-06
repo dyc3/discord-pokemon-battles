@@ -1,3 +1,4 @@
+from typing import AsyncIterator
 from pkmntypes import *
 import discord
 from bson.objectid import ObjectId
@@ -11,14 +12,14 @@ class UserProfile:
 	"""
 
 	_id: Optional[ObjectId] = None
-	user_id: int = None
+	user_id: int = 0
 	pokemon: list[ObjectId] = []
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
 		pass
 
-	async def pokemon_iter(self) -> list[Pokemon]:
+	async def pokemon_iter(self) -> AsyncIterator[Pokemon]:
 		"""Grabs pokemon from the database and provides them as an async generator."""
 		import storage # avoid circular import
 		for oid in self.pokemon:
