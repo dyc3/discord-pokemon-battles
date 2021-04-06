@@ -5,7 +5,7 @@ from turns import *
 from pkmntypes import *
 import asyncio
 import storage
-from userprofile import UserProfile
+from userprofile import UserProfile, load_profile
 from hypothesis import given, strategies as st
 import battleapi
 
@@ -41,6 +41,20 @@ class TestStorage(unittest.TestCase):
 			profile = UserProfile()
 			await profile.save()
 			self.assertIsNotNone(profile._id)
+
+		return self.loop.run_until_complete(go())
+
+	def test_profile_load(self):
+
+		async def go():
+			profile = UserProfile()
+			profile.user_id = 1234
+			await profile.save()
+			self.assertIsNotNone(profile._id)
+			self.assertIsNotNone(profile.user_id)
+			loaded = await load_profile(1234)
+			self.assertEqual(profile._id, loaded._id)
+			self.assertEqual(profile.user_id, loaded.user_id)
 
 		return self.loop.run_until_complete(go())
 

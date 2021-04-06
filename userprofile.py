@@ -30,3 +30,12 @@ class UserProfile:
 		"""Alias for `storage.save_object(profile)`."""
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
+
+
+async def load_profile(discord_id: int) -> UserProfile:
+	"""Load a :class:`UserProfile` by discord user id."""
+	import storage
+	doc = await storage.user_profiles().find_one({"user_id": discord_id})
+	profile = UserProfile()
+	profile.__dict__.update(**doc)
+	return profile
