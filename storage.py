@@ -23,7 +23,7 @@ def pokemon() -> AsyncIOMotorCollection:
 
 
 async def save_object(obj: Union[Pokemon], session: AsyncIOMotorClientSession = None):
-	"""Save the given object to the database. If `_id` is not set, a new entry will be created. If `_id` is set, it will try to update the document with that ID.
+	"""Save the given object to the database. If `_id` is not set, a new entry will be created and the object's `_id` will be updated. If `_id` is set, it will try to update the document with that ID.
 
 	:param session: The database session to use to save the pokemon. If not provided, it will not be used.
 
