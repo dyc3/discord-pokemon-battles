@@ -65,7 +65,10 @@ class Pokemon():
 	Type: int
 
 	def __init__(self, **kwargs):
-		self._id = kwargs.pop("id", None)
+		if "_id" in kwargs:
+			self._id = kwargs.pop("_id")
+		else:
+			self._id = kwargs.pop("id", None)
 		if len(kwargs) == 0:
 			return
 		self.Name: str = _case_insensitive_pop(kwargs, 'Name')
