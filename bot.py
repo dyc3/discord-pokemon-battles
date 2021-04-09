@@ -9,6 +9,10 @@ import serve, coordinator
 from pkmntypes import *
 import util
 import battleapi
+import coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 
 class PkmnBot(commands.Bot):
@@ -30,6 +34,7 @@ bot = PkmnBot(command_prefix='p!')
 @bot.command()
 async def ping(ctx: commands.Context): # noqa: D103
 	await ctx.send('pong')
+	log.warning('log message')
 
 
 @bot.command()

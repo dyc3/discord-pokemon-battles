@@ -1,4 +1,6 @@
 aiohttp
 discord.py
 jsonpickle
+motor
 quart
+coloredlogs

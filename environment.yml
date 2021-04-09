@@ -7,6 +7,7 @@ dependencies:
     - aiohttp
     - discord.py
     - jsonpickle
+    - motor
     - quart
     - distest==0.6.1
     - mypy==0.812
@@ -15,3 +16,4 @@ dependencies:
     - pre-commit
     - parameterized==0.8.1
     - hypothesis
+    - coloredlogs

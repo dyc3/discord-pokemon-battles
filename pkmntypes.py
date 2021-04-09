@@ -1,6 +1,9 @@
 import json
 from dataclasses import dataclass
 from typing import Any, Optional
+import logging
+from bson.objectid import ObjectId
+from motor.motor_asyncio import AsyncIOMotorClientSession
 
 
 def _case_insensitive_pop(
@@ -41,6 +44,7 @@ class Pokemon():
 	:param Type: The type of Pokemon
 	"""
 
+	_id: Optional[ObjectId]
 	Name: str
 	NatDex: int
 	Level: int
@@ -61,6 +65,10 @@ class Pokemon():
 	Type: int
 
 	def __init__(self, **kwargs):
+		if "_id" in kwargs:
+			self._id = kwargs.pop("_id")
+		else:
+			self._id = kwargs.pop("id", None)
 		if len(kwargs) == 0:
 			return
 		self.Name: str = _case_insensitive_pop(kwargs, 'Name')
@@ -81,6 +89,11 @@ class Pokemon():
 		self.Friendship: int = _case_insensitive_pop(kwargs, 'Friendship')
 		self.OriginalTrainerID: int = _case_insensitive_pop(kwargs, 'OriginalTrainerID')
 		self.Type: int = _case_insensitive_pop(kwargs, 'Type')
+
+	async def save(self, session: AsyncIOMotorClientSession = None):
+		"""Alias for `storage.save_object(pokemon)`."""
+		import storage # avoid circular import
+		await storage.save_object(self, session=session)
 
 
 @dataclass

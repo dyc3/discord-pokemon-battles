@@ -6,6 +6,8 @@ from pkmntypes import *
 from turns import *
 import os
 
+log = logging.getLogger(__name__)
+
 BASE_URL = os.environ.get("BATTLE_API_BASE_URL", "http://api:4000")
 
 
@@ -36,13 +38,13 @@ async def create_battle(teams: list[Team]) -> dict:
 	assert isinstance(teams, list)
 	for team in teams:
 		assert isinstance(team, Team), f"each team must be type `Team`, not {type(team)}"
-	logging.debug("creating battle")
+	log.debug("creating battle")
 	async with aiohttp.ClientSession() as session:
 		async with session.post(
 			f"{BASE_URL}/battle/new",
 			data=jsonpickle.encode({"teams": teams}, unpicklable=False)
 		) as resp:
-			logging.debug(f"battle created: {resp.status}")
+			log.debug(f"battle created: {resp.status}")
 			result = await resp.json(content_type=None)
 			return {
 				"bid": result["BattleId"],
@@ -55,7 +57,7 @@ async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 
 	:returns: The battle context.
 	"""
-	logging.debug(f"getting battle context: battle={battle_id} target={target}")
+	log.debug(f"getting battle context: battle={battle_id} target={target}")
 	async with aiohttp.ClientSession() as session:
 		async with session.get(
 			f"{BASE_URL}/battle/context?id={battle_id}&target={target}"
@@ -66,9 +68,7 @@ async def get_battle_context(battle_id: int, target: int) -> BattleContext:
 
 async def submit_turn(battle_id: int, target: int, turn: Turn):
 	"""Submit a turn for the given target."""
-	logging.debug(
-		f"submitting turn: battle={battle_id} target={target} turn={type(turn)}"
-	)
+	log.debug(f"submitting turn: battle={battle_id} target={target} turn={type(turn)}")
 	async with aiohttp.ClientSession() as session:
 		async with session.post(
 			f"{BASE_URL}/battle/act?id={battle_id}&target={target}", data=turn.toJSON()
@@ -81,7 +81,7 @@ async def simulate(battle_id: int) -> BattleRoundResults:
 
 	:returns: The results of the round.
 	"""
-	logging.debug(f"simulating round: battle={battle_id}")
+	log.debug(f"simulating round: battle={battle_id}")
 	async with aiohttp.ClientSession() as session:
 		async with session.get(f"{BASE_URL}/battle/simulate?id={battle_id}") as resp:
 			result = await resp.json()
