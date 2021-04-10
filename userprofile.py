@@ -13,7 +13,10 @@ class UserProfile:
 
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
-	pokemon: set[ObjectId] = set()
+	pokemon: set[ObjectId]
+	
+	def __init__(self):
+		self.pokemon = set()
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
