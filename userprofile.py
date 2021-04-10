@@ -13,7 +13,10 @@ class UserProfile:
 
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
-	pokemon: list[ObjectId] = []
+	pokemon: set[ObjectId]
+
+	def __init__(self):
+		self.pokemon = set()
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
@@ -31,6 +34,10 @@ class UserProfile:
 		"""Alias for `storage.save_object(profile)`."""
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
+
+	def add_pokemon(self, pokemon: Pokemon):
+		"""Add pokemon to user profile."""
+		self.pokemon.add(pokemon._id)
 
 
 async def load_profile(discord_id: int) -> UserProfile:
