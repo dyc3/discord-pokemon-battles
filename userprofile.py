@@ -14,7 +14,7 @@ class UserProfile:
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
 	pokemon: set[ObjectId]
-	
+
 	def __init__(self):
 		self.pokemon = set()
 
