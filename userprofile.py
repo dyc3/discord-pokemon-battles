@@ -13,7 +13,7 @@ class UserProfile:
 
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
-	pokemon: list[ObjectId] = []
+	pokemon: set[ObjectId] = set()
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
@@ -31,6 +31,11 @@ class UserProfile:
 		"""Alias for `storage.save_object(profile)`."""
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
+
+	def add_pokemon(self, pokemon_id):
+		"""Add pokemon to user profile."""
+		# Do I have to convert to type ObjectId here or does a seperate function/utitlity take care of that?
+		return pokemon.add(pokemon_id)
 
 
 async def load_profile(discord_id: int) -> UserProfile:

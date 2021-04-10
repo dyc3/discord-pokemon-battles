@@ -64,7 +64,7 @@ class TestStorage(unittest.TestCase):
 			pkmn = await battleapi.generate_pokemon()
 			await pkmn.save()
 			profile = UserProfile()
-			profile.pokemon += [pkmn._id]
+			profile.add_pokemon(pkmn._id)
 			await profile.save()
 			self.assertIsNotNone(profile._id)
 			all_pokemon = [p async for p in profile.pokemon_iter()]
