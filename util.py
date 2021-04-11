@@ -11,21 +11,13 @@ RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 log = logging.getLogger(__name__)
 
 
-async def prompt_for_turn(
+async def menu(
 	bot: commands.Bot,
 	user: discord.User,
-	battlecontext: BattleContext,
+	items: list[str],
 	use_channel: Optional[discord.TextChannel] = None
-) -> Turn:
-	"""Prompt the given user for a turn.
-
-	:param bot: The discord bot
-	:param user: The discord user
-	:param battlecontext: The :class:`BattleContext` that will be given to the user.
-	:param use_channel: Override the channel that is used to communicate with the user. By default, it will use the user's :class:`discord.DMChannel` to send the prompt. Primarily used for tests.
-	:returns: The turn that the user made.
-	TODO: prompt user for what type of turn
-	"""
+):
+	"""Create menu for the user to choose between several options."""
 
 	if use_channel:
 		channel = use_channel
@@ -33,19 +25,14 @@ async def prompt_for_turn(
 		if not user.dm_channel:
 			await user.create_dm()
 		channel = user.dm_channel
-	embed = discord.Embed(
-		title=battlecontext.pokemon.Name,
-		description=
-		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
-	)
-	for i, move in enumerate(battlecontext.pokemon.Moves):
-		embed.add_field(
-			name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}",
-			value=
-			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
-			inline=False
-		)
-	msg: Message = await channel.send(content="Select a move", embed=embed)
+
+	embed = discord.Embed(title=items[0], description=items[1])
+	rest_of_list = items[2:]
+
+	for item in rest_of_list:
+		embed.add_field(name=rest_of_list[0], value=rest_of_list[1])
+
+	msg: Message = await channel.send(content="Select/Selected", embed=embed)
 	for r in RESPONSE_REACTIONS:
 		bot.loop.create_task(msg.add_reaction(r))
 
@@ -63,18 +50,54 @@ async def prompt_for_turn(
 		await channel.send("timed out")
 		raise e
 
-	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
+	reactionId = RESPONSE_REACTIONS.index(str(payload.emoji))
 	embed.clear_fields()
-	move = battlecontext.pokemon.Moves[moveId]
-	embed.add_field(
-		name=f"{move['Name']}",
-		value=
-		f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
-		inline=False
-	)
-	await msg.edit(content="Selected", embed=embed)
+	return reactionId
 
-	# TODO: prompt for which pokemon to target in double battles
+
+async def prompt_for_turn(
+	bot: commands.Bot,
+	user: discord.User,
+	battlecontext: BattleContext,
+	use_channel: Optional[discord.TextChannel] = None
+) -> Turn:
+	"""Prompt the given user for a turn.
+
+	:param bot: The discord bot
+	:param user: The discord user
+	:param battlecontext: The :class:`BattleContext` that will be given to the user.
+	:param use_channel: Override the channel that is used to communicate with the user. By default, it will use the user's :class:`discord.DMChannel` to send the prompt. Primarily used for tests.
+	:returns: The turn that the user made.
+	TODO: prompt user for what type of turn
+	"""
+
+	menu_items = []
+	menu_items.append(battlecontext.pokemon.Name)
+	menu_items.append(
+		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	)
+
+	for i, move in enumerate(battlecontext.pokemon.Moves):
+		menu_items.append(f"{RESPONSE_REACTIONS[i]}: {move['Name']}")
+		menu_items.append(
+			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+		)
+
+	selected = await menu(bot, user, menu_items, use_channel)
+	move = battlecontext.pokemon.Moves[selected]
+
+	menu_items = []
+	menu_items.append(battlecontext.pokemon.Name)
+	menu_items.append(
+		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	)
+	menu_items.append(f"{move['Name']}")
+	menu_items.append(
+		f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+	)
+
+	result = await menu(bot, user, menu_items, use_channel)
+
 	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
 
