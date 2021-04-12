@@ -14,7 +14,9 @@ log = logging.getLogger(__name__)
 async def menu(
 	bot: commands.Bot,
 	user: discord.User,
-	items: list[str],
+	title: str,
+	description: str,
+	items: list[tuple[str]],
 	use_channel: Optional[discord.TextChannel] = None
 ):
 	"""Create menu for the user to choose between several options."""
@@ -26,11 +28,10 @@ async def menu(
 			await user.create_dm()
 		channel = user.dm_channel
 
-	embed = discord.Embed(title=items[0], description=items[1])
-	rest_of_list = items[2:]
+	embed = discord.Embed(title=title, description=description)
 
-	for item in rest_of_list:
-		embed.add_field(name=rest_of_list[0], value=rest_of_list[1])
+	for l, item in enumerate(items):
+		embed.add_field(name=items[l][0], value=items[l][1], inline=False)
 
 	msg: Message = await channel.send(content="Select/Selected", embed=embed)
 	for r in RESPONSE_REACTIONS:
@@ -71,32 +72,32 @@ async def prompt_for_turn(
 	TODO: prompt user for what type of turn
 	"""
 
-	menu_items = []
-	menu_items.append(battlecontext.pokemon.Name)
-	menu_items.append(
-		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
-	)
+	title = battlecontext.pokemon.Name
+	description = f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
 
+	menu_items = []
 	for i, move in enumerate(battlecontext.pokemon.Moves):
-		menu_items.append(f"{RESPONSE_REACTIONS[i]}: {move['Name']}")
-		menu_items.append(
+		menu_tuple = tuple(
+			(
+				f"{RESPONSE_REACTIONS[i]}: {move['Name']}",
+				f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+			)
+		)
+		menu_items.append(menu_tuple)
+
+	moveId = await menu(bot, user, title, description, menu_items, use_channel)
+	move = battlecontext.pokemon.Moves[moveId]
+
+	reaction_items = []
+	reaction_tuple = tuple(
+		(
+			f"{move['Name']}",
 			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
 		)
-
-	selected = await menu(bot, user, menu_items, use_channel)
-	move = battlecontext.pokemon.Moves[selected]
-
-	menu_items = []
-	menu_items.append(battlecontext.pokemon.Name)
-	menu_items.append(
-		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
 	)
-	menu_items.append(f"{move['Name']}")
-	menu_items.append(
-		f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
-	)
+	reaction_items.append(reaction_tuple)
 
-	result = await menu(bot, user, menu_items, use_channel)
+	result = await menu(bot, user, title, description, reaction_items, use_channel)
 
 	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
