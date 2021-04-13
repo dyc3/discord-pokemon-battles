@@ -11,21 +11,16 @@ RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 log = logging.getLogger(__name__)
 
 
-async def prompt_for_turn(
+async def prompt_menu(
 	bot: commands.Bot,
 	user: discord.User,
-	battlecontext: BattleContext,
+	content: str,
+	title: str,
+	description: str,
+	items: list[tuple[str, str]],
 	use_channel: Optional[discord.TextChannel] = None
-) -> Turn:
-	"""Prompt the given user for a turn.
-
-	:param bot: The discord bot
-	:param user: The discord user
-	:param battlecontext: The :class:`BattleContext` that will be given to the user.
-	:param use_channel: Override the channel that is used to communicate with the user. By default, it will use the user's :class:`discord.DMChannel` to send the prompt. Primarily used for tests.
-	:returns: The turn that the user made.
-	TODO: prompt user for what type of turn
-	"""
+):
+	"""Create menu for the user to choose between several options."""
 
 	if use_channel:
 		channel = use_channel
@@ -33,19 +28,17 @@ async def prompt_for_turn(
 		if not user.dm_channel:
 			await user.create_dm()
 		channel = user.dm_channel
-	embed = discord.Embed(
-		title=battlecontext.pokemon.Name,
-		description=
-		f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
-	)
-	for i, move in enumerate(battlecontext.pokemon.Moves):
+
+	embed = discord.Embed(title=title, description=description)
+
+	count = 0
+	for name, value in items:
 		embed.add_field(
-			name=f"{RESPONSE_REACTIONS[i]}: {move['Name']}",
-			value=
-			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
-			inline=False
+			name=f"{RESPONSE_REACTIONS[count]}: {name}", value=value, inline=False
 		)
-	msg: Message = await channel.send(content="Select a move", embed=embed)
+		count += 1
+
+	msg: Message = await channel.send(content=content, embed=embed)
 	for r in RESPONSE_REACTIONS:
 		bot.loop.create_task(msg.add_reaction(r))
 
@@ -63,18 +56,51 @@ async def prompt_for_turn(
 		await channel.send("timed out")
 		raise e
 
-	moveId = RESPONSE_REACTIONS.index(str(payload.emoji))
+	reactionId = RESPONSE_REACTIONS.index(str(payload.emoji))
 	embed.clear_fields()
-	move = battlecontext.pokemon.Moves[moveId]
-	embed.add_field(
-		name=f"{move['Name']}",
-		value=
-		f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}",
-		inline=False
-	)
+	reaction = [items[reactionId]]
+
+	for name, value in reaction:
+		embed.add_field(name=name, value=value, inline=False)
+
 	await msg.edit(content="Selected", embed=embed)
 
-	# TODO: prompt for which pokemon to target in double battles
+	return reactionId
+
+
+async def prompt_for_turn(
+	bot: commands.Bot,
+	user: discord.User,
+	battlecontext: BattleContext,
+	use_channel: Optional[discord.TextChannel] = None
+) -> Turn:
+	"""Prompt the given user for a turn.
+
+	:param bot: The discord bot
+	:param user: The discord user
+	:param battlecontext: The :class:`BattleContext` that will be given to the user.
+	:param use_channel: Override the channel that is used to communicate with the user. By default, it will use the user's :class:`discord.DMChannel` to send the prompt. Primarily used for tests.
+	:returns: The turn that the user made.
+	TODO: prompt user for what type of turn
+	"""
+
+	title = battlecontext.pokemon.Name
+	description = f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	content = "Select a move"
+
+	menu_items = []
+	for i, move in enumerate(battlecontext.pokemon.Moves):
+		menu_items.append(
+			(
+				f"{move['Name']}",
+				f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+			)
+		)
+
+	moveId = await prompt_menu(
+		bot, user, content, title, description, menu_items, use_channel
+	)
+
 	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
 

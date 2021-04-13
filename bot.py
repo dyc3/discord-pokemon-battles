@@ -17,20 +17,20 @@ coloredlogs.install(level='DEBUG', logger=log)
 lock = asyncio.Lock()
 
 
-class PkmnBot(commands.Bot):
+class DiscordBrock(commands.Bot):
 	"""A class that allows the bot to listen for other bots.
 
 	:: note
 		Required because of https://github.com/Rapptz/discord.py/issues/2238
 	"""
 
-	async def on_message(self, message): # noqa: D102
+	async def on_message(self, message: Message): # noqa: D102
 		ctx = await self.get_context(message)
 		if ctx.valid:
 			await self.invoke(ctx)
 
 
-bot = PkmnBot(command_prefix='p!')
+bot = DiscordBrock(command_prefix='p!')
 
 
 @bot.command()
