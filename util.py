@@ -11,9 +11,10 @@ RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
 log = logging.getLogger(__name__)
 
 
-async def menu(
+async def prompt_menu(
 	bot: commands.Bot,
 	user: discord.User,
+	content: str,
 	title: str,
 	description: str,
 	items: list[tuple[str]],
@@ -30,10 +31,14 @@ async def menu(
 
 	embed = discord.Embed(title=title, description=description)
 
-	for l, item in enumerate(items):
-		embed.add_field(name=items[l][0], value=items[l][1], inline=False)
+	count = 0
+	for name, value in items:
+		embed.add_field(
+			name=f"{RESPONSE_REACTIONS[count]}: {name}", value=value, inline=False
+		)
+		count += 1
 
-	msg: Message = await channel.send(content="Select/Selected", embed=embed)
+	msg: Message = await channel.send(content=content, embed=embed)
 	for r in RESPONSE_REACTIONS:
 		bot.loop.create_task(msg.add_reaction(r))
 
@@ -53,6 +58,12 @@ async def menu(
 
 	reactionId = RESPONSE_REACTIONS.index(str(payload.emoji))
 	embed.clear_fields()
+	reaction = items[reactionId]
+
+	embed.add_field(name=reaction[0], value=reaction[1], inline=False)
+
+	await msg.edit(content="Selected", embed=embed)
+
 	return reactionId
 
 
@@ -74,30 +85,20 @@ async def prompt_for_turn(
 
 	title = battlecontext.pokemon.Name
 	description = f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	content = "Select a move"
 
 	menu_items = []
 	for i, move in enumerate(battlecontext.pokemon.Moves):
-		menu_tuple = tuple(
+		menu_items.append(
 			(
-				f"{RESPONSE_REACTIONS[i]}: {move['Name']}",
+				f"{move['Name']}",
 				f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
 			)
 		)
-		menu_items.append(menu_tuple)
 
-	moveId = await menu(bot, user, title, description, menu_items, use_channel)
-	move = battlecontext.pokemon.Moves[moveId]
-
-	reaction_items = []
-	reaction_tuple = tuple(
-		(
-			f"{move['Name']}",
-			f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
-		)
+	moveId = await prompt_menu(
+		bot, user, content, title, description, menu_items, use_channel
 	)
-	reaction_items.append(reaction_tuple)
-
-	result = await menu(bot, user, title, description, reaction_items, use_channel)
 
 	target = battlecontext.opponents[0]
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
