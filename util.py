@@ -17,7 +17,7 @@ async def prompt_menu(
 	content: str,
 	title: str,
 	description: str,
-	items: list[tuple[str]],
+	items: list[tuple[str, str]],
 	use_channel: Optional[discord.TextChannel] = None
 ):
 	"""Create menu for the user to choose between several options."""
@@ -58,9 +58,10 @@ async def prompt_menu(
 
 	reactionId = RESPONSE_REACTIONS.index(str(payload.emoji))
 	embed.clear_fields()
-	reaction = items[reactionId]
+	reaction = [items[reactionId]]
 
-	embed.add_field(name=reaction[0], value=reaction[1], inline=False)
+	for name, value in reaction:
+		embed.add_field(name=name, value=value, inline=False)
 
 	await msg.edit(content="Selected", embed=embed)
 
