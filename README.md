@@ -1,6 +1,11 @@
-# discord-pokemon-battles
+# Brock
 
-SSW 215 Final Project
+[![Unit Tests](https://github.com/dyc3/discord-pokemon-battles/actions/workflows/python-unit-test.yml/badge.svg)](https://github.com/dyc3/discord-pokemon-battles/actions/workflows/python-unit-test.yml)
+[![Integration Tests](https://github.com/dyc3/discord-pokemon-battles/actions/workflows/python-integration-test.yml/badge.svg)](https://github.com/dyc3/discord-pokemon-battles/actions/workflows/python-integration-test.yml)
+
+A Discord bot that allows you to have Pokemon battles on Discord with your friends.
+
+It uses [pokemonbattlelib](https://github.com/StevensSEC/pokemonbattlelib) served over HTTP to simulate the battles using generation 4 rules.
 
 # Setup
 
