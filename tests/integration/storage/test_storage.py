@@ -74,6 +74,20 @@ class TestStorage(unittest.TestCase):
 
 		return self.loop.run_until_complete(go())
 
+	def test_profile_no_duplicate_pokemon(self):
+		"""Make sure the profile doesn't save duplicate pokemon ids."""
+
+		async def go():
+			pkmn = await battleapi.generate_pokemon()
+			await pkmn.save()
+			profile = UserProfile()
+			profile.add_pokemon(pkmn)
+			profile.add_pokemon(pkmn)
+			await profile.save()
+			self.assertEqual(len(profile.pokemon), 1)
+
+		return self.loop.run_until_complete(go())
+
 
 if __name__ == "__main__":
 	unittest.main()
