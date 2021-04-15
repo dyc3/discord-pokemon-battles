@@ -96,11 +96,17 @@ class Pokemon():
 		await storage.save_object(self, session=session)
 
 
-@dataclass
+@dataclass(init=False)
 class Party():
 	"""Represents a party of pokemon."""
 
 	pokemon: list[Pokemon]
+
+	def __init__(self, **kwargs):
+		self.pokemon = [
+			pkmn if isinstance(pkmn, Pokemon) else Pokemon(**pkmn)
+			for pkmn in _case_insensitive_pop(kwargs, "pokemon", [])
+		]
 
 
 @dataclass

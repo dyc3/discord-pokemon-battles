@@ -21,10 +21,24 @@ class BattleRoundResults:
 		self.ended: bool = kwargs["Ended"]
 
 
-async def generate_pokemon() -> Pokemon:
+async def generate_pokemon(
+	natdex: Optional[int] = None,
+	level: Optional[int] = None,
+	moves: Optional[list[int]] = None
+) -> Pokemon:
 	"""Get a randomly generated pokemon from the API."""
+	query = []
+	if natdex:
+		query += [f"natdex={natdex}"]
+	if level:
+		query += [f"level={level}"]
+	if moves and len(moves) > 0:
+		query += [f"moves={','.join([str(m) for m in moves])}"]
 	async with aiohttp.ClientSession() as session:
-		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
+		url = f"{BASE_URL}/pokedex/generate"
+		if len(query):
+			url += "?" + "&".join(query)
+		async with session.get(url) as resp:
 			result = await resp.json()
 			return Pokemon(**result)
 
@@ -86,3 +100,23 @@ async def simulate(battle_id: int) -> BattleRoundResults:
 		async with session.get(f"{BASE_URL}/battle/simulate?id={battle_id}") as resp:
 			result = await resp.json()
 	return BattleRoundResults(**result)
+
+
+class BattleResults:
+	"""Results of a concluded battle."""
+
+	winner: int
+	parties: list[Party]
+
+	def __init__(self, winner: int, parties: list):
+		self.winner = winner
+		self.parties = [Party(pokemon=p["Pokemon"]) for p in parties]
+
+
+async def get_results(battle_id: int) -> BattleResults:
+	"""Get the results of a battle that has finished."""
+	async with aiohttp.ClientSession() as session:
+		async with session.get(f"{BASE_URL}/battle/results?id={battle_id}") as resp:
+			log.debug(f"battle results: {resp.status}")
+			result = await resp.json()
+	return BattleResults(result["Winner"], result["Parties"])
