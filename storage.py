@@ -4,6 +4,7 @@ from typing import Union
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
 import logging
 from userprofile import UserProfile
+from bson import ObjectId
 
 log = logging.getLogger(__name__)
 client: AsyncIOMotorClient = AsyncIOMotorClient('mongodb://db/brock')
@@ -56,3 +57,22 @@ async def save_object(
 		)
 		obj._id = result.inserted_id
 		log.debug(f"Inserted {type(obj)} ({obj._id})")
+
+
+async def get_pokemon(
+	id: ObjectId
+) -> Pokemon: # not sure if my type annotations are correct here
+	"""Get pokemon from the database by its ObjectId.
+
+	:param id: The id of the pokemon the user is trying to retrieve
+	"""
+	coll = pokemon(
+	) # I'm not too confident I'm doign this correctly. Should I be doing these inside conditionals like in save_object?
+	result = await coll.find_one(
+		{'_id': ObjectId(id)}
+	) # should I be making the conversion to type ObjectId?
+	if result == None: # if it can't find something, would result == None or undefined?
+		raise Exception(
+			f"No pokemon found with id: {id}"
+		) # what type of error should I raise here?
+	return result # I know I need to return a Pokemon, but does this count?
