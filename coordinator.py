@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import aiohttp
+import functools
 import discord
 from turns import *
 import util
@@ -55,7 +56,7 @@ class Battle():
 		self.active_pokemon: int = None
 		self.agents = []
 		self.transactions: list[Transaction] = []
-		self.original_channel: discord.TextChannel = kwargs.pop("original_channel")
+		self.original_channel: discord.TextChannel = kwargs.pop("original_channel", None)
 		self.teams: list[Team] = kwargs.pop("teams")
 
 	def add_user(self, user: discord.User):
@@ -100,10 +101,35 @@ class Battle():
 			self.transactions += results.transactions
 			if results.ended:
 				break
+		log.info(f"Battle between {self.agents} concluded")
+		results = await battleapi.get_results(self.bid)
 		if self.original_channel:
-			await self.original_channel.send(embed=self.__create_battle_summary_msg())
+			await self.original_channel.send(
+				embed=self.__create_battle_summary_msg(results)
+			)
+		await self.apply_post_battle_updates(results)
 
-	def __create_battle_summary_msg(self) -> discord.Embed:
+	async def apply_post_battle_updates(self, results: battleapi.BattleResults):
+		"""Apply post battle state updates to pokemon, and save them to storage."""
+
+		log.debug(f"Applying new stats to pokemon")
+		playerparties = functools.reduce(
+			lambda a, b: a + b, [team.parties for team in self.teams]
+		)
+		try:
+			for party, resultParty in zip(playerparties, results.parties):
+				assert isinstance(party, Party)
+				assert isinstance(resultParty, Party)
+				for pkmn, resultPkmn in zip(party.pokemon, resultParty.pokemon):
+					assert pkmn.NatDex == resultPkmn.NatDex
+					pkmn.__dict__.update(resultPkmn.__dict__)
+					await pkmn.save()
+		except AssertionError as e:
+			log.error(f"Failed to apply new stats to pokemon after battle: {e}")
+
+	def __create_battle_summary_msg(
+		self, results: battleapi.BattleResults
+	) -> discord.Embed:
 		embed = discord.Embed(title="Battle Results")
 		# TODO: show winner instead
 		embed.add_field(name="Total Transactions", value=len(self.transactions))
