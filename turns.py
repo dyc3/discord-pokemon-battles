@@ -24,6 +24,9 @@ class Turn():
 		"""Get the turn's parameters."""
 		return {}
 
+	def __repr__(self) -> str:
+		return f"{type(self)}<{self.get_args()}>"
+
 
 class FightTurn(Turn):
 	"""Use a Pokemon's move."""
@@ -32,14 +35,14 @@ class FightTurn(Turn):
 
 	def __init__(self, **kwargs) -> None:
 		self.target = {
-			"party": kwargs.pop("party"),
-			"slot": kwargs.pop("slot"),
+			"Party": kwargs.pop("party"),
+			"Slot": kwargs.pop("slot"),
 		}
 		self.move = kwargs.pop("move")
 
 	def get_args(self) -> dict:
 		"""Get the turn's parameters."""
-		return {"target": self.target, "move": self.move}
+		return {"Target": self.target, "move": self.move}
 
 
 class ItemTurn(Turn):
