@@ -9,7 +9,6 @@ services:
       - 5000
     volumes:
       - .:/code
-      - images:/images
     networks:
       main:
         aliases:
@@ -39,4 +38,3 @@ networks:
   main:
 volumes:
   mongodb_data_container:
-  images:
