@@ -18,3 +18,4 @@ dependencies:
     - hypothesis
     - coloredlogs
     - pillow
+    - python-Levenshtein
