@@ -4,3 +4,4 @@ jsonpickle
 motor
 quart
 coloredlogs
+pillow

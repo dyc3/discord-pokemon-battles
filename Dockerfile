@@ -4,6 +4,7 @@ ENV FLASK_APP=app.py \
 	FLASK_RUN_HOST=0.0.0.0
 VOLUME ["/code"]
 RUN apk add --no-cache gcc musl-dev linux-headers bash
+RUN apk add --no-cache jpeg-dev zlib-dev
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
