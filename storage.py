@@ -64,6 +64,11 @@ async def get_pokemon(id: ObjectId) -> Pokemon:
 	"""Get pokemon from the database by its ObjectId.
 
 	:param id: The id of the pokemon the user is trying to retrieve
+
+	:raises:
+		Exception: The pokemon with the supplied id cannot be found/does not exist
+
+	:returns: pokemon
 	"""
 	coll = pokemon()
 	# I'm not too confident I'm doign this correctly. Should I be doing these inside conditionals like in save_object?
