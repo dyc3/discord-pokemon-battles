@@ -10,6 +10,7 @@ from pkmntypes import *
 import util
 import battleapi
 import coloredlogs
+import userprofile
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
@@ -55,6 +56,38 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	coordinator.battles += [battle]
 	await battle.start()
 	await msg.edit(content=f"{base_msg} (Started)")
+
+
+@bot.command()
+async def begin(ctx: commands.Context): # noqa: D103
+	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
+		await ctx.send(f"You've already started a profile!", embed=profile.get_embed())
+		return
+	log.debug(f"{ctx.author} creating new profile.")
+	profile = userprofile.UserProfile()
+	profile.user_id = ctx.author.id
+	starter_dexnums = [1, 4, 7, 25, 152, 155, 158, 252, 255, 258, 387, 390, 393]
+	starters = [
+		await battleapi.generate_pokemon(natdex=natdex, level=5)
+		for natdex in starter_dexnums
+	]
+	items = [pkmn.Name for pkmn in starters]
+	selection = await util.prompt_menu(
+		bot,
+		ctx.author,
+		content=f"<@!{ctx.author.id}>",
+		title="Choose your starter",
+		description="Don't worry, you'll be able to get more later!",
+		items=items,
+		use_channel=ctx.channel
+	)
+	selected_pokemon = starters[selection]
+	log.debug(f"{ctx.author} selected {selected_pokemon.Name}")
+	await selected_pokemon.save()
+	profile.add_pokemon(selected_pokemon)
+	await profile.save()
+	log.info(f"New profile: {ctx.author}")
+	await ctx.send("Profile created! `p!help` for more commands.")
 
 
 def get_token():
