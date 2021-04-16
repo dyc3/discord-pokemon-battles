@@ -72,18 +72,21 @@ async def minigame(ctx: commands.Context): # noqa: D103
 	"""Minigame to allow users to acquire Pokemon."""
 	await lock.acquire()
 
-	await bot.change_presence(activity=discord.Game("Who's That Pokemon?"))
-
 	pokemon = await battleapi.generate_pokemon()
 	name = pokemon.Name
-	await ctx.send("Can you guess the name of the Pokemon shown below?")
-	await ctx.send(
-		file=discord.File(pokemon.get_silhouette(), filename="whosthatpokemon.png")
+
+	embed = discord.Embed(
+		title="Who's That Pokemon?",
+		description="Can you guess the name of the Pokemon shown below?",
+		color=0x00ff00
 	)
 
-	await ctx.send(
-		"Please format all guesses like \"guess pokemonName\" You can type \"guess hint\" for help"
-	)
+	file = discord.File(pokemon.get_silhouette(), filename="whosthatpokemon.png")
+	embed.set_image(url="attachment://whosthatpokemon.png")
+	# embed.add_field(name="Commands", value="Please format all guesses like `guess pokemonName`, and if you need help type `guess hint`")
+	embed.add_field(name="Guess", value="`guess pokemonName`")
+	embed.add_field(name="Help", value="`guess hint`")
+	await ctx.send(file=file, embed=embed)
 
 	def check(m):
 		return m.id != bot.user.id and m.channel == ctx.channel and m.content.startswith(
@@ -95,7 +98,9 @@ async def minigame(ctx: commands.Context): # noqa: D103
 
 	while guess.lower() != name.lower():
 		if guess.lower() == "hint":
-			await ctx.send(f"The name of this pokemon starts with the letter {name[0]}")
+			await ctx.send(
+				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
+			)
 		elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
 			await ctx.send(
 				f"{message.author.mention} that guess was close, but not quite right"
@@ -105,9 +110,19 @@ async def minigame(ctx: commands.Context): # noqa: D103
 		message = await bot.wait_for("message", check=check)
 		guess = message.content.split()[-1]
 
+	file = discord.File(pokemon.get_silhouette(), filename="whosthatpokemon.png")
+	embed.set_image(url="attachment://whosthatpokemon.png")
+	embed.add_field(name="Guess", value="`guess pokemonName`")
+	embed.add_field(name="Help", value="`guess hint`")
+	await ctx.send(file=file, embed=embed)
+
 	await ctx.send(
 		f"Nice one, {message.author.mention}, that's correct! Adding {name} to your inventory"
 	)
+	await ctx.send(
+		file=discord.File(f"/code/images/{pokemon.NatDex}.png", filename=f"{name}.png")
+	)
+
 	await pokemon.save()
 	profile = UserProfile()
 	profile.user_id = message.author.id
