@@ -28,12 +28,12 @@ async def test_begin_no_duplicates(interface: TestInterface):
 	msg: Message = await interface.wait_for_message()
 	await interface.wait_for_reaction(msg)
 	await msg.add_reaction("🇩")
-	msg: Message = await interface.wait_for_message()
-	await interface.assert_message_contains(msg, "Profile created")
+	msg2: Message = await interface.wait_for_message()
+	await interface.assert_message_contains(msg2, "Profile created")
 	await asyncio.sleep(0.5)
 	await interface.send_message("p!begin")
-	msg: Message = await interface.wait_for_message()
-	await interface.assert_message_equals(msg, "You've already started a profile!")
+	msg3: Message = await interface.wait_for_message()
+	await interface.assert_message_equals(msg3, "You've already started a profile!")
 
 
 if __name__ == "__main__":

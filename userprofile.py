@@ -49,8 +49,8 @@ class UserProfile:
 		return embed
 
 
-async def load_profile(discord_id: int) -> UserProfile:
-	"""Load a :class:`UserProfile` by discord user id."""
+async def load_profile(discord_id: int) -> Optional[UserProfile]:
+	"""Load a :class:`UserProfile` by discord user id. If no profile exists, it returns none."""
 	import storage
 	doc = await storage.user_profiles().find_one({"user_id": discord_id})
 	if not doc:
