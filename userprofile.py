@@ -41,11 +41,20 @@ class UserProfile:
 			return
 		self.pokemon.append(pokemon._id)
 
+	def get_embed(self) -> discord.Embed:
+		"""Get a pretty embed to display a UserProfile."""
+		embed = discord.Embed()
+		embed.title = "profile"
+		embed.description = "profile description"
+		return embed
+
 
 async def load_profile(discord_id: int) -> UserProfile:
 	"""Load a :class:`UserProfile` by discord user id."""
 	import storage
 	doc = await storage.user_profiles().find_one({"user_id": discord_id})
+	if not doc:
+		return None
 	profile = UserProfile()
 	profile.__dict__.update(**doc)
 	return profile
