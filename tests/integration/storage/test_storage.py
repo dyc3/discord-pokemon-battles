@@ -118,6 +118,18 @@ class TestStorage(unittest.TestCase):
 
 		return self.loop.run_until_complete(go())
 
+	def test_load_pokemon(self):
+
+		async def go():
+			pkmn = await battleapi.generate_pokemon()
+			await pkmn.save()
+			self.assertIsNotNone(pkmn._id)
+			result = await storage.load_pokemon(pkmn._id)
+			self.assertIsNotNone(result)
+			self.assertIsInstance(result, Pokemon)
+
+		return self.loop.run_until_complete(go())
+
 
 if __name__ == "__main__":
 	unittest.main()

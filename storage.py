@@ -59,8 +59,7 @@ async def save_object(
 		log.debug(f"Inserted {type(obj)} ({obj._id})")
 
 
-async def get_pokemon(id: ObjectId) -> Pokemon:
-	# not sure if my type annotations are correct here
+async def load_pokemon(id: ObjectId) -> Pokemon:
 	"""Get pokemon from the database by its ObjectId.
 
 	:param id: The id of the pokemon the user is trying to retrieve
@@ -68,14 +67,9 @@ async def get_pokemon(id: ObjectId) -> Pokemon:
 	:raises:
 		Exception: The pokemon with the supplied id cannot be found/does not exist
 
-	:returns: pokemon
+	:returns: Pokemon
 	"""
-	coll = pokemon()
-	# I'm not too confident I'm doign this correctly. Should I be doing these inside conditionals like in save_object?
-	result = await coll.find_one({'_id': ObjectId(id)})
-	# should I be making the conversion to type ObjectId?
+	result = await pokemon().find_one({'_id': id})
 	if result == None:
-		# if it can't find something, would result == None or undefined?
 		raise Exception(f"No pokemon found with id: {id}")
-		# what type of error should I raise here?
-	return result # I know I need to return a Pokemon, but does this count?
+	return Pokemon(**result)
