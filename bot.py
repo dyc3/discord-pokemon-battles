@@ -35,7 +35,7 @@ bot = DiscordBrock(command_prefix='p!')
 @bot.command()
 async def ping(ctx: commands.Context): # noqa: D103
 	await ctx.send('pong')
-	log.warning('log message')
+	#log.warning('log message')
 
 
 @bot.command()
@@ -89,6 +89,30 @@ async def begin(ctx: commands.Context): # noqa: D103
 	await profile.save()
 	log.info(f"New profile: {ctx.author}")
 	await ctx.send("Profile created! `p!help` for more commands.")
+
+
+@bot.command(help='Add name to display specific Pokemon')
+async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
+	discord_id = ctx.author.id
+	base_msg = f"<@!{discord_id}> Here are all of your current Pokemon"
+	msg: Message = await ctx.send(base_msg)
+	#loads user class based upon their discord_id
+	user = await userprofile.load_profile(discord_id)
+	pokemon_list = [p async for p in user.pokemon_iter()]
+	if single:
+		for pokemon in pokemon_list:
+			if pokemon.Name == single:
+				msg: Message = await ctx.send(
+					f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
+				)
+				msg: Message = await ctx.send(
+					f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
+				)
+	else:
+		for pokemon in pokemon_list:
+			msg: Message = await ctx.send(
+				f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
+			)
 
 
 def get_token():
