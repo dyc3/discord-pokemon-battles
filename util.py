@@ -3,7 +3,7 @@ import logging, asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Iterable, Union
+from typing import Iterable, Sequence, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = [
@@ -19,7 +19,7 @@ async def prompt_menu(
 	content: str,
 	title: str,
 	description: str,
-	items: list[Union[str, tuple[str, str]]],
+	items: Sequence[Union[str, tuple[str, str]]],
 	use_channel: Optional[discord.TextChannel] = None
 ):
 	"""Create menu for the user to choose between several options."""
