@@ -61,6 +61,7 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 @bot.command()
 async def begin(ctx: commands.Context): # noqa: D103
 	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
+		assert isinstance(profile, userprofile.UserProfile)
 		await ctx.send(f"You've already started a profile!", embed=profile.get_embed())
 		return
 	log.debug(f"{ctx.author} creating new profile.")
