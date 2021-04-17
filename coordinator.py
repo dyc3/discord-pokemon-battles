@@ -131,8 +131,10 @@ class Battle():
 		self, results: battleapi.BattleResults
 	) -> discord.Embed:
 		embed = discord.Embed(title="Battle Results")
-		# TODO: show winner instead
-		embed.add_field(name="Total Transactions", value=len(self.transactions))
+		if self.agents[results.winner].user:
+			embed.add_field(name="Winner", value=self.agents[results.winner].user)
+		else:
+			embed.add_field(name="Winner", value=self.agents[results.winner].bot)
 		return embed
 
 
