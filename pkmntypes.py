@@ -222,26 +222,26 @@ class Transaction:
 
 				return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
 			elif self.name == "FriendshipTransaction":
-				target = Pokemon(**self.args["Target"])
+				pkmn = Pokemon(**self.args["Target"])
 
 				if self.args['Amount'] > 0:
-					return f"{target.Name} friendship increased by {self.args['Amount']}."
+					return f"{pkmn.Name} friendship increased by {self.args['Amount']}."
 				else:
-					return f"{target.Name} friendship decreased by {abs(self.args['Amount'])}."
+					return f"{pkmn.Name} friendship decreased by {abs(self.args['Amount'])}."
 			elif self.name == "EVTransaction":
-				target = Pokemon(**self.args["Target"])
+				pkmn = Pokemon(**self.args["Target"])
 				stat = Stat(self.args['Stat'])
 
-				return f"{target.Name} gained {self.args['Amount']} {stat} EVs."
+				return f"{pkmn.Name} gained {self.args['Amount']} {stat} EVs."
 			elif self.name == "HealTransaction":
-				target = Pokemon(**self.args["Target"])
+				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{target.Name} restored {self.args['Amount']} HP."
+				return f"{pkmn.Name} restored {self.args['Amount']} HP."
 			elif self.name == "InflictStatusTransaction":
 				import util
-				target = Pokemon(**self.args["Target"])
+				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{target.Name} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+				return f"{pkmn.Name} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
@@ -259,7 +259,7 @@ class Transaction:
 					msg = "was dodged"
 				return f"{user.Name} {msg}."
 			elif self.name == "ModifyStatTransaction":
-				target = Target(**self.args["Target"])
+				pkmn = Pokemon(**self.args["Target"])
 				stat = Stat(self.args['Stat'])
 				stages = self.args['Stages']
 
@@ -267,7 +267,7 @@ class Transaction:
 					direc = "increased"
 				else:
 					direc = "decreased"
-				return f"{target.Name}'s {stat} {direc} by {abs(stages)}."
+				return f"{pkmn.Name}'s {stat} {direc} by {abs(stages)}."
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
