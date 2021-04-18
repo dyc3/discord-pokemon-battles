@@ -4,9 +4,11 @@ from typing import Any, Optional
 import logging
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
+from PIL import Image
 from enum import Enum, IntEnum
 
 log = logging.getLogger(__name__)
+
 
 
 def _case_insensitive_pop(
@@ -97,6 +99,30 @@ class Pokemon():
 		"""Alias for `storage.save_object(pokemon)`."""
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
+
+	def get_silhouette(self) -> Path:
+		"""Return the path to the silhouette image of a pokemon. If the image doesn't exist it will be created.
+
+		:returns: Path to pokemon silhouette
+		"""
+		imgPath = Path(f"./images/{self.NatDex}.png")
+		silPath = Path(f"./images/{self.NatDex}_sil.png")
+		if not silPath.exists():
+			img = Image.open(imgPath)
+			img = img.convert("RGBA")
+			background = Image.open(f"./images/background.png")
+			pixdata = img.load()
+
+			width, height = img.size
+			for y in range(height):
+				for x in range(width):
+					if pixdata[x, y][3] != 0:
+						pixdata[x, y] = (0, 0, 0, 255)
+
+			background.paste(img, (60, 60), img)
+			background.save(silPath, "PNG")
+
+		return silPath
 
 
 @dataclass(init=False)

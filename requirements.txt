@@ -4,3 +4,5 @@ jsonpickle
 motor
 quart
 coloredlogs
+pillow
+python-Levenshtein

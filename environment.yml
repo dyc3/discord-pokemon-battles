@@ -17,3 +17,5 @@ dependencies:
     - parameterized==0.8.1
     - hypothesis
     - coloredlogs
+    - pillow
+    - python-Levenshtein
