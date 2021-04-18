@@ -21,10 +21,14 @@ class BattleRoundResults:
 		self.ended: bool = kwargs["Ended"]
 
 
-async def generate_pokemon() -> Pokemon:
-	"""Get a randomly generated pokemon from the API."""
+async def generate_pokemon(params: dict = {}) -> Pokemon:
+	"""Get a pokemon from the API, optionally passing a dict which defines the pokemon to be generated.
+
+	Any parameters that are omitted will be randomized.
+	Calling the function with no arguments will generate a completely random pokemon.
+	"""
 	async with aiohttp.ClientSession() as session:
-		async with session.get(f"{BASE_URL}/pokedex/generate") as resp:
+		async with session.get(f"{BASE_URL}/pokedex/generate", params=params) as resp:
 			result = await resp.json()
 			return Pokemon(**result)
 

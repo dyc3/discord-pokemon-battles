@@ -12,11 +12,14 @@ import battleapi
 import coloredlogs
 from userprofile import UserProfile, load_profile
 import Levenshtein
+from typing import Union
+
+# enables commands that should only be accessable in development
+# when command is decorated with "@commands.check(lambda x: DEVELOPMENT)"
+DEVELOPMENT = True
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
-
-lock = asyncio.Lock()
 
 
 class DiscordBrock(commands.Bot):
@@ -68,11 +71,27 @@ def get_token():
 
 
 @bot.command()
-async def minigame(ctx: commands.Context): # noqa: D103
-	"""Minigame to allow users to acquire Pokemon."""
-	await lock.acquire()
+@commands.check(lambda x: DEVELOPMENT)
+async def callMinigame(ctx: commands.Context, natdex: str):
+	"""Call the minigame function, optionally with a pokemon specified by natdex number.
 
-	pokemon = await battleapi.generate_pokemon()
+	This command is for development and testing purposes only.
+	"""
+	pokemon = await battleapi.generate_pokemon({"natdex": natdex})
+	await minigame(ctx.channel, pokemon=pokemon)
+
+
+async def minigame(
+	channel: Union[discord.abc.Messageable], pokemon: Pokemon = None
+): # noqa: D103
+	"""Minigame to allow users to acquire Pokemon.
+
+	By default presents users with a random pokemon, but optionally uses a specified pokemon.
+	"""
+
+	if pokemon is None:
+		pokemon = await battleapi.generate_pokemon()
+
 	name = pokemon.Name
 
 	embed = discord.Embed(
@@ -83,13 +102,12 @@ async def minigame(ctx: commands.Context): # noqa: D103
 
 	file = discord.File(pokemon.get_silhouette(), filename="whosthatpokemon.png")
 	embed.set_image(url="attachment://whosthatpokemon.png")
-	# embed.add_field(name="Commands", value="Please format all guesses like `guess pokemonName`, and if you need help type `guess hint`")
 	embed.add_field(name="Guess", value="`guess pokemonName`")
 	embed.add_field(name="Help", value="`guess hint`")
-	await ctx.send(file=file, embed=embed)
+	await channel.send(file=file, embed=embed)
 
 	def check(m):
-		return m.id != bot.user.id and m.channel == ctx.channel and m.content.startswith(
+		return m.id != bot.user.id and m.channel == channel and m.content.startswith(
 			"guess"
 		)
 
@@ -98,37 +116,34 @@ async def minigame(ctx: commands.Context): # noqa: D103
 
 	while guess.lower() != name.lower():
 		if guess.lower() == "hint":
-			await ctx.send(
+			await channel.send(
 				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
 			)
 		elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
-			await ctx.send(
+			await channel.send(
 				f"{message.author.mention} that guess was close, but not quite right"
 			)
 		else:
-			await ctx.send("That's incorrect, please guess again")
+			await channel.send("That's incorrect, please guess again")
 		message = await bot.wait_for("message", check=check)
 		guess = message.content.split()[-1]
 
-	file = discord.File(pokemon.get_silhouette(), filename="whosthatpokemon.png")
-	embed.set_image(url="attachment://whosthatpokemon.png")
-	embed.add_field(name="Guess", value="`guess pokemonName`")
-	embed.add_field(name="Help", value="`guess hint`")
-	await ctx.send(file=file, embed=embed)
+	embed = discord.Embed(
+		title="Correct!",
+		description=
+		f"Nice one, {message.author.mention}, that's right! Adding {name} to your inventory",
+		color=0x00ff00
+	)
 
-	await ctx.send(
-		f"Nice one, {message.author.mention}, that's correct! Adding {name} to your inventory"
-	)
-	await ctx.send(
-		file=discord.File(f"/code/images/{pokemon.NatDex}.png", filename=f"{name}.png")
-	)
+	file = discord.File(f"/code/images/{pokemon.NatDex}.png", filename=f"{name}.png")
+	embed.set_image(url=f"attachment://{name}.png")
+	await channel.send(file=file, embed=embed)
 
 	await pokemon.save()
 	profile = UserProfile()
 	profile.user_id = message.author.id
 	profile.add_pokemon(pokemon)
 	await profile.save()
-	lock.release()
 
 
 if __name__ == "__main__":

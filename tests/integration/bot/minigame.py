@@ -6,39 +6,31 @@ from distest import run_dtest_bot, TestCollector
 
 test_collector = TestCollector()
 
-#BUG these tests wont work unless we consistently get the same result from generate_pokemon()
-# can we do that by setting the seed before testing?
-
 
 @test_collector()
-async def test_minigame_correct_guess(interface: TestInterface):
-	await interface.assert_reply_contains(
-		"p!minigame", "Can you guess the name of the Pokemon shown below?"
+async def test_minigame(interface: TestInterface):
+	embed = Embed(
+		title="Who's That Pokemon?",
+		description="Can you guess the name of the Pokemon shown below?",
 	)
-	image_message: Message = await interface.wait_for_message()
-	disclaimer_message: Message = await interface.wait_for_message()
-	await interface.assert_message_has_image(image_message)
-	await interface.assert_message_contains(
-		disclaimer_message, "Please prefix all guesses"
-	)
-	await interface.assert_reply_contains("guess pichu", "that's correct")
 
-
-@test_collector()
-async def test_minigame_incorrect_guess(interface: TestInterface):
+	await interface.assert_reply_embed_equals(
+		"p!callMinigame 25", embed, ["title", "description"]
+	)
+	await interface.assert_reply_contains("guess hint", "starts with the letter")
+	await interface.assert_reply_contains("guess mew", "That's incorrect")
 	await interface.assert_reply_contains(
-		"p!minigame", "Can you guess the name of the Pokemon shown below?"
+		"guess pikach", "that guess was close, but not quite right"
 	)
-	image_message: Message = await interface.wait_for_message()
-	disclaimer_message: Message = await interface.wait_for_message()
-	await interface.assert_message_has_image(image_message)
-	await interface.assert_message_contains(
-		disclaimer_message, "Please prefix all guesses"
+
+	await interface.assert_reply_embed_regex(
+		"guess pikachu", {
+			"title":
+			"Correct!",
+			"description":
+			r"Nice one, <@!\d+>, that's right! Adding Pikachu to your inventory"
+		}
 	)
-	await interface.assert_reply_contains("guess mew", "incorrect")
-	# is there a way to cancel the command you are testing
-	# since the minigame has acquired the lock and doesn't release it until a correct guess is made,
-	# i could see this getting in the way of other tests
 
 
 if __name__ == "__main__":
