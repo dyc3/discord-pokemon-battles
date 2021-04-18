@@ -58,8 +58,8 @@ class Pokemon():
 	StatModifiers: list[int]
 	StatusEffects: int
 	CurrentHP: int
-	HeldItem: dict
-	Moves: list[dict]
+	HeldItem: dict[str, Any]
+	Moves: list[dict[str, Any]]
 	Friendship: int
 	OriginalTrainerID: int
 	Type: int
@@ -146,7 +146,7 @@ class BattleContext():
 	:param opponents: Enemy targets in relation to the `Pokemon`
 	"""
 
-	battle: dict
+	battle: dict[str, Any]
 	pokemon: Pokemon
 	team: int
 	targets: list[Target]
@@ -154,7 +154,7 @@ class BattleContext():
 	opponents: list[Target]
 
 	def __init__(self, **kwargs):
-		self.battle: dict = _case_insensitive_pop(kwargs, 'Battle')
+		self.battle: dict[str, Any] = _case_insensitive_pop(kwargs, 'Battle')
 		self.pokemon: Pokemon = Pokemon(**_case_insensitive_pop(kwargs, 'Pokemon'))
 		self.team: int = _case_insensitive_pop(kwargs, 'Team')
 		self.targets: list[Target] = [

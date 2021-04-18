@@ -43,7 +43,7 @@ async def generate_pokemon(
 			return Pokemon(**result)
 
 
-async def create_battle(teams: list[Team]) -> dict:
+async def create_battle(teams: list[Team]) -> dict[str, Any]:
 	"""Create a new battle from a list of teams.
 
 	:param teams: The list of teams
@@ -108,7 +108,7 @@ class BattleResults:
 	winner: int
 	parties: list[Party]
 
-	def __init__(self, winner: int, parties: list):
+	def __init__(self, winner: int, parties: list[dict[str, Any]]):
 		self.winner = winner
 		self.parties = [Party(pokemon=p["Pokemon"]) for p in parties]
 
