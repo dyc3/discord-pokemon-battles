@@ -5,7 +5,7 @@ import logging
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
-import pathlib
+from pathlib import Path
 
 
 def _case_insensitive_pop(
@@ -97,13 +97,13 @@ class Pokemon():
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
 
-	def get_silhouette(self) -> str:
+	def get_silhouette(self) -> Path:
 		"""Return the path to the silhouette image of a pokemon. If the image doesn't exist it will be created.
 
 		:returns: Path to pokemon silhouette
 		"""
-		imgPath = pathlib.Path(f"./images/{self.NatDex}.png")
-		silPath = pathlib.Path(f"./images/{self.NatDex}_sil.png")
+		imgPath = Path(f"./images/{self.NatDex}.png")
+		silPath = Path(f"./images/{self.NatDex}_sil.png")
 		if not silPath.exists():
 			img = Image.open(imgPath)
 			img = img.convert("RGBA")
