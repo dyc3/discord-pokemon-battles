@@ -1,3 +1,3 @@
 #!/bin/bash
 
-find . -type f -name "*.py" -exec mypy --pretty {} +
+find . -type f -name "*.py" -exec mypy {} +
