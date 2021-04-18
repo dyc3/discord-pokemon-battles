@@ -98,20 +98,25 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	msg: Message = await ctx.send(base_msg)
 	#loads user class based upon their discord_id
 	user = await userprofile.load_profile(discord_id)
-	if single:
-		async for pokemon in user.pokemon_iter():
-			if pokemon.Name == single:
+	if user:
+		if single:
+			async for pokemon in user.pokemon_iter():
+				if pokemon.Name == single:
+					Message = await ctx.send(
+						f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
+					)
+					Message = await ctx.send(
+						f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
+					)
+		else:
+			async for pokemon in user.pokemon_iter():
 				Message = await ctx.send(
 					f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
 				)
-				Message = await ctx.send(
-					f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
-				)
 	else:
-		async for pokemon in user.pokemon_iter():
-			Message = await ctx.send(
-				f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
-			)
+		Message = await ctx.send(
+			"Couldn't find a profile! Make sure you create a profile by typing 'p!begin'"
+		)
 
 
 def get_token():
