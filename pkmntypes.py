@@ -5,7 +5,10 @@ import logging
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
-from pathlib import Path
+from enum import Enum, IntEnum
+
+log = logging.getLogger(__name__)
+
 
 
 def _case_insensitive_pop(
@@ -194,6 +197,39 @@ class BattleContext():
 		]
 
 
+class MoveFailReason(IntEnum):
+	"""Reasons that a Pokemon's move could fail."""
+
+	other = 0
+	miss = 1
+	dodge = 2
+
+
+class Stat(IntEnum):
+	"""Stats that a pokemon can have."""
+
+	Hp = 0
+	Attack = 1
+	Defense = 2
+	SpAttack = 3
+	SpDefense = 4
+	Speed = 5
+
+	def __str__(self):
+		if self == Stat.Hp:
+			return "HP"
+		elif self == Stat.Attack:
+			return "Attack"
+		elif self == Stat.Defense:
+			return "Defense"
+		elif self == Stat.SpAttack:
+			return "SpAttack"
+		elif self == Stat.SpDefense:
+			return "SpDefense"
+		elif self == Stat.Speed:
+			return "Speed"
+
+
 class Transaction:
 	"""Describes something that happened during a battle."""
 
@@ -204,17 +240,63 @@ class Transaction:
 
 	def pretty(self) -> str:
 		"""Get a human-readable representation of this transaction."""
-		if self.type == 0:
-			user = Pokemon(**self.args["User"])
-			target = Target(**self.args["Target"])
-			move = self.args["Move"]
+		try:
+			if self.name == "DamageTransaction":
+				user = Pokemon(**self.args["User"])
+				target = Target(**self.args["Target"])
+				move = self.args["Move"]
 
-			return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
-		elif self.type == 8:
-			target = Target(**self.args["Target"])
+				return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
+			elif self.name == "FriendshipTransaction":
+				pkmn = Pokemon(**self.args["Target"])
 
-			return f"{target.pokemon.Name} fainted."
-		elif self.type == 11:
-			return f"The battle has ended."
-		else:
-			return f"TODO: {self.name}<{self.type}> {self.args}"
+				if self.args['Amount'] > 0:
+					return f"{pkmn.Name} friendship increased by {self.args['Amount']}."
+				else:
+					return f"{pkmn.Name} friendship decreased by {abs(self.args['Amount'])}."
+			elif self.name == "EVTransaction":
+				pkmn = Pokemon(**self.args["Target"])
+				stat = Stat(self.args['Stat'])
+
+				return f"{pkmn.Name} gained {self.args['Amount']} {stat} EVs."
+			elif self.name == "HealTransaction":
+				pkmn = Pokemon(**self.args["Target"])
+
+				return f"{pkmn.Name} restored {self.args['Amount']} HP."
+			elif self.name == "InflictStatusTransaction":
+				import util
+				pkmn = Pokemon(**self.args["Target"])
+
+				return f"{pkmn.Name} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+			elif self.name == "FaintTransaction":
+				target = Target(**self.args["Target"])
+
+				return f"{target.pokemon.Name} fainted."
+			elif self.name == "EndBattleTransaction":
+				return f"The battle has ended."
+			elif self.name == "MoveFailTransaction":
+				user = Pokemon(**self.args["User"])
+				reason = MoveFailReason(self.args["Reason"])
+
+				msg = "failed"
+				if reason == MoveFailReason.miss:
+					msg = "missed"
+				elif reason == MoveFailReason.dodge:
+					msg = "was dodged"
+				return f"{user.Name} {msg}."
+			elif self.name == "ModifyStatTransaction":
+				pkmn = Pokemon(**self.args["Target"])
+				stat = Stat(self.args['Stat'])
+				stages = self.args['Stages']
+
+				if stages > 0:
+					direc = "increased"
+				else:
+					direc = "decreased"
+				return f"{pkmn.Name}'s {stat} {direc} by {abs(stages)}."
+			else:
+				return f"TODO: {self.name}<{self.type}> {self.args}"
+		except Exception as e:
+			# log.error(f"Failed to pretty print transaction: {e}")
+			log.exception(f"Failed to pretty print transaction", e)
+			return f"Failed: {self.name}<{self.type}> {self.args}"
