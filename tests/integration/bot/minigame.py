@@ -28,7 +28,7 @@ async def test_minigame(interface: TestInterface):
 			"title":
 			"Correct!",
 			"description":
-			r"Nice one, <@?!\d+>, that's right! Adding Pikachu to your inventory"
+			r"Nice one, <@!?\d+>, that's right! Adding Pikachu to your inventory"
 		}
 	)
 
