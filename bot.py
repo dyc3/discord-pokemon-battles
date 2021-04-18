@@ -3,7 +3,7 @@ import json
 import aiohttp
 import logging
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.message import Message
 import serve, coordinator
 from pkmntypes import *
@@ -109,7 +109,7 @@ async def callMinigame(ctx: commands.Context, natdex: str):
 
 	This command is for development and testing purposes only.
 	"""
-	pokemon = await battleapi.generate_pokemon({"natdex": natdex})
+	pokemon = await battleapi.generate_pokemon(natdex=natdex)
 	await minigame(ctx.channel, pokemon=pokemon)
 
 
@@ -167,7 +167,7 @@ async def minigame(
 		color=0x00ff00
 	)
 
-	file = discord.File(f"/code/images/{pokemon.NatDex}.png", filename=f"{name}.png")
+	file = discord.File(f"./images/{pokemon.NatDex}.png", filename=f"{name}.png")
 	embed.set_image(url=f"attachment://{name}.png")
 	await channel.send(file=file, embed=embed)
 

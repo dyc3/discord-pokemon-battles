@@ -5,7 +5,7 @@ import logging
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
-import os.path
+import pathlib
 
 
 def _case_insensitive_pop(
@@ -102,10 +102,12 @@ class Pokemon():
 
 		:returns: Path to pokemon silhouette
 		"""
-		if not os.path.isfile(f"/code/images/{self.NatDex}_sil.png"):
-			img = Image.open(f"/code/images/{self.NatDex}.png")
+		imgPath = pathlib.Path(f"./images/{self.NatDex}.png")
+		silPath = pathlib.Path(f"./images/{self.NatDex}_sil.png")
+		if not silPath.exists():
+			img = Image.open(imgPath)
 			img = img.convert("RGBA")
-			background = Image.open(f"/code/images/background.png")
+			background = Image.open(f"./images/background.png")
 			pixdata = img.load()
 
 			width, height = img.size
@@ -115,9 +117,9 @@ class Pokemon():
 						pixdata[x, y] = (0, 0, 0, 255)
 
 			background.paste(img, (60, 60), img)
-			background.save(f"/code/images/{self.NatDex}_sil.png", "PNG")
+			background.save(silPath, "PNG")
 
-		return f"/code/images/{self.NatDex}_sil.png"
+		return silPath
 
 
 @dataclass(init=False)
