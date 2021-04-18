@@ -6,9 +6,9 @@ from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
 from enum import Enum, IntEnum
+from pathlib import Path
 
 log = logging.getLogger(__name__)
-
 
 
 def _case_insensitive_pop(

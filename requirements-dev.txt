@@ -1,4 +1,4 @@
-distest==0.6.1
+distest==0.6.2
 mypy==0.812
 pydocstyle
 yapf
