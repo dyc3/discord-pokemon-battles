@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Union, overload
+from typing import Any, Optional, Union, overload
 import logging
 
 log = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ class Turn():
 			"args": self.get_args(),
 		})
 
-	def get_args(self) -> dict:
+	def get_args(self) -> dict[str, Any]:
 		"""Get the turn's parameters."""
 		return {}
 
@@ -40,7 +40,7 @@ class FightTurn(Turn):
 		}
 		self.move = kwargs.pop("move")
 
-	def get_args(self) -> dict:
+	def get_args(self) -> dict[str, Any]:
 		"""Get the turn's parameters."""
 		return {"Target": self.target, "move": self.move}
 
@@ -53,7 +53,7 @@ class ItemTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	def get_args(self) -> dict:
+	def get_args(self) -> dict[str, Any]:
 		"""Get the turn's parameters."""
 		return {}
 
@@ -66,7 +66,7 @@ class SwitchTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	def get_args(self) -> dict:
+	def get_args(self) -> dict[str, Any]:
 		"""Get the turn's parameters."""
 		return {}
 
@@ -79,6 +79,6 @@ class RunTurn(Turn):
 	def __init__(self, **kwargs) -> None:
 		pass
 
-	def get_args(self) -> dict:
+	def get_args(self) -> dict[str, Any]:
 		"""Get the turn's parameters."""
 		return {}

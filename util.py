@@ -119,7 +119,7 @@ async def prompt_for_turn(
 	return FightTurn(party=target.party, slot=target.slot, move=moveId)
 
 
-def status_to_string(status: int) -> set:
+def status_to_string(status: int) -> set[str]:
 	"""Get the human-readbale form of a Pokemon's Status Condition.
 
 	:param status: pokemon battle status as defined in pokemonbattlelib
