@@ -98,19 +98,18 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	msg: Message = await ctx.send(base_msg)
 	#loads user class based upon their discord_id
 	user = await userprofile.load_profile(discord_id)
-	pokemon_list = [p async for p in user.pokemon_iter()]
 	if single:
-		for pokemon in pokemon_list:
+		async for pokemon in user.pokemon_iter():
 			if pokemon.Name == single:
-				msg: Message = await ctx.send(
+				Message = await ctx.send(
 					f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
 				)
-				msg: Message = await ctx.send(
+				Message = await ctx.send(
 					f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
 				)
 	else:
-		for pokemon in pokemon_list:
-			msg: Message = await ctx.send(
+		async for pokemon in user.pokemon_iter():
+			Message = await ctx.send(
 				f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
 			)
 
