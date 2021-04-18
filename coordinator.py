@@ -25,7 +25,9 @@ class Agent():
 		self.user: discord.User = user
 		self.bot: str = bot
 
-	async def get_turn(self, context, original_channel: discord.TextChannel) -> Turn:
+	async def get_turn(
+		self, context: BattleContext, original_channel: discord.TextChannel
+	) -> Turn:
 		"""Get a turn from the Agent."""
 
 		log.debug(f"getting turn from {self}")
@@ -54,7 +56,7 @@ class Battle():
 	def __init__(self, **kwargs):
 		self.bid: int = None
 		self.active_pokemon: int = None
-		self.agents = []
+		self.agents: list[Agent] = []
 		self.transactions: list[Transaction] = []
 		self.original_channel: discord.TextChannel = kwargs.pop("original_channel", None)
 		self.teams: list[Team] = kwargs.pop("teams")
