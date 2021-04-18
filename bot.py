@@ -56,6 +56,9 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	battle.add_user(ctx.author)
 	if opponent.startswith("<@") and opponent.endswith(">"):
 		user = ctx.message.mentions[0]
+		if user.bot:
+			await msg.edit(content="You can't challege a discord bot.")
+			return
 		battle.add_user(user)
 	else:
 		battle.add_bot(opponent)
