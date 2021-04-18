@@ -10,7 +10,7 @@ from pkmntypes import *
 import util
 import battleapi
 import coloredlogs
-from userprofile import UserProfile, load_profile
+import userprofile
 import Levenshtein
 from typing import Union
 
@@ -66,12 +66,12 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 
 @bot.command()
 async def begin(ctx: commands.Context): # noqa: D103
-	if (profile := await load_profile(ctx.author.id)) != None:
-		assert isinstance(profile, UserProfile)
+	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
+		assert isinstance(profile, userprofile.UserProfile)
 		await ctx.send(f"You've already started a profile!", embed=profile.get_embed())
 		return
 	log.debug(f"{ctx.author} creating new profile.")
-	profile = UserProfile()
+	profile = userprofile.UserProfile()
 	profile.user_id = ctx.author.id
 	starter_dexnums = [1, 4, 7, 25, 152, 155, 158, 252, 255, 258, 387, 390, 393]
 	starters = [
@@ -108,19 +108,19 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 		if single:
 			async for pokemon in user.pokemon_iter():
 				if pokemon.Name == single:
-					Message = await ctx.send(
+					await ctx.send(
 						f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
 					)
-					Message = await ctx.send(
+					await ctx.send(
 						f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
 					)
 		else:
 			async for pokemon in user.pokemon_iter():
-				Message = await ctx.send(
+				await ctx.send(
 					f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
 				)
 	else:
-		Message = await ctx.send(
+		await ctx.send(
 			"Couldn't find a profile! Make sure you create a profile by typing 'p!begin'"
 		)
 
@@ -200,7 +200,7 @@ async def minigame(
 	await channel.send(file=file, embed=embed)
 
 	await pokemon.save()
-	profile = UserProfile()
+	profile = userprofile.UserProfile()
 	profile.user_id = message.author.id
 	profile.add_pokemon(pokemon)
 	await profile.save()
