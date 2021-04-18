@@ -3,10 +3,12 @@ import logging, asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Iterable, Union
+from typing import Iterable, Sequence, Union
 from pkmntypes import *
 
-RESPONSE_REACTIONS = ["🇦", "🇧", "🇨", "🇩"]
+RESPONSE_REACTIONS = [
+	"🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵"
+]
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +19,7 @@ async def prompt_menu(
 	content: str,
 	title: str,
 	description: str,
-	items: list[tuple[str, str]],
+	items: Sequence[Union[str, tuple[str, str]]],
 	use_channel: Optional[discord.TextChannel] = None
 ):
 	"""Create menu for the user to choose between several options."""
@@ -32,14 +34,21 @@ async def prompt_menu(
 	embed = discord.Embed(title=title, description=description)
 
 	count = 0
-	for name, value in items:
+	for item in items:
+		name, value = None, None
+		if isinstance(item, tuple):
+			name, value = item
+		else:
+			name = item
 		embed.add_field(
-			name=f"{RESPONSE_REACTIONS[count]}: {name}", value=value, inline=False
+			name=f"{RESPONSE_REACTIONS[count]}: {name}",
+			value=value if value else count,
+			inline=False
 		)
 		count += 1
 
 	msg: Message = await channel.send(content=content, embed=embed)
-	for r in RESPONSE_REACTIONS:
+	for r in RESPONSE_REACTIONS[:len(items)]:
 		bot.loop.create_task(msg.add_reaction(r))
 
 	def check(payload):
@@ -60,8 +69,13 @@ async def prompt_menu(
 	embed.clear_fields()
 	reaction = [items[reactionId]]
 
-	for name, value in reaction:
-		embed.add_field(name=name, value=value, inline=False)
+	for item in reaction:
+		name, value = None, None
+		if isinstance(item, tuple):
+			name, value = item
+		else:
+			name = item
+		embed.add_field(name=name, value=value if value else "Selected", inline=False)
 
 	await msg.edit(content="Selected", embed=embed)
 

@@ -1,3 +1,4 @@
+from coordinator import Battle
 import unittest
 
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -8,6 +9,7 @@ import storage
 from userprofile import UserProfile, load_profile
 from hypothesis import given, strategies as st
 import battleapi
+import util
 
 
 class TestStorage(unittest.TestCase):
@@ -85,6 +87,46 @@ class TestStorage(unittest.TestCase):
 			profile.add_pokemon(pkmn)
 			await profile.save()
 			self.assertEqual(len(profile.pokemon), 1)
+
+		return self.loop.run_until_complete(go())
+
+	def test_post_battle_apply(self):
+
+		async def go():
+			pkmn = await battleapi.generate_pokemon()
+			pkmn2 = await battleapi.generate_pokemon()
+			await pkmn.save()
+			await pkmn2.save()
+			p1 = Party(pokemon=[pkmn])
+			p2 = Party(pokemon=[pkmn2])
+			teams = util.build_teams_single(p1, p2)
+			battle = Battle(teams=teams)
+			import copy
+			p1next = copy.deepcopy(p1)
+			p2next = copy.deepcopy(p2)
+			p1next.pokemon[0]._id = None
+			p1next.pokemon[0].EVs = [21, 31, 27, 6, 11, 12]
+			p2next.pokemon[0]._id = None
+			p2next.pokemon[0].CurrentHP = 0
+			results = battleapi.BattleResults(1, [])
+			results.parties = [p1next, p2next]
+			await battle.apply_post_battle_updates(results)
+			self.assertIsNotNone(p1.pokemon[0]._id)
+			self.assertIsNotNone(p2.pokemon[0]._id)
+			self.assertListEqual(p1.pokemon[0].EVs, p1next.pokemon[0].EVs)
+			self.assertEqual(p2.pokemon[0].CurrentHP, p2next.pokemon[0].CurrentHP)
+
+		return self.loop.run_until_complete(go())
+
+	def test_load_pokemon(self):
+
+		async def go():
+			pkmn = await battleapi.generate_pokemon()
+			await pkmn.save()
+			self.assertIsNotNone(pkmn._id)
+			result = await storage.load_pokemon(pkmn._id)
+			self.assertIsNotNone(result)
+			self.assertIsInstance(result, Pokemon)
 
 		return self.loop.run_until_complete(go())
 

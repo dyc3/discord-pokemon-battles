@@ -4,6 +4,7 @@ from typing import Union
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
 import logging
 from userprofile import UserProfile
+from bson import ObjectId
 
 log = logging.getLogger(__name__)
 client: AsyncIOMotorClient = AsyncIOMotorClient('mongodb://db/brock')
@@ -56,3 +57,19 @@ async def save_object(
 		)
 		obj._id = result.inserted_id
 		log.debug(f"Inserted {type(obj)} ({obj._id})")
+
+
+async def load_pokemon(id: ObjectId) -> Pokemon:
+	"""Get pokemon from the database by its ObjectId.
+
+	:param id: The id of the pokemon the user is trying to retrieve
+
+	:raises:
+		Exception: The pokemon with the supplied id cannot be found/does not exist
+
+	:returns: Pokemon
+	"""
+	result = await pokemon().find_one({'_id': id})
+	if result == None:
+		raise Exception(f"No pokemon found with id: {id}")
+	return Pokemon(**result)
