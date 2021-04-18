@@ -96,7 +96,7 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	discord_id = ctx.author.id
 	base_msg = f"<@!{discord_id}> Here are all of your current Pokemon"
 	msg: Message = await ctx.send(base_msg)
-	#loads user class based upon their discord_id
+
 	user = await userprofile.load_profile(discord_id)
 	if user:
 		if single:
