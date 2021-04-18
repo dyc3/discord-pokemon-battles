@@ -14,9 +14,9 @@ from userprofile import UserProfile, load_profile
 import Levenshtein
 from typing import Union
 
-# enables commands that should only be accessable in development
-# when command is decorated with "@commands.check(lambda x: DEVELOPMENT)"
+# When true commands in DEV_COMMANDS will be disabled
 DEVELOPMENT = True
+DEV_COMMANDS = ["callMinigame"]
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
@@ -71,7 +71,6 @@ def get_token():
 
 
 @bot.command()
-@commands.check(lambda x: DEVELOPMENT)
 async def callMinigame(ctx: commands.Context, natdex: str):
 	"""Call the minigame function, optionally with a pokemon specified by natdex number.
 
@@ -150,4 +149,9 @@ if __name__ == "__main__":
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
+
+	if not DEVELOPMENT:
+		for command in DEV_COMMANDS:
+			bot.remove_command(command)
+
 	bot.run(get_token())
