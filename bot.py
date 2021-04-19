@@ -70,7 +70,7 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	await msg.edit(content=f"{base_msg} (Started)")
 
 
-@bot.command(help='Creates account and allows users to choose their starter Pokemon!')
+@bot.command(help='Create a profile and choose your starter Pokemon.')
 async def begin(ctx: commands.Context): # noqa: D103
 	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
 		assert isinstance(profile, userprofile.UserProfile)
