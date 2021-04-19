@@ -27,6 +27,20 @@ class Agent():
 		self.user: discord.User = user
 		self.bot: str = bot
 
+	async def send_visualization(self, ctx: BattleContext) -> None:
+		"""Send battlefield visualization to the agent."""
+		if self.user != None:
+			if not self.user.bot:
+				if not self.user.dm_channel:
+					await self.user.create_dm()
+				channel = self.user.dm_channel
+			if channel:
+				with channel.typing():
+					with io.BytesIO() as data:
+						visualize_battle(ctx).save(data, 'PNG')
+						data.seek(0)
+						await channel.send(file=discord.File(data, filename="battle.png"))
+
 	async def get_turn(
 		self, context: BattleContext, original_channel: discord.TextChannel
 	) -> Turn:
@@ -88,6 +102,7 @@ class Battle():
 
 		async def _do(i: int, agent: Agent):
 			context = await battleapi.get_battle_context(self.bid, i)
+			await agent.send_visualization(context)
 			turn = await agent.get_turn(context, self.original_channel)
 			log.debug(f"posting turn {turn} from {agent}")
 			await battleapi.submit_turn(self.bid, i, turn)
