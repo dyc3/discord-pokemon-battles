@@ -44,7 +44,10 @@ async def ping(ctx: commands.Context): # noqa: D103
 	#log.warning('log message')
 
 
-@bot.command()
+@bot.command(
+	help=
+	'Start a battle with another user! Add an oppoent to the end of this command to challenge someone.'
+)
 async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	base_msg = f"<@!{ctx.author.id}> challenging {opponent}"
 	msg: Message = await ctx.send(base_msg)
@@ -67,7 +70,7 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	await msg.edit(content=f"{base_msg} (Started)")
 
 
-@bot.command()
+@bot.command(help='Create a profile and choose your starter Pokemon.')
 async def begin(ctx: commands.Context): # noqa: D103
 	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
 		assert isinstance(profile, userprofile.UserProfile)
