@@ -1,3 +1,4 @@
+import io
 import logging
 import asyncio
 import aiohttp
@@ -7,6 +8,7 @@ from turns import *
 import util
 import battleapi
 from pkmntypes import *
+from visualize import visualize_battle
 
 log = logging.getLogger(__name__)
 
@@ -94,8 +96,16 @@ class Battle():
 
 	async def simulate(self):
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
-
 		while True:
+			log.debug("visualizing")
+			with self.original_channel.typing():
+				ctx = await battleapi.get_battle_context(self.bid, 0)
+				with io.BytesIO() as data:
+					visualize_battle(ctx).save(data, 'PNG')
+					data.seek(0)
+					await self.original_channel.send(
+						file=discord.File(data, filename="battle.png")
+					)
 			log.debug("asking agents for turns")
 			await self.queue_turns()
 			log.debug("simulating round")
