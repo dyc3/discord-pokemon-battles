@@ -12,11 +12,8 @@ import battleapi
 import coloredlogs
 import userprofile
 import Levenshtein
-from typing import Union
-
-# When true commands in DEV_COMMANDS will be disabled
-DEVELOPMENT = True
-DEV_COMMANDS = ["callMinigame"]
+from typing import Callable, Union
+import config
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
@@ -38,10 +35,35 @@ class DiscordBrock(commands.Bot):
 bot = DiscordBrock(command_prefix='p!')
 
 
-@bot.command()
+def dev_command(*args, **kwargs) -> Callable:
+	"""Disable a discord command in production. Must **not** be used with `@bot.command()` decorator. Takes the same arguments as `@bot.command()`.
+
+	Example:
+	```
+	@dev_command()
+	async def dev_only(ctx: commands.Context):
+		pass
+	```
+	"""
+	if config.BROCK_ENVIRONMENT == "dev-test":
+
+		def decorator(func: Callable) -> Callable:
+			log.warning(f"adding dev command to bot: {func.__name__}")
+			return bot.command(*args, **kwargs)(func)
+
+		return decorator
+	else:
+
+		def decorator(func: Callable) -> Callable:
+			log.debug(f"skip adding dev command to bot: {func.__name__}")
+			return func
+
+		return decorator
+
+
+@dev_command()
 async def ping(ctx: commands.Context): # noqa: D103
 	await ctx.send('pong')
-	#log.warning('log message')
 
 
 @bot.command(
@@ -131,13 +153,7 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 		)
 
 
-def get_token():
-	"""Read the bot's token from disk."""
-	with open("token", "r") as f:
-		return "".join(f.readlines()).strip()
-
-
-@bot.command()
+@dev_command()
 async def callMinigame(ctx: commands.Context, natdex: str):
 	"""Call the minigame function, optionally with a pokemon specified by natdex number.
 
@@ -217,8 +233,4 @@ if __name__ == "__main__":
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
 
-	if not DEVELOPMENT:
-		for command in DEV_COMMANDS:
-			bot.remove_command(command)
-
-	bot.run(get_token())
+	bot.run(config.BOT_TOKEN)
