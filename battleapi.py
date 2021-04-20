@@ -5,10 +5,11 @@ import jsonpickle
 from pkmntypes import *
 from turns import *
 import os
+import config
 
 log = logging.getLogger(__name__)
 
-BASE_URL = os.environ.get("BATTLE_API_BASE_URL", "http://api:4000")
+BASE_URL = config.BATTLE_API_BASE_URL
 
 
 class BattleRoundResults:

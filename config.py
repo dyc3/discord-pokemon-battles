@@ -20,3 +20,5 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if not BOT_TOKEN:
 	BOT_TOKEN = read_discord_token()
 assert BOT_TOKEN != None, "BOT_TOKEN was not provided."
+
+BATTLE_API_BASE_URL = os.environ.get("BATTLE_API_BASE_URL", "http://api:4000")
