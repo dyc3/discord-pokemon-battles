@@ -4,7 +4,7 @@ from discord import Embed, Member, Status, Message
 from distest.TestInterface import TestInterface
 from distest import run_dtest_bot, TestCollector
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
-from test_util import resetdb
+from brock_test_util import resetdb
 
 test_collector = TestCollector()
 
