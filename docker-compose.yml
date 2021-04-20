@@ -14,7 +14,7 @@ services:
         aliases:
           - bot
     environment:
-      - BROCK_ENVIRONMENT=prod
+      - BROCK_ENVIRONMENT=dev-test
   api:
     build: ./services/battle-api
     ports:
