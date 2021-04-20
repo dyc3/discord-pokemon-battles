@@ -12,7 +12,7 @@ import battleapi
 import coloredlogs
 import userprofile
 import Levenshtein
-from typing import Callable, Union
+from typing import Callable, Union, Any
 import config
 
 log = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ class DiscordBrock(commands.Bot):
 bot = DiscordBrock(command_prefix='p!')
 
 
-def dev_command(*args, **kwargs) -> Callable:
+def dev_command(*args, **kwargs):
 	"""Disable a discord command in production. Must **not** be used with `@bot.command()` decorator. Takes the same arguments as `@bot.command()`.
 
 	Example:
@@ -47,14 +47,14 @@ def dev_command(*args, **kwargs) -> Callable:
 	"""
 	if config.BROCK_ENVIRONMENT == "dev-test":
 
-		def decorator(func: Callable) -> Callable:
+		def decorator(func):
 			log.warning(f"adding dev command to bot: {func.__name__}")
 			return bot.command(*args, **kwargs)(func)
 
 		return decorator
 	else:
 
-		def decorator(func: Callable) -> Callable:
+		def decorator(func):
 			log.debug(f"skip adding dev command to bot: {func.__name__}")
 			return func
 
