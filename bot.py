@@ -228,6 +228,19 @@ async def minigame(
 	await profile.save()
 
 
+@dev_command(help="Force the storage module to point to the test database.")
+async def use_test_db(ctx: commands.Context):
+	"""Force the storage module to point to the test database. Requires a restart to revert."""
+	from motor.motor_asyncio import AsyncIOMotorClient
+	import storage
+	client = AsyncIOMotorClient('mongodb://db/brock_test')
+	storage._set_client(client)
+	log.warning(
+		f"Now using database: {storage.db.name}. Restart required to revert this change."
+	)
+	await ctx.send(f"Using database: {storage.db.name}")
+
+
 if __name__ == "__main__":
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
