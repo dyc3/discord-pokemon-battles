@@ -153,7 +153,7 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 		)
 
 
-@bot.command()
+@dev_command()
 async def callMinigame(ctx: commands.Context, natdex: str = ""):
 	"""Call the minigame function, optionally with a pokemon specified by natdex number.
 
@@ -197,8 +197,7 @@ async def minigame(
 	guess = message.content.split()[-1]
 	profile = await userprofile.load_profile(message.author.id)
 
-	while guess.lower() != name.lower():
-
+	while True:
 		if profile is None:
 			await channel.send(
 				f"{message.author.mention} you need to run `p!begin` before you can play the game"
@@ -211,8 +210,11 @@ async def minigame(
 			await channel.send(
 				f"{message.author.mention} that guess was close, but not quite right"
 			)
+		elif guess.lower() == name.lower():
+			break
 		else:
 			await channel.send("That's incorrect, please guess again")
+
 		message = await bot.wait_for("message", check=check)
 		guess = message.content.split()[-1]
 		profile = await userprofile.load_profile(message.author.id)
