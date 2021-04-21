@@ -3,12 +3,14 @@ import asyncio
 from discord import Embed, Member, Status, Message
 from distest.TestInterface import TestInterface
 from distest import run_dtest_bot, TestCollector
+from brock_test_util import resetdb
 
 test_collector = TestCollector()
 
 
 @test_collector()
 async def test_minigame(interface: TestInterface):
+	await resetdb(interface)
 	embed = Embed(
 		title="Who's That Pokemon?",
 		description="Can you guess the name of the Pokemon shown below?",

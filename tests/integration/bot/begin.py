@@ -4,18 +4,14 @@ from discord import Embed, Member, Status, Message
 from distest.TestInterface import TestInterface
 from distest import run_dtest_bot, TestCollector
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
+from brock_test_util import resetdb
 
 test_collector = TestCollector()
 
 
-async def resetdb():
-	client: AsyncIOMotorClient = AsyncIOMotorClient('mongodb://db/brock')
-	client.drop_database("brock")
-
-
 @test_collector()
 async def test_begin_prompt_should_have_reactions(interface: TestInterface):
-	await resetdb()
+	await resetdb(interface)
 	await interface.send_message("p!begin")
 	msg = await interface.wait_for_message()
 	await interface.wait_for_reaction(msg)
@@ -23,7 +19,7 @@ async def test_begin_prompt_should_have_reactions(interface: TestInterface):
 
 @test_collector()
 async def test_begin_no_duplicates(interface: TestInterface):
-	await resetdb()
+	await resetdb(interface)
 	await interface.send_message("p!begin")
 	msg: Message = await interface.wait_for_message()
 	await interface.wait_for_reaction(msg)
