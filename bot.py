@@ -193,11 +193,11 @@ async def minigame(
 			"guess"
 		)
 
-	message = await bot.wait_for("message", check=check)
-	guess = message.content.split()[-1]
-	profile = await userprofile.load_profile(message.author.id)
-
 	while True:
+		message = await bot.wait_for("message", check=check)
+		guess = message.content.split()[-1]
+		profile = await userprofile.load_profile(message.author.id)
+
 		if profile is None:
 			await channel.send(
 				f"{message.author.mention} you need to run `p!begin` before you can play the game"
@@ -214,10 +214,6 @@ async def minigame(
 			break
 		else:
 			await channel.send("That's incorrect, please guess again")
-
-		message = await bot.wait_for("message", check=check)
-		guess = message.content.split()[-1]
-		profile = await userprofile.load_profile(message.author.id)
 
 	embed = discord.Embed(
 		title="Correct!",

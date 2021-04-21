@@ -16,6 +16,9 @@ async def test_minigame(interface: TestInterface):
 	msg: Message = await interface.wait_for_message()
 	await interface.wait_for_reaction(msg)
 	await msg.add_reaction("🇩")
+	msg2: Message = await interface.wait_for_message()
+	await interface.assert_message_contains(msg2, "Profile created")
+	await asyncio.sleep(0.5)
 
 	embed = Embed(
 		title="Who's That Pokemon?",
