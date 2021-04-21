@@ -159,7 +159,7 @@ async def callMinigame(ctx: commands.Context, natdex: str = ""):
 
 	This command is for development and testing purposes only.
 	"""
-	pokemon = await battleapi.generate_pokemon(natdex=int(natdex) if natdex else 0)
+	pokemon = await battleapi.generate_pokemon(natdex=int(natdex) if natdex else None)
 	await minigame(ctx.channel, pokemon=pokemon)
 
 
