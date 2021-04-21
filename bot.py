@@ -229,15 +229,7 @@ async def minigame(
 	file = discord.File(f"./images/{pokemon.NatDex}.png", filename=f"{name}.png")
 	embed.set_image(url=f"attachment://{name}.png")
 	await channel.send(file=file, embed=embed)
-
 	await pokemon.save()
-
-	if profile is None:
-		await channel.send(
-			f"{message.author.mention} error while saving. Profile not found"
-		)
-		return
-
 	profile.add_pokemon(pokemon)
 	await profile.save()
 
