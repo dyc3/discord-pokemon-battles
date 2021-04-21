@@ -11,6 +11,15 @@ test_collector = TestCollector()
 @test_collector()
 async def test_minigame(interface: TestInterface):
 	await resetdb(interface)
+
+	await interface.send_message("p!begin")
+	msg: Message = await interface.wait_for_message()
+	await interface.wait_for_reaction(msg)
+	await msg.add_reaction("🇩")
+	msg2: Message = await interface.wait_for_message()
+	await interface.assert_message_contains(msg2, "Profile created")
+	await asyncio.sleep(0.5)
+
 	embed = Embed(
 		title="Who's That Pokemon?",
 		description="Can you guess the name of the Pokemon shown below?",
