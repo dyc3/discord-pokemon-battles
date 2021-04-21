@@ -153,13 +153,13 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 		)
 
 
-@dev_command()
-async def callMinigame(ctx: commands.Context, natdex: str):
+@bot.command()
+async def callMinigame(ctx: commands.Context, natdex: str = ""):
 	"""Call the minigame function, optionally with a pokemon specified by natdex number.
 
 	This command is for development and testing purposes only.
 	"""
-	pokemon = await battleapi.generate_pokemon(natdex=int(natdex))
+	pokemon = await battleapi.generate_pokemon(natdex=int(natdex) if natdex else 0)
 	await minigame(ctx.channel, pokemon=pokemon)
 
 
@@ -195,9 +195,15 @@ async def minigame(
 
 	message = await bot.wait_for("message", check=check)
 	guess = message.content.split()[-1]
+	profile = await userprofile.load_profile(message.author.id)
 
 	while guess.lower() != name.lower():
-		if guess.lower() == "hint":
+
+		if profile is None:
+			await channel.send(
+				f"{message.author.mention} you need to run `p!begin` before you can play the game"
+			)
+		elif guess.lower() == "hint":
 			await channel.send(
 				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
 			)
@@ -209,6 +215,7 @@ async def minigame(
 			await channel.send("That's incorrect, please guess again")
 		message = await bot.wait_for("message", check=check)
 		guess = message.content.split()[-1]
+		profile = await userprofile.load_profile(message.author.id)
 
 	embed = discord.Embed(
 		title="Correct!",
@@ -222,8 +229,13 @@ async def minigame(
 	await channel.send(file=file, embed=embed)
 
 	await pokemon.save()
-	profile = userprofile.UserProfile()
-	profile.user_id = message.author.id
+
+	if profile is None:
+		await channel.send(
+			f"{message.author.mention} error while saving. Profile not found"
+		)
+		return
+
 	profile.add_pokemon(pokemon)
 	await profile.save()
 

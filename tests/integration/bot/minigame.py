@@ -11,6 +11,12 @@ test_collector = TestCollector()
 @test_collector()
 async def test_minigame(interface: TestInterface):
 	await resetdb(interface)
+
+	await interface.send_message("p!begin")
+	msg: Message = await interface.wait_for_message()
+	await interface.wait_for_reaction(msg)
+	await msg.add_reaction("🇩")
+
 	embed = Embed(
 		title="Who's That Pokemon?",
 		description="Can you guess the name of the Pokemon shown below?",
