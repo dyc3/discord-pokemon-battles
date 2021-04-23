@@ -82,6 +82,34 @@ async def prompt_menu(
 	return reactionId
 
 
+async def prompt_message(
+	bot: commands.Bot, user: discord.User, msg: discord.Message, list_of_emojis: list[str]
+):
+	"""Works very similar to prompt_menu except it takes in the message and a list of reactions instead of the specific menu_items."""
+
+	for r in list_of_emojis:
+		bot.loop.create_task(msg.add_reaction(r))
+
+	def check(payload):
+		log.debug(f"checking payload {payload}")
+		return payload.message_id == msg.id and payload.user_id == user.id and str(
+			payload.emoji
+		) in list_of_emojis
+
+	try:
+		log.debug("waiting for user's reaction")
+		# HACK: reaction_add doesn't work in DMs
+		payload = await bot.wait_for("raw_reaction_add", check=check)
+	except asyncio.TimeoutError as e:
+		await channel.send("timed out")
+		raise e
+
+	reactionId = list_of_emojis.index(str(payload.emoji))
+	reaction = [items[reactionId]]
+
+	return reactionId
+
+
 async def prompt_for_turn(
 	bot: commands.Bot,
 	user: discord.User,

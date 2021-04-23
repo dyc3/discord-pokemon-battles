@@ -125,6 +125,14 @@ async def begin(ctx: commands.Context): # noqa: D103
 	await ctx.send("Profile created! `p!help` for more commands.")
 
 
+@dev_command()
+async def test(ctx=commands.Context):
+	"""Tests the prompt_message function."""
+	Message = await ctx.send("Choose an option")
+	list_of_emojis = ["🇦", "🇧", "🇨", "🇩"]
+	result = await util.prompt_message(bot, ctx.author, Message, list_of_emojis)
+
+
 @bot.command(help='Add name to display specific Pokemon')
 async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	discord_id = ctx.author.id
