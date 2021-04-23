@@ -71,14 +71,14 @@ class Agent():
 		"""Get the name of this agent."""
 		if self.bot != None:
 			return self.bot
-		return self.user.name
+		return str(self.user.name)
 
 	@property
 	def mention(self) -> str:
 		"""Get a string that mentions this agent on discord."""
 		if self.bot != None:
 			return self.bot
-		return self.user.mention
+		return str(self.user.mention)
 
 
 class Battle():
