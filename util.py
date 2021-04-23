@@ -62,7 +62,7 @@ async def prompt_menu(
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
 	except asyncio.TimeoutError as e:
-		#await channel.send("timed out")
+		await channel.send("timed out")
 		raise e
 
 	reactionId = RESPONSE_REACTIONS.index(str(payload.emoji))
@@ -101,7 +101,7 @@ async def prompt_message(
 		# HACK: reaction_add doesn't work in DMs
 		payload = await bot.wait_for("raw_reaction_add", check=check)
 	except asyncio.TimeoutError as e:
-		await channel.send("timed out")
+		log.error("timed out")
 		raise e
 
 	reactionId = list_of_emojis.index(str(payload.emoji))
