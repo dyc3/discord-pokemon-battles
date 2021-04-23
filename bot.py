@@ -206,12 +206,12 @@ async def minigame(
 			await channel.send(
 				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
 			)
+		elif guess.lower() == name.lower(): # a correct guess ends the minigame
+			break
 		elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
 			await channel.send(
 				f"{message.author.mention} that guess was close, but not quite right"
 			)
-		elif guess.lower() == name.lower():
-			break
 		else:
 			await channel.send("That's incorrect, please guess again")
 
