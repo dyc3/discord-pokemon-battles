@@ -3,6 +3,7 @@ from pkmntypes import BattleContext
 
 log = logging.getLogger(__name__)
 from PIL import Image
+import time
 
 
 def get_background() -> Image:
@@ -12,10 +13,12 @@ def get_background() -> Image:
 
 def visualize_battle(ctx: BattleContext) -> Image:
 	"""Visualize the battlecontext."""
-	im = Image.new("RGB", (1280, 720), "white")
-	im.paste(get_background())
+	start_time = time.time()
+	im = get_background()
 	pkmn = ctx.pokemon.get_image()
 	im.paste(pkmn, (350, im.height - pkmn.height - 50), pkmn)
 	opponent = ctx.opponents[0].pokemon.get_image()
 	im.paste(opponent, (im.width - opponent.width - 200, 60), opponent)
+	duration = time.time() - start_time
+	log.info(f"Battle visualized in {duration} seconds.")
 	return im
