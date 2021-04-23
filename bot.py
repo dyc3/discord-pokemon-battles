@@ -1,7 +1,7 @@
 import asyncio
 import json
 import aiohttp
-import logging
+import logging, time
 import discord
 from discord.ext import commands, tasks
 from discord.message import Message
@@ -71,9 +71,8 @@ async def ping(ctx: commands.Context): # noqa: D103
 	'Start a battle with another user! Add an oppoent to the end of this command to challenge someone.'
 )
 async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
-	base_msg = f"<@!{ctx.author.id}> challenging {opponent}"
-	msg: Message = await ctx.send(base_msg)
-	await msg.edit(content=f"{base_msg} (Populating battle...)")
+	log.debug(f"Setting up battle: {ctx.author} challenging {opponent}")
+	start_time = time.time()
 	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
 
 	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
@@ -88,8 +87,9 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	else:
 		battle.add_bot(opponent)
 	coordinator.battles += [battle]
+	duration = time.time() - start_time
+	log.info(f"Battle setup took {duration} seconds. Starting battle...")
 	await battle.start()
-	await msg.edit(content=f"{base_msg} (Started)")
 
 
 @bot.command(help='Create a profile and choose your starter Pokemon.')

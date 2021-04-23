@@ -4,6 +4,7 @@ import asyncio
 import aiohttp
 import functools
 import discord
+from discord import embeds
 from turns import *
 import util
 import battleapi
@@ -65,6 +66,20 @@ class Agent():
 			return f"Agent<User: {self.user.name}>"
 		return f"Agent<invalid>"
 
+	@property
+	def name(self) -> str:
+		"""Get the name of this agent."""
+		if self.bot != None:
+			return self.bot
+		return self.user.name
+
+	@property
+	def mention(self) -> str:
+		"""Get a string that mentions this agent on discord."""
+		if self.bot != None:
+			return self.bot
+		return self.user.mention
+
 
 class Battle():
 	"""A Pokemon battle. Gathers user input and manages the simulation via the battle api."""
@@ -113,12 +128,20 @@ class Battle():
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
 		while True:
 			log.debug("visualizing")
+			spectator_embed = discord.Embed(
+				title=f"{self.agents[0].name} vs. {self.agents[1].name}",
+			)
+			spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
+
 			with self.original_channel.typing():
 				ctx = await battleapi.get_battle_context(self.bid, 0)
 				with io.BytesIO() as data:
 					visualize_battle(ctx).save(data, 'PNG')
 					data.seek(0)
-					await self.original_channel.send(
+					spectator_embed.set_image(url="attachment://battle.png")
+					spectator_msg: discord.Message = await self.original_channel.send(
+						spectator_content,
+						embed=spectator_embed,
 						file=discord.File(data, filename="battle.png")
 					)
 			log.debug("asking agents for turns")
