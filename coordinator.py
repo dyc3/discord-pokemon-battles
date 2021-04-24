@@ -132,7 +132,7 @@ class Battle():
 		while True:
 			log.debug("visualizing")
 			spectator_embed = discord.Embed(
-				title=f"{self.agents[0].name} vs. {self.agents[1].name}",
+				title=f"{self.agents[0].name} vs. {self.agents[1].name}", description=""
 			)
 			spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
 
@@ -147,23 +147,16 @@ class Battle():
 						embed=spectator_embed,
 						file=discord.File(data, filename="battle.png")
 					)
-			log.debug("asking agents for turns")
-			await self.queue_turns()
-			log.debug("simulating round")
-			results = await battleapi.simulate(self.bid)
-			self.transactions += results.transactions
-			if self.original_channel:
-				embed = discord.Embed(
-					title=f"{self.agents[0].name} vs. {self.agents[1].name}",
-					description=self.transactions[0].pretty()
-				)
-				msg: Message = await self.original_channel.send(embed=embed)
-				msg
-				for i in range(1, len(self.transactions)):
-					embed.description += f"\n{self.transactions[i].pretty()}"
-					await msg.edit(embed=embed)
-			if results.ended:
-				break
+					log.debug("asking agents for turns")
+					await self.queue_turns()
+					log.debug("simulating round")
+					results = await battleapi.simulate(self.bid)
+					self.transactions += results.transactions
+					for i in range(len(results.transactions)):
+						spectator_embed.description += f"\n{results.transactions[i].pretty()}"
+					await spectator_msg.edit(embed=spectator_embed)
+					if results.ended:
+						break
 		log.info(f"Battle between {self.agents} concluded")
 		results = await battleapi.get_results(self.bid)
 		if self.original_channel:
