@@ -62,6 +62,17 @@ def visualize_battle(ctx: BattleContext) -> Image.Image:
 	pkmn_info_box_pos = (im.width - info_box_size[0], im.height - info_box_size[1])
 	im.paste(info_box, pkmn_info_box_pos, mask=info_box)
 
+	info_box_opponent = render_info_box(ctx.opponents[0].pokemon)
+	info_box_opponent_size = (
+		int(info_box_opponent.width * info_box_scale),
+		int(info_box_opponent.height * info_box_scale)
+	)
+	info_box_opponent = info_box_opponent.resize(info_box_opponent_size, Image.NEAREST)
+	pkmn_info_box_pos = (
+		im.width - info_box_opponent_size[0], im.height - info_box_opponent_size[1]
+	)
+	im.paste(info_box_opponent, (0, 0), mask=info_box)
+
 	duration = time.time() - start_time
 	log.info(f"Battle visualized in {duration} seconds.")
 	return im
