@@ -73,7 +73,7 @@ async def ping(ctx: commands.Context): # noqa: D103
 async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	log.debug(f"Setting up battle: {ctx.author} challenging {opponent}")
 	start_time = time.time()
-	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
+	pkmn = [await battleapi.generate_pokemon(level=30) for _ in range(2)]
 
 	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
 	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
