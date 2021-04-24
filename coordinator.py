@@ -28,7 +28,9 @@ class Agent():
 		self.user: discord.User = user
 		self.bot: str = bot
 
-	async def send_visualization(self, ctx: BattleContext) -> None:
+	async def send_visualization(
+		self, ctx: BattleContext, channel: discord.TextChannel = None
+	) -> None:
 		"""Send battlefield visualization to the agent."""
 		if self.user != None:
 			if not self.user.bot:
