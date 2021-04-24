@@ -18,23 +18,31 @@ def offset(pos: tuple[int, int], offset: tuple[int, int]) -> tuple[int, int]:
 	return (x + x2, y + y2)
 
 
-def render_info_box(pkmn: Pokemon) -> Image.Image:
+def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
 	"""Render an info box that is shown in battle for the given pokemon."""
-	font_big = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 18)
-	im = Image.open("./data/images/pkmn_info_box.png")
-	draw = ImageDraw.Draw(im)
-	name_pos = (34, 12)
-	health_text_pos = (136, 51)
-	draw.text(name_pos, pkmn.Name, fill=(0, 0, 0), font=font_big)
-	font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
-	draw.text(
-		health_text_pos,
-		f"{pkmn.CurrentHP}/{pkmn.Stats[Stat.Hp]}",
-		fill=(0, 0, 0),
-		font=font_sm
-	)
-	hp_bar_left, hp_bar_y = (136, 42)
+	if not is_opponent:
+		template = "./data/images/pkmn_info_box.png"
+		name_pos = (34, 12)
+		hp_bar_left, hp_bar_y = (136, 42)
+	else:
+		template = "./data/images/pkmn_info_box_opponent.png"
+		name_pos = (8, 12)
+		hp_bar_left, hp_bar_y = (102, 42)
 	hp_bar_width, hp_bar_height = (95, 6)
+	health_text_pos = (136, 51)
+
+	font_big = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 18)
+	im = Image.open(template)
+	draw = ImageDraw.Draw(im)
+	draw.text(name_pos, pkmn.Name, fill=(0, 0, 0), font=font_big)
+	if not is_opponent:
+		font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
+		draw.text(
+			health_text_pos,
+			f"{pkmn.CurrentHP}/{pkmn.Stats[Stat.Hp]}",
+			fill=(0, 0, 0),
+			font=font_sm
+		)
 	adjusted_hp_width = int((pkmn.CurrentHP / pkmn.Stats[Stat.Hp]) * hp_bar_width)
 	draw.line(
 		[(hp_bar_left, hp_bar_y), (hp_bar_left + adjusted_hp_width, hp_bar_y)],
@@ -62,7 +70,7 @@ def visualize_battle(ctx: BattleContext) -> Image.Image:
 	pkmn_info_box_pos = (im.width - info_box_size[0], im.height - info_box_size[1])
 	im.paste(info_box, pkmn_info_box_pos, mask=info_box)
 
-	info_box_opponent = render_info_box(ctx.opponents[0].pokemon)
+	info_box_opponent = render_info_box(ctx.opponents[0].pokemon, is_opponent=True)
 	info_box_opponent_size = (
 		int(info_box_opponent.width * info_box_scale),
 		int(info_box_opponent.height * info_box_scale)
@@ -71,7 +79,7 @@ def visualize_battle(ctx: BattleContext) -> Image.Image:
 	pkmn_info_box_pos = (
 		im.width - info_box_opponent_size[0], im.height - info_box_opponent_size[1]
 	)
-	im.paste(info_box_opponent, (0, 0), mask=info_box)
+	im.paste(info_box_opponent, (0, 0), mask=info_box_opponent)
 
 	duration = time.time() - start_time
 	log.info(f"Battle visualized in {duration} seconds.")
