@@ -7,6 +7,7 @@ from turns import *
 import util
 import battleapi
 from pkmntypes import *
+from discord.message import Message
 
 log = logging.getLogger(__name__)
 
@@ -101,6 +102,13 @@ class Battle():
 			log.debug("simulating round")
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
+			if self.original_channel:
+				msg: Message = await self.original_channel.send(
+					self.transactions[0].pretty()
+				)
+				msg
+				for i in range(len(self.transactions)):
+					await msg.edit(content=f"\n{self.transactions[i].pretty()}")
 			if results.ended:
 				break
 		log.info(f"Battle between {self.agents} concluded")
