@@ -100,6 +100,10 @@ class Pokemon():
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
 
+	def get_image(self) -> Image:
+		"""Get the image of the pokemon."""
+		return Image.open(f"./images/{self.NatDex}.png")
+
 	def get_silhouette(self) -> Path:
 		"""Return the path to the silhouette image of a pokemon. If the image doesn't exist it will be created.
 
