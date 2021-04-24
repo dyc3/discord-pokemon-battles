@@ -33,6 +33,14 @@ def render_info_box(pkmn: Pokemon) -> Image.Image:
 		fill=(0, 0, 0),
 		font=font_sm
 	)
+	hp_bar_left, hp_bar_y = (136, 42)
+	hp_bar_width, hp_bar_height = (95, 6)
+	adjusted_hp_width = int((pkmn.CurrentHP / pkmn.Stats[Stat.Hp]) * hp_bar_width)
+	draw.line(
+		[(hp_bar_left, hp_bar_y), (hp_bar_left + adjusted_hp_width, hp_bar_y)],
+		fill=(48, 181, 53),
+		width=hp_bar_height
+	)
 	return im
 
 
