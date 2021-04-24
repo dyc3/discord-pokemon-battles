@@ -157,7 +157,6 @@ class Battle():
 				spectator_embed.description = transactions_text
 				for agent in self.agents:
 					if agent.user:
-						# the extra space allows it to not fail
 						if not transactions_text:
 							transactions_text = "[No transactions]"
 						await agent.user.dm_channel.send(
