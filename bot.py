@@ -1,7 +1,7 @@
 import asyncio
 import json
 import aiohttp
-import logging
+import logging, time
 import discord
 from discord.ext import commands, tasks
 from discord.message import Message
@@ -71,9 +71,8 @@ async def ping(ctx: commands.Context): # noqa: D103
 	'Start a battle with another user! Add an oppoent to the end of this command to challenge someone.'
 )
 async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
-	base_msg = f"<@!{ctx.author.id}> challenging {opponent}"
-	msg: Message = await ctx.send(base_msg)
-	await msg.edit(content=f"{base_msg} (Populating battle...)")
+	log.debug(f"Setting up battle: {ctx.author} challenging {opponent}")
+	start_time = time.time()
 	pkmn = [await battleapi.generate_pokemon() for _ in range(2)]
 
 	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
@@ -82,14 +81,15 @@ async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
 	if opponent.startswith("<@") and opponent.endswith(">"):
 		user = ctx.message.mentions[0]
 		if user.bot:
-			await msg.edit(content="You can't challege a discord bot.")
+			await ctx.send(content="You can't challege a discord bot.")
 			return
 		battle.add_user(user)
 	else:
 		battle.add_bot(opponent)
 	coordinator.battles += [battle]
+	duration = time.time() - start_time
+	log.info(f"Battle setup took {duration} seconds. Starting battle...")
 	await battle.start()
-	await msg.edit(content=f"{base_msg} (Started)")
 
 
 @bot.command(help='Create a profile and choose your starter Pokemon.')
@@ -123,6 +123,14 @@ async def begin(ctx: commands.Context): # noqa: D103
 	await profile.save()
 	log.info(f"New profile: {ctx.author}")
 	await ctx.send("Profile created! `p!help` for more commands.")
+
+
+@dev_command()
+async def test(ctx=commands.Context):
+	"""Tests the prompt_message function."""
+	Message = await ctx.send("Choose an option")
+	list_of_emojis = ["🇦", "🇧", "🇨", "🇩"]
+	result = await util.prompt_message(bot, ctx.author, Message, list_of_emojis)
 
 
 @bot.command(help='Add name to display specific Pokemon')
@@ -206,12 +214,12 @@ async def minigame(
 			await channel.send(
 				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
 			)
+		elif guess.lower() == name.lower(): # a correct guess ends the minigame
+			break
 		elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
 			await channel.send(
 				f"{message.author.mention} that guess was close, but not quite right"
 			)
-		elif guess.lower() == name.lower():
-			break
 		else:
 			await channel.send("That's incorrect, please guess again")
 
