@@ -148,23 +148,23 @@ class Battle():
 						embed=spectator_embed,
 						file=discord.File(data, filename="battle.png")
 					)
-				log.debug("asking agents for turns")
-				await self.queue_turns()
-				log.debug("simulating round")
-				results = await battleapi.simulate(self.bid)
-				self.transactions += results.transactions
-				transactions_text = "\n".join([t.pretty() for t in results.transactions])
-				spectator_embed.description = transactions_text
-				for agent in self.agents:
-					if agent.user:
-						if not transactions_text:
-							transactions_text = "[No transactions]"
-						await agent.user.dm_channel.send(
-							embed=discord.Embed(description=transactions_text)
-						)
-				await spectator_msg.edit(embed=spectator_embed)
-				if results.ended:
-					break
+			log.debug("asking agents for turns")
+			await self.queue_turns()
+			log.debug("simulating round")
+			results = await battleapi.simulate(self.bid)
+			self.transactions += results.transactions
+			transactions_text = "\n".join([t.pretty() for t in results.transactions])
+			spectator_embed.description = transactions_text
+			for agent in self.agents:
+				if agent.user:
+					if not transactions_text:
+						transactions_text = "[No transactions]"
+					await agent.user.dm_channel.send(
+						embed=discord.Embed(description=transactions_text)
+					)
+			await spectator_msg.edit(embed=spectator_embed)
+			if results.ended:
+				break
 		log.info(f"Battle between {self.agents} concluded")
 		results = await battleapi.get_results(self.bid)
 		if self.original_channel:
