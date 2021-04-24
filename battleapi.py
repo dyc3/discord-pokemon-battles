@@ -16,11 +16,9 @@ class BattleRoundResults:
 	"""Results of a single round of battle."""
 
 	def __init__(self, **kwargs) -> None:
-		self.transactions: list[Transaction] = []
-		if (transactions := kwargs.get("Transactions", [])) != None:
-			self.transactions: list[Transaction] = [
-				Transaction(**t) for t in transactions
-			]
+		self.transactions: list[Transaction] = [
+			Transaction(**t) for t in kwargs.get("Transactions", []) or []
+		]
 		self.ended: bool = kwargs["Ended"]
 
 
