@@ -153,12 +153,15 @@ class Battle():
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
 			if self.original_channel:
-				msg: Message = await self.original_channel.send(
-					self.transactions[0].pretty()
+				embed = discord.Embed(
+					title=f"{self.agents[0].name} vs. {self.agents[1].name}",
+					description=self.transactions[0].pretty()
 				)
+				msg: Message = await self.original_channel.send(embed=embed)
 				msg
-				for i in range(len(self.transactions)):
-					await msg.edit(content=f"\n{self.transactions[i].pretty()}")
+				for i in range(1, len(self.transactions)):
+					embed.description += f"\n{self.transactions[i].pretty()}"
+					await msg.edit(embed=embed)
 			if results.ended:
 				break
 		log.info(f"Battle between {self.agents} concluded")
