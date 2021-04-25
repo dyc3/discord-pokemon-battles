@@ -218,6 +218,9 @@ class Stat(IntEnum):
 	SpAttack = 3
 	SpDefense = 4
 	Speed = 5
+	CritChance = 6
+	Accuracy = 7
+	Evasion = 8
 
 	def __str__(self):
 		if self == Stat.Hp:
@@ -232,6 +235,12 @@ class Stat(IntEnum):
 			return "SpDefense"
 		elif self == Stat.Speed:
 			return "Speed"
+		elif self == Stat.CritChance:
+			return "Crit Chance"
+		elif self == Stat.Accuracy:
+			return "Accuracy"
+		elif self == Stat.Evasion:
+			return "Evasion"
 
 
 class Transaction:
