@@ -307,9 +307,15 @@ class Transaction:
 				else:
 					direc = "decreased"
 				return f"{pkmn.Name}'s {stat} {direc} by {abs(stages)}."
+			elif self.name == "PPTransaction":
+				move = self.args["Move"]
+				if self.args["Amount"] > 0:
+					return f"{move['Name']} restored {self.args['Amount']}"
+				else:
+					return f"{move['Name']} lost {abs(self.args['Amount'])}"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
 			# log.error(f"Failed to pretty print transaction: {e}")
-			log.exception(f"Failed to pretty print transaction", e)
+			log.error(f"Failed to pretty print transaction: {e}")
 			return f"Failed: {self.name}<{self.type}> {self.args}"
