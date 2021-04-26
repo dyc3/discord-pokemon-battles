@@ -18,9 +18,9 @@ class UserProfile:
 	def __init__(self):
 		self.pokemon = []
 
-	def user(self) -> discord.User:
+	def user(self, user_id: Optional[int]) -> discord.User:
 		"""Discord user associated with this profile."""
-		pass
+		self.user_id = user_id
 
 	async def pokemon_iter(self) -> AsyncIterator[Pokemon]:
 		"""Grabs pokemon from the database and provides them as an async generator."""
@@ -41,11 +41,11 @@ class UserProfile:
 			return
 		self.pokemon.append(pokemon._id)
 
-	def get_embed(self) -> discord.Embed:
+	def get_embed(self, name) -> discord.Embed:
 		"""Get a pretty embed to display a UserProfile."""
 		embed = discord.Embed()
-		embed.title = "profile"
-		embed.description = "profile description"
+		embed.title = name
+		embed.description = "An amazing trainer!"
 		return embed
 
 
