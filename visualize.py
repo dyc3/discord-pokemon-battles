@@ -35,6 +35,15 @@ def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
 	im = Image.open(template)
 	draw = ImageDraw.Draw(im)
 	draw.text(name_pos, pkmn.Name, fill=(0, 0, 0), font=font_big)
+	if pkmn.Gender > 0:
+		if pkmn.Gender == 1:
+			gender_color = (242, 95, 47)
+			gender_text = "♀"
+		elif pkmn.Gender == 2:
+			gender_color = (52, 99, 211)
+			gender_text = "♂"
+		w = draw.textlength(pkmn.Name, font=font_big)
+		draw.text(offset(name_pos, (w, 0)), gender_text, font=font_big, fill=gender_color)
 	if not is_opponent:
 		font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
 		draw.text(
