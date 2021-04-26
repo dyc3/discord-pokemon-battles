@@ -22,7 +22,7 @@ def offset(pos: tuple[int, int], offset: tuple[int, int]) -> tuple[int, int]:
 def scale(pos: tuple[int, int], multiplier: int) -> tuple[int, int]:
 	"""Scale xy coordinates `pos` by `multiplier`."""
 	x, y = pos
-	return (int(x * multiplier), int(y * multiplier))
+	return (round(x * multiplier), round(y * multiplier))
 
 
 def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
@@ -30,14 +30,14 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	if not is_opponent:
 		template = "./data/images/pkmn_info_box.png"
 		name_pos = (34, 12)
-		hp_bar_left, hp_bar_y = (136, 42)
+		hp_bar_left, hp_bar_y = (136, 42.4)
 	else:
 		template = "./data/images/pkmn_info_box_opponent.png"
 		name_pos = (8, 12)
-		hp_bar_left, hp_bar_y = (102, 42)
+		hp_bar_left, hp_bar_y = (102, 42.4)
 	name_pos = scale(name_pos, size)
 	hp_bar_left, hp_bar_y = scale((hp_bar_left, hp_bar_y), size)
-	hp_bar_width, hp_bar_height = scale((95, 6), size)
+	hp_bar_width, hp_bar_height = scale((96, 6), size)
 	health_text_pos = scale((136, 51), size)
 
 	font_big = ImageFont.truetype(
