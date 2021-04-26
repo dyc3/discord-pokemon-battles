@@ -1,5 +1,6 @@
 import logging
 from os import name
+from typing import Union
 from pkmntypes import BattleContext, Pokemon, Stat
 
 log = logging.getLogger(__name__)
@@ -19,7 +20,8 @@ def offset(pos: tuple[int, int], offset: tuple[int, int]) -> tuple[int, int]:
 	return (x + x2, y + y2)
 
 
-def scale(pos: tuple[int, int], multiplier: int) -> tuple[int, int]:
+def scale(pos: tuple[Union[int, float], Union[int, float]],
+			multiplier: int) -> tuple[int, int]:
 	"""Scale xy coordinates `pos` by `multiplier`."""
 	x, y = pos
 	return (round(x * multiplier), round(y * multiplier))
