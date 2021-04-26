@@ -1,4 +1,5 @@
 import logging
+from os import name
 from pkmntypes import BattleContext, Pokemon, Stat
 
 log = logging.getLogger(__name__)
@@ -18,7 +19,13 @@ def offset(pos: tuple[int, int], offset: tuple[int, int]) -> tuple[int, int]:
 	return (x + x2, y + y2)
 
 
-def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
+def scale(pos: tuple[int, int], multiplier: int) -> tuple[int, int]:
+	"""Scale xy coordinates `pos` by `multiplier`."""
+	x, y = pos
+	return (int(x * multiplier), int(y * multiplier))
+
+
+def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	"""Render an info box that is shown in battle for the given pokemon."""
 	if not is_opponent:
 		template = "./data/images/pkmn_info_box.png"
@@ -28,11 +35,16 @@ def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
 		template = "./data/images/pkmn_info_box_opponent.png"
 		name_pos = (8, 12)
 		hp_bar_left, hp_bar_y = (102, 42)
-	hp_bar_width, hp_bar_height = (95, 6)
-	health_text_pos = (136, 51)
+	name_pos = scale(name_pos, size)
+	hp_bar_left, hp_bar_y = scale((hp_bar_left, hp_bar_y), size)
+	hp_bar_width, hp_bar_height = scale((95, 6), size)
+	health_text_pos = scale((136, 51), size)
 
-	font_big = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 18)
+	font_big = ImageFont.truetype(
+		"./data/fonts/pokemon-gen-4-regular.ttf", int(18 * size)
+	)
 	im = Image.open(template)
+	im = im.resize((int(im.width * size), int(im.height * size)), Image.NEAREST)
 	draw = ImageDraw.Draw(im)
 	draw.text(name_pos, pkmn.Name, fill=(0, 0, 0), font=font_big)
 	if pkmn.Gender > 0:
@@ -44,7 +56,7 @@ def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
 			gender_text = "♂"
 		w = draw.textlength(pkmn.Name, font=font_big)
 		draw.text(offset(name_pos, (w, 0)), gender_text, font=font_big, fill=gender_color)
-	font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
+	font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", int(14 * size))
 	level_text = f"Lv{pkmn.Level}"
 	level_text_width = draw.textlength(level_text, font=font_sm)
 	level_pos = offset((hp_bar_left + hp_bar_width, name_pos[1]), (-level_text_width, 0))
@@ -80,23 +92,16 @@ def visualize_battle(ctx: BattleContext) -> Image.Image:
 	im_opponent = ctx.opponents[0].pokemon.get_image()
 	im.paste(im_opponent, (im.width - im_opponent.width - 200, 60), im_opponent)
 
-	info_box = render_info_box(ctx.pokemon)
 	info_box_scale = 2.75
-	info_box_size = (
-		int(info_box.width * info_box_scale), int(info_box.height * info_box_scale)
-	)
-	info_box = info_box.resize(info_box_size, Image.NEAREST)
-	pkmn_info_box_pos = (im.width - info_box_size[0], im.height - info_box_size[1])
+	info_box = render_info_box(ctx.pokemon, size=info_box_scale)
+	pkmn_info_box_pos = (im.width - info_box.width, im.height - info_box.height)
 	im.paste(info_box, pkmn_info_box_pos, mask=info_box)
 
-	info_box_opponent = render_info_box(ctx.opponents[0].pokemon, is_opponent=True)
-	info_box_opponent_size = (
-		int(info_box_opponent.width * info_box_scale),
-		int(info_box_opponent.height * info_box_scale)
+	info_box_opponent = render_info_box(
+		ctx.opponents[0].pokemon, is_opponent=True, size=info_box_scale
 	)
-	info_box_opponent = info_box_opponent.resize(info_box_opponent_size, Image.NEAREST)
 	pkmn_info_box_pos = (
-		im.width - info_box_opponent_size[0], im.height - info_box_opponent_size[1]
+		im.width - info_box_opponent.width, im.height - info_box_opponent.height
 	)
 	im.paste(info_box_opponent, (0, 0), mask=info_box_opponent)
 
