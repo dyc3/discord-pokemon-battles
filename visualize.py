@@ -44,8 +44,18 @@ def render_info_box(pkmn: Pokemon, is_opponent=False) -> Image.Image:
 			gender_text = "♂"
 		w = draw.textlength(pkmn.Name, font=font_big)
 		draw.text(offset(name_pos, (w, 0)), gender_text, font=font_big, fill=gender_color)
+	font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
+	level_text = f"Lv{pkmn.Level}"
+	level_text_width = draw.textlength(level_text, font=font_sm)
+	level_pos = offset((hp_bar_left + hp_bar_width, name_pos[1]), (-level_text_width, 0))
+	draw.text(
+		level_pos,
+		level_text,
+		fill=(0, 0, 0),
+		font=font_sm,
+	)
+
 	if not is_opponent:
-		font_sm = ImageFont.truetype("./data/fonts/pokemon-gen-4-regular.ttf", 14)
 		draw.text(
 			health_text_pos,
 			f"{pkmn.CurrentHP}/{pkmn.Stats[Stat.Hp]}",
