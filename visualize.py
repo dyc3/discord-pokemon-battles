@@ -29,6 +29,7 @@ def scale(pos: tuple[Union[int, float], Union[int, float]],
 
 def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	"""Render an info box that is shown in battle for the given pokemon."""
+	text_color = (72, 72, 72)
 	if not is_opponent:
 		template = "./data/images/pkmn_info_box.png"
 		name_pos = (34, 12)
@@ -48,7 +49,7 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	im = Image.open(template)
 	im = im.resize((int(im.width * size), int(im.height * size)), Image.NEAREST)
 	draw = ImageDraw.Draw(im)
-	draw.text(name_pos, pkmn.Name, fill=(0, 0, 0), font=font_big)
+	draw.text(name_pos, pkmn.Name, fill=text_color, font=font_big)
 	if pkmn.Gender > 0:
 		if pkmn.Gender == 1:
 			gender_color = (242, 95, 47)
@@ -65,7 +66,7 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	draw.text(
 		level_pos,
 		level_text,
-		fill=(0, 0, 0),
+		fill=text_color,
 		font=font_sm,
 	)
 
@@ -73,7 +74,7 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 		draw.text(
 			health_text_pos,
 			f"{pkmn.CurrentHP}/{pkmn.Stats[Stat.Hp]}",
-			fill=(0, 0, 0),
+			fill=text_color,
 			font=font_sm
 		)
 	adjusted_hp_width = int((pkmn.CurrentHP / pkmn.Stats[Stat.Hp]) * hp_bar_width)
