@@ -28,6 +28,8 @@ class DiscordBrock(commands.Bot):
 
 	async def on_message(self, message: Message): # noqa: D102
 		ctx = await self.get_context(message)
+		userprofile.add_user_to_cache(ctx.author)
+		map(userprofile.add_user_to_cache, ctx.message.mentions)
 		if ctx.valid:
 			await self.invoke(ctx)
 
