@@ -22,7 +22,7 @@ class UserProfile:
 	def __init__(self):
 		self.pokemon = []
 
-	def user(self, user_id: Optional[int]) -> discord.User:
+	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
 		if self.user_id in user_cache:
 			return user_cache[self.user_id]
@@ -46,11 +46,13 @@ class UserProfile:
 			return
 		self.pokemon.append(pokemon._id)
 
-	def get_embed(self, name) -> discord.Embed:
+	def get_embed(self) -> discord.Embed:
 		"""Get a pretty embed to display a UserProfile."""
 		embed = discord.Embed()
-		embed.title = name
-		embed.description = "An amazing trainer!"
+		embed.set_image(url=str(self.user().avatar_url))
+		embed.title = self.user().name
+		date = self.user().created_at
+		embed.description = f"This account was created on {date.strftime('%x')}"
 		return embed
 
 
