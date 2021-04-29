@@ -325,4 +325,4 @@ class Transaction:
 			return f"Failed: {self.name}<{self.type}> {self.args}"
 
 	def __repr__(self):
-		return f'Transaction(type={self.type}, name="{self.name}", args="{self.args}")'
+		return f'Transaction(type={self.type}, name="{self.name}", args={self.args})'
