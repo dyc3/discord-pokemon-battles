@@ -2,6 +2,10 @@ from typing import AsyncIterator
 from pkmntypes import *
 import discord
 from bson.objectid import ObjectId
+import logging, coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 
 class UserProfile:
@@ -20,7 +24,8 @@ class UserProfile:
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
-		pass
+		if self.user_id in user_cache:
+			return user_cache[self.user_id]
 
 	async def pokemon_iter(self) -> AsyncIterator[Pokemon]:
 		"""Grabs pokemon from the database and provides them as an async generator."""
@@ -58,3 +63,12 @@ async def load_profile(discord_id: int) -> Optional[UserProfile]:
 	profile = UserProfile()
 	profile.__dict__.update(**doc)
 	return profile
+
+
+user_cache: dict[int, discord.User] = {}
+
+
+def add_user_to_cache(user: discord.User) -> None:
+	"""Add the given user to our cache of user objects, so we can look users up by user ID later. This is required so we don't have to use any Privileged Gateway Intents."""
+	log.debug(f"Adding {user} to cache")
+	user_cache[user.id] = user
