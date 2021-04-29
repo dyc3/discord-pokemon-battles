@@ -49,8 +49,10 @@ class UserProfile:
 	def get_embed(self) -> discord.Embed:
 		"""Get a pretty embed to display a UserProfile."""
 		embed = discord.Embed()
-		embed.title = "profile"
-		embed.description = "profile description"
+		embed.set_image(url=str(self.user().avatar_url))
+		embed.title = self.user().name
+		date = self.user().created_at
+		embed.description = f"This account was created on {date.strftime('%x')}"
 		return embed
 
 
