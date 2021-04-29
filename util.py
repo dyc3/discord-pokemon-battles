@@ -1,5 +1,9 @@
+import logging, coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 import discord
-import logging, asyncio
+import asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
@@ -9,8 +13,6 @@ from pkmntypes import *
 RESPONSE_REACTIONS = [
 	"🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵"
 ]
-
-log = logging.getLogger(__name__)
 
 
 async def prompt_menu(
