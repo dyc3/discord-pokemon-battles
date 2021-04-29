@@ -265,6 +265,7 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 	char_limit = 2048
 	while len(transactions) > 0:
 		t = transactions.pop(0)
+		# log.debug(f"Transaction: {repr(t)}")
 		pretty = t.pretty()
 		if len(current) + len(pretty) > char_limit:
 			if len(current) > 0:
