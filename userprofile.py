@@ -19,7 +19,7 @@ class UserProfile:
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
 	pokemon: list[ObjectId]
-	account_created: datetime
+	account_created: datetime.datetime
 
 	def __init__(self):
 		self.pokemon = []
