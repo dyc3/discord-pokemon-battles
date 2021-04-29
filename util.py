@@ -274,7 +274,6 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 				log.warning(
 					f"Transaction's pretty text is too long! Truncating to {char_limit} chars."
 				)
-				# assert current == "" # this must be true in order to preserve the order of transations
 				transactions_text += [pretty[:char_limit]]
 				continue
 			current = ""
