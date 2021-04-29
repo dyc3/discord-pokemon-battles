@@ -255,11 +255,10 @@ class Transaction:
 		"""Get a human-readable representation of this transaction."""
 		try:
 			if self.name == "DamageTransaction":
-				user = Pokemon(**self.args["User"])
 				target = Target(**self.args["Target"])
 				move = self.args["Move"]
 
-				return f"{user.Name} used {move['Name']} on {target.pokemon.Name} for {self.args['Damage']} damage."
+				return f"{target.pokemon.Name} took {self.args['Damage']} damage."
 			elif self.name == "FriendshipTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
@@ -310,12 +309,16 @@ class Transaction:
 			elif self.name == "PPTransaction":
 				move = self.args["Move"]
 				if self.args["Amount"] > 0:
-					return f"{move['Name']} restored {self.args['Amount']}"
+					return f"{move['Name']} restored {self.args['Amount']} PP."
 				else:
-					return f"{move['Name']} lost {abs(self.args['Amount'])}"
+					return f"{move['Name']} lost {abs(self.args['Amount'])} PP."
+			elif self.name == "UseMoveTransaction":
+				tuser = Target(**self.args["User"])
+				target = Target(**self.args["Target"])
+				move = self.args["Move"]
+				return f"{tuser.pokemon.Name} used {move['Name']} on {target.pokemon.Name}!"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
-			# log.error(f"Failed to pretty print transaction: {e}")
-			log.error(f"Failed to pretty print transaction: {e}")
+			log.error(f"Failed to pretty print transaction: {type(e)} {e}")
 			return f"Failed: {self.name}<{self.type}> {self.args}"
