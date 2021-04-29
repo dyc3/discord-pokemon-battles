@@ -1,7 +1,7 @@
+import logging, coloredlogs
 import json
 from dataclasses import dataclass
 from typing import Any, Optional
-import logging
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
@@ -9,6 +9,7 @@ from enum import Enum, IntEnum
 from pathlib import Path
 
 log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 
 def _case_insensitive_pop(
@@ -322,3 +323,6 @@ class Transaction:
 		except Exception as e:
 			log.error(f"Failed to pretty print transaction: {type(e)} {e}")
 			return f"Failed: {self.name}<{self.type}> {self.args}"
+
+	def __repr__(self):
+		return f'Transaction(type={self.type}, name="{self.name}", args="{self.args}")'
