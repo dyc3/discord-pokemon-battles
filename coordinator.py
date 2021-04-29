@@ -1,5 +1,8 @@
+import logging, coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 import io
-import logging
 import asyncio
 import aiohttp
 import functools
@@ -11,8 +14,6 @@ import battleapi
 from pkmntypes import *
 from discord.message import Message
 from visualize import visualize_battle
-
-log = logging.getLogger(__name__)
 
 
 def set_bot(b):
@@ -153,15 +154,65 @@ class Battle():
 			log.debug("simulating round")
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
-			transactions_text = "\n".join([t.pretty() for t in results.transactions])
-			spectator_embed.description = transactions_text
+			# embed descriptions can only be 2048 characters long.
+			tt = results.transactions[:]
+			transactions_text: list[str] = []
+			current = ""
+			char_limit = 2048
+			while len(tt) > 0:
+				t = tt.pop(0)
+				pretty = t.pretty()
+				if len(current) + len(pretty) > char_limit:
+					if len(current) > 0:
+						transactions_text += [current]
+					if len(pretty) > char_limit:
+						log.warning(
+							f"Transaction's pretty text is too long! Truncating to {char_limit} chars."
+						)
+						# assert current == "" # this must be true in order to preserve the order of transations
+						transactions_text += [pretty[:char_limit]]
+						continue
+					current = ""
+				current += pretty + "\n"
+			if len(current) > 0:
+				transactions_text += [current]
+
+			if len(transactions_text) == 1:
+				spectator_embed.description = transactions_text[0]
+			else:
+				# if the text doesn't fit on one embed, just put all the transactions into new messages
+				with self.original_channel.typing():
+					for text in transactions_text:
+						if len(text) > char_limit:
+							log.warning(
+								f"Embed's text is too long! Truncating to {char_limit} chars."
+							)
+							text = text[:char_limit]
+						await self.original_channel.send(
+							embed=discord.
+							Embed(title=spectator_embed.title, description=text)
+						)
 			for agent in self.agents:
 				if agent.user:
-					if not transactions_text:
+					if len(transactions_text) == 0:
 						transactions_text = "[No transactions]"
-					await agent.user.dm_channel.send(
-						embed=discord.Embed(description=transactions_text)
-					)
+						await agent.user.dm_channel.send(
+							embed=discord.Embed(description="[No transactions]")
+						)
+						continue
+					with agent.user.dm_channel.typing():
+						for text in transactions_text:
+							if len(text) > char_limit:
+								log.warning(
+									f"Embed's text is too long! Truncating to {char_limit} chars."
+								)
+								text = text[:char_limit]
+							assert len(
+								text
+							) > 0, f"found empty message in transaction_text, which should not happen {transactions_text}"
+							await agent.user.dm_channel.send(
+								embed=discord.Embed(description=text)
+							)
 			await spectator_msg.edit(embed=spectator_embed)
 			if results.ended:
 				break
