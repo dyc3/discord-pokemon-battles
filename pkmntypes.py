@@ -100,6 +100,10 @@ class Pokemon():
 		import storage # avoid circular import
 		await storage.save_object(self, session=session)
 
+	def get_image(self) -> Image:
+		"""Get the image of the pokemon."""
+		return Image.open(f"./images/{self.NatDex}.png")
+
 	def get_silhouette(self) -> Path:
 		"""Return the path to the silhouette image of a pokemon. If the image doesn't exist it will be created.
 
@@ -214,6 +218,9 @@ class Stat(IntEnum):
 	SpAttack = 3
 	SpDefense = 4
 	Speed = 5
+	CritChance = 6
+	Accuracy = 7
+	Evasion = 8
 
 	def __str__(self):
 		if self == Stat.Hp:
@@ -228,6 +235,12 @@ class Stat(IntEnum):
 			return "SpDefense"
 		elif self == Stat.Speed:
 			return "Speed"
+		elif self == Stat.CritChance:
+			return "Crit Chance"
+		elif self == Stat.Accuracy:
+			return "Accuracy"
+		elif self == Stat.Evasion:
+			return "Evasion"
 
 
 class Transaction:
@@ -294,9 +307,15 @@ class Transaction:
 				else:
 					direc = "decreased"
 				return f"{pkmn.Name}'s {stat} {direc} by {abs(stages)}."
+			elif self.name == "PPTransaction":
+				move = self.args["Move"]
+				if self.args["Amount"] > 0:
+					return f"{move['Name']} restored {self.args['Amount']}"
+				else:
+					return f"{move['Name']} lost {abs(self.args['Amount'])}"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
 			# log.error(f"Failed to pretty print transaction: {e}")
-			log.exception(f"Failed to pretty print transaction", e)
+			log.error(f"Failed to pretty print transaction: {e}")
 			return f"Failed: {self.name}<{self.type}> {self.args}"

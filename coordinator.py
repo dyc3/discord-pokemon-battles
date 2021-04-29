@@ -1,12 +1,16 @@
+import io
 import logging
 import asyncio
 import aiohttp
 import functools
 import discord
+from discord import embeds
 from turns import *
 import util
 import battleapi
 from pkmntypes import *
+from discord.message import Message
+from visualize import visualize_battle
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +28,22 @@ class Agent():
 	def __init__(self, user=None, bot=None):
 		self.user: discord.User = user
 		self.bot: str = bot
+
+	async def send_visualization(
+		self, ctx: BattleContext, channel: discord.TextChannel = None
+	) -> None:
+		"""Send battlefield visualization to the agent."""
+		if self.user != None:
+			if not self.user.bot:
+				if not self.user.dm_channel:
+					await self.user.create_dm()
+				channel = self.user.dm_channel
+			if channel:
+				with channel.typing():
+					with io.BytesIO() as data:
+						visualize_battle(ctx).save(data, 'PNG')
+						data.seek(0)
+						await channel.send(file=discord.File(data, filename="battle.png"))
 
 	async def get_turn(
 		self, context: BattleContext, original_channel: discord.TextChannel
@@ -48,6 +68,20 @@ class Agent():
 		if self.user != None:
 			return f"Agent<User: {self.user.name}>"
 		return f"Agent<invalid>"
+
+	@property
+	def name(self) -> str:
+		"""Get the name of this agent."""
+		if self.bot != None:
+			return self.bot
+		return str(self.user.name)
+
+	@property
+	def mention(self) -> str:
+		"""Get a string that mentions this agent on discord."""
+		if self.bot != None:
+			return self.bot
+		return str(self.user.mention)
 
 
 class Battle():
@@ -86,6 +120,7 @@ class Battle():
 
 		async def _do(i: int, agent: Agent):
 			context = await battleapi.get_battle_context(self.bid, i)
+			await agent.send_visualization(context)
 			turn = await agent.get_turn(context, self.original_channel)
 			log.debug(f"posting turn {turn} from {agent}")
 			await battleapi.submit_turn(self.bid, i, turn)
@@ -94,13 +129,40 @@ class Battle():
 
 	async def simulate(self):
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
-
 		while True:
+			log.debug("visualizing")
+			spectator_embed = discord.Embed(
+				title=f"{self.agents[0].name} vs. {self.agents[1].name}",
+				description="Waiting for turns..."
+			)
+			spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
+
+			with self.original_channel.typing():
+				ctx = await battleapi.get_battle_context(self.bid, 0)
+				with io.BytesIO() as data:
+					visualize_battle(ctx).save(data, 'PNG')
+					data.seek(0)
+					spectator_embed.set_image(url="attachment://battle.png")
+					spectator_msg: discord.Message = await self.original_channel.send(
+						spectator_content,
+						embed=spectator_embed,
+						file=discord.File(data, filename="battle.png")
+					)
 			log.debug("asking agents for turns")
 			await self.queue_turns()
 			log.debug("simulating round")
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
+			transactions_text = "\n".join([t.pretty() for t in results.transactions])
+			spectator_embed.description = transactions_text
+			for agent in self.agents:
+				if agent.user:
+					if not transactions_text:
+						transactions_text = "[No transactions]"
+					await agent.user.dm_channel.send(
+						embed=discord.Embed(description=transactions_text)
+					)
+			await spectator_msg.edit(embed=spectator_embed)
 			if results.ended:
 				break
 		log.info(f"Battle between {self.agents} concluded")

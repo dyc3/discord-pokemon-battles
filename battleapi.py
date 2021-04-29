@@ -17,7 +17,7 @@ class BattleRoundResults:
 
 	def __init__(self, **kwargs) -> None:
 		self.transactions: list[Transaction] = [
-			Transaction(**t) for t in kwargs["Transactions"]
+			Transaction(**t) for t in kwargs.get("Transactions", []) or []
 		]
 		self.ended: bool = kwargs["Ended"]
 
