@@ -251,3 +251,31 @@ def taggify(s: Iterable[str]) -> str:
 	:returns: A prettier representation.
 	"""
 	return ''.join([f'[{x}]' for x in s])
+
+
+def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
+	"""Prettify all transactions, and concatenate/truncate them such that they fit inside the description of a :class:`discord.Embed`.
+
+	:param transactions: The list of transactions to prettify.
+	"""
+	transactions_text: list[str] = []
+	current = ""
+	char_limit = 2048
+	while len(transactions) > 0:
+		t = transactions.pop(0)
+		pretty = t.pretty()
+		if len(current) + len(pretty) > char_limit:
+			if len(current) > 0:
+				transactions_text += [current]
+			if len(pretty) > char_limit:
+				log.warning(
+					f"Transaction's pretty text is too long! Truncating to {char_limit} chars."
+				)
+				# assert current == "" # this must be true in order to preserve the order of transations
+				transactions_text += [pretty[:char_limit]]
+				continue
+			current = ""
+		current += pretty + "\n"
+	if len(current) > 0:
+		transactions_text += [current]
+	return transactions_text

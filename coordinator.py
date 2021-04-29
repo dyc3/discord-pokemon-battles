@@ -155,27 +155,8 @@ class Battle():
 			results = await battleapi.simulate(self.bid)
 			self.transactions += results.transactions
 			# embed descriptions can only be 2048 characters long.
-			tt = results.transactions[:]
-			transactions_text: list[str] = []
-			current = ""
 			char_limit = 2048
-			while len(tt) > 0:
-				t = tt.pop(0)
-				pretty = t.pretty()
-				if len(current) + len(pretty) > char_limit:
-					if len(current) > 0:
-						transactions_text += [current]
-					if len(pretty) > char_limit:
-						log.warning(
-							f"Transaction's pretty text is too long! Truncating to {char_limit} chars."
-						)
-						# assert current == "" # this must be true in order to preserve the order of transations
-						transactions_text += [pretty[:char_limit]]
-						continue
-					current = ""
-				current += pretty + "\n"
-			if len(current) > 0:
-				transactions_text += [current]
+			transactions_text = util.prettify_all_transactions(results.transactions)
 
 			if len(transactions_text) == 1:
 				spectator_embed.description = transactions_text[0]
