@@ -318,6 +318,9 @@ class Transaction:
 				target = Target(**self.args["Target"])
 				move = self.args["Move"]
 				return f"{tuser.pokemon.Name} used {move['Name']} on {target.pokemon.Name}!"
+			elif self.name == "SendOutTransaction":
+				target = Target(**self.args["Target"])
+				return f"{target.pokemon.Name} was sent out."
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
