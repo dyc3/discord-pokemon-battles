@@ -254,6 +254,8 @@ class Transaction:
 
 	def pretty(self) -> str:
 		"""Get a human-readable representation of this transaction."""
+		import util
+
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
@@ -277,7 +279,6 @@ class Transaction:
 
 				return f"{pkmn.Name} restored {self.args['Amount']} HP."
 			elif self.name == "InflictStatusTransaction":
-				import util
 				pkmn = Pokemon(**self.args["Target"])
 
 				return f"{pkmn.Name} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
@@ -321,6 +322,10 @@ class Transaction:
 			elif self.name == "SendOutTransaction":
 				target = Target(**self.args["Target"])
 				return f"{target.pokemon.Name} was sent out."
+			elif self.name == "ImmobilizeTransaction":
+				target = Target(**self.args["Target"])
+				status = self.args["StatusEffect"]
+				return f"{target.pokemon.Name} is {util.status_to_string(status)}!"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
