@@ -14,6 +14,10 @@ import battleapi
 from pkmntypes import *
 from discord.message import Message
 from visualize import visualize_battle
+import logging, coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 
 def set_bot(b):
