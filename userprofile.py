@@ -19,11 +19,11 @@ class UserProfile:
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
 	pokemon: list[ObjectId]
-	account_created: datetime.datetime
+	created_at: datetime.datetime
 
 	def __init__(self):
 		self.pokemon = []
-		self.account_created = datetime.datetime.now()
+		self.created_at = datetime.datetime.now()
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
@@ -54,7 +54,7 @@ class UserProfile:
 		embed = discord.Embed()
 		embed.set_image(url=str(self.user().avatar_url))
 		embed.title = self.user().name
-		date = self.account_created
+		date = self.created_at
 		embed.description = f"This account was created on {date.strftime('%x')}"
 		return embed
 

@@ -65,10 +65,14 @@ class TestStorage(unittest.TestCase):
 
 		async def go():
 			profile = UserProfile()
+			profile.user_id = 1234
 			await profile.save()
 			self.assertIsNotNone(profile._id)
-			date = datetime.datetime.now().strftime("%x")
-			self.assertEqual(profile.account_created.strftime("%x"), date)
+			self.assertIsNotNone(profile.created_at)
+			loaded = await load_profile(1234)
+			self.assertEqual(
+				profile.created_at.strftime("%c"), loaded.created_at.strftime("%c")
+			)
 
 		return self.loop.run_until_complete(go())
 
