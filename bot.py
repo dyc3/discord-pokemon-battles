@@ -72,12 +72,17 @@ async def ping(ctx: commands.Context): # noqa: D103
 	help=
 	'Start a battle with another user! Add an oppoent to the end of this command to challenge someone.'
 )
-async def challenge(ctx: commands.Context, opponent: str): # noqa: D103
+async def challenge(
+	ctx: commands.Context,
+	opponent: str,
+	level: int = 30,
+	party_size: int = 1
+): # noqa: D103
 	log.debug(f"Setting up battle: {ctx.author} challenging {opponent}")
 	start_time = time.time()
-	pkmn = [await battleapi.generate_pokemon(level=30) for _ in range(2)]
+	pkmn = [await battleapi.generate_pokemon(level=level) for _ in range(party_size * 2)]
 
-	teams = util.build_teams_single([pkmn[0]], [pkmn[1]])
+	teams = util.build_teams_single(pkmn[:party_size], pkmn[party_size:])
 	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
 	battle.add_user(ctx.author)
 	if opponent.startswith("<@") and opponent.endswith(">"):
