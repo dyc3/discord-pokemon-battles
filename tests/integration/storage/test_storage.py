@@ -10,6 +10,7 @@ from userprofile import UserProfile, load_profile
 from hypothesis import given, strategies as st
 import battleapi
 import util
+import datetime
 
 
 class TestStorage(unittest.TestCase):
@@ -57,6 +58,21 @@ class TestStorage(unittest.TestCase):
 			loaded = await load_profile(1234)
 			self.assertEqual(profile._id, loaded._id)
 			self.assertEqual(profile.user_id, loaded.user_id)
+
+		return self.loop.run_until_complete(go())
+
+	def test_profile_creation_date(self):
+
+		async def go():
+			profile = UserProfile()
+			profile.user_id = 1234
+			await profile.save()
+			self.assertIsNotNone(profile._id)
+			self.assertIsNotNone(profile.created_at)
+			loaded = await load_profile(1234)
+			self.assertEqual(
+				profile.created_at.strftime("%c"), loaded.created_at.strftime("%c")
+			)
 
 		return self.loop.run_until_complete(go())
 

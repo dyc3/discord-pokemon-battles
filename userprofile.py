@@ -3,6 +3,7 @@ from pkmntypes import *
 import discord
 from bson.objectid import ObjectId
 import logging, coloredlogs
+import datetime
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
@@ -18,9 +19,11 @@ class UserProfile:
 	_id: Optional[ObjectId] = None
 	user_id: int = 0
 	pokemon: list[ObjectId]
+	created_at: datetime.datetime
 
 	def __init__(self):
 		self.pokemon = []
+		self.created_at = datetime.datetime.now()
 
 	def user(self) -> discord.User:
 		"""Discord user associated with this profile."""
@@ -51,7 +54,7 @@ class UserProfile:
 		embed = discord.Embed()
 		embed.set_image(url=str(self.user().avatar_url))
 		embed.title = self.user().name
-		date = self.user().created_at
+		date = self.created_at
 		embed.description = f"This account was created on {date.strftime('%x')}"
 		return embed
 
