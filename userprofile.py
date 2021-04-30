@@ -75,5 +75,6 @@ user_cache: dict[int, discord.User] = {}
 
 def add_user_to_cache(user: discord.User) -> None:
 	"""Add the given user to our cache of user objects, so we can look users up by user ID later. This is required so we don't have to use any Privileged Gateway Intents."""
-	log.debug(f"Adding {user} to cache")
-	user_cache[user.id] = user
+	if user.id not in user_cache:
+		log.debug(f"Adding {user} to cache")
+		user_cache[user.id] = user
