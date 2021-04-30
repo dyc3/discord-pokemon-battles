@@ -15,7 +15,7 @@ dependencies:
     - yapf
     - pre-commit
     - parameterized==0.8.1
-    - hypothesis
+    - hypothesis==6.10.1
     - coloredlogs
     - pillow
     - python-Levenshtein
