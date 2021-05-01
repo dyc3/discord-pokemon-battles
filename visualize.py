@@ -41,7 +41,7 @@ def get_status_condition_img(status: int) -> Image.Image:
 
 	:param status: Non-volatile status condition.
 	"""
-	assert status & 0b111 != status, "Only takes non-volatile status conditions."
+	assert status <= 0b111, f"Only takes non-volatile status conditions, got {status:b}"
 	row_size = 8
 	column_size = 32
 	start_y_px = 96
