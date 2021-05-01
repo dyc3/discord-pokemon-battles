@@ -12,6 +12,9 @@ hp_bar_colors = [
 	(255, 203, 5), # yellow
 	(227, 0, 0), # red
 ]
+types_conditions_atlas = Image.open(
+	"./data/images/types-conditions.png"
+) # to avoid unnecessary file operations
 
 
 def get_background() -> Image.Image:
@@ -31,6 +34,34 @@ def scale(pos: tuple[Union[int, float], Union[int, float]],
 	"""Scale xy coordinates `pos` by `multiplier`."""
 	x, y = pos
 	return (round(x * multiplier), round(y * multiplier))
+
+
+def get_status_condition_img(status: int) -> Image.Image:
+	"""Get the status condition badge to display.
+
+	:param status: Non-volatile status condition.
+	"""
+	assert status & 0b111 != status, "Only takes non-volatile status conditions."
+	row_size = 8
+	column_size = 32
+	start_y_px = 96
+	# map the status condition we get from the battle api into
+	# the index of the status condition in the order as they appear
+	# on the image
+	idx = {
+		1: 4,
+		2: 3,
+		3: 1,
+		4: 0,
+		5: 0,
+		6: 2,
+	}[status]
+	x = column_size * (idx % 4)
+	y = start_y_px + (row_size * (idx // 4))
+	shave = 6
+	return types_conditions_atlas.copy().crop(
+		(x + shave, y, x + column_size - shave, y + row_size)
+	)
 
 
 def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
@@ -96,6 +127,15 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 		fill=hp_color,
 		width=hp_bar_height
 	)
+
+	# status conditions
+	if (status := pkmn.StatusEffects & 0b111) > 0:
+		cond = get_status_condition_img(status)
+		cond = cond.resize(
+			(int(cond.width * size * 1.5), int(cond.height * size * 1.5)), Image.NEAREST
+		)
+		status_pos = (name_pos[0], hp_bar_y - 18)
+		im.paste(cond, status_pos, mask=cond)
 	return im
 
 
