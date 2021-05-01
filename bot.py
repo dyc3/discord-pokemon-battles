@@ -93,7 +93,8 @@ async def challenge(
 		battle.add_user(user)
 	else:
 		battle.add_bot(opponent)
-	coordinator.battles += [battle]
+	async with coordinator.battles_lock:
+		coordinator.battles += [battle]
 	duration = time.time() - start_time
 	log.info(f"Battle setup took {duration} seconds. Starting battle...")
 	await battle.start()

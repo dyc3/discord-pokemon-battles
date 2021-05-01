@@ -212,7 +212,7 @@ class Battle():
 		except Exception as e:
 			log.critical(f"Unhandled error occured during battlle: {e}")
 		finally:
-			self.__cleanup()
+			await self.__cleanup()
 
 	async def apply_post_battle_updates(self, results: battleapi.BattleResults):
 		"""Apply post battle state updates to pokemon, and save them to storage."""
@@ -239,14 +239,20 @@ class Battle():
 		embed.add_field(name="Winner", value=self.agents[results.winner].name)
 		return embed
 
-	def __cleanup(self):
+	async def __cleanup(self):
 		log.debug("cleaning up completed battle")
 		global battles
 		idx = None
 		for i, b in enumerate(battles):
 			if b is self:
 				idx = i
-		del battles[idx]
+				break
+		if idx == None:
+			log.critical("Unable to find battle in all registered battles.")
+			return
+		async with battles_lock:
+			del battles[idx]
 
 
 battles: list[Battle] = []
+battles_lock = asyncio.Lock()
