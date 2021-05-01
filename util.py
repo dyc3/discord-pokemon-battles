@@ -267,7 +267,7 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 		t = transactions.pop(0)
 		# log.debug(f"Transaction: {repr(t)}")
 		pretty = t.pretty()
-		if len(current) + len(pretty) > char_limit:
+		if len(current) + len(pretty) + 1 > char_limit:
 			if len(current) > 0:
 				transactions_text += [current]
 			if len(pretty) > char_limit:

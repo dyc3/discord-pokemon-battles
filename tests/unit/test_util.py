@@ -3,7 +3,7 @@ from turns import *
 from pkmntypes import *
 import util
 from parameterized import parameterized, parameterized_class
-from hypothesis import given, strategies as st
+from hypothesis import given, reproduce_failure, strategies as st
 
 
 class TestHumanReadables(unittest.TestCase):

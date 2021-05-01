@@ -1,7 +1,3 @@
-import logging, coloredlogs
-
-log = logging.getLogger(__name__)
-coloredlogs.install(level='DEBUG', logger=log)
 import io
 import asyncio
 import aiohttp
@@ -14,6 +10,11 @@ import battleapi
 from pkmntypes import *
 from discord.message import Message
 from visualize import visualize_battle
+import battle_ai
+import logging, coloredlogs
+
+log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 
 def set_bot(b):
@@ -29,6 +30,8 @@ class Agent():
 	def __init__(self, user=None, bot=None):
 		self.user: discord.User = user
 		self.bot: str = bot
+		if bot == "bot":
+			self.bot = "simple"
 
 	async def send_visualization(
 		self, ctx: BattleContext, channel: discord.TextChannel = None
@@ -53,7 +56,8 @@ class Agent():
 
 		log.debug(f"getting turn from {self}")
 		if self.bot != None:
-			return FightTurn(party=0, slot=0, move=0)
+			assert self.bot in battle_ai.strategies, f"Invalid battle strategy for bot: {self.bot}"
+			return battle_ai.strategies[self.bot](context)
 		if self.user != None:
 			return await util.prompt_for_turn(
 				bot, # type: ignore
