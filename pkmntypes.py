@@ -342,3 +342,24 @@ class Transaction:
 
 	def __repr__(self):
 		return f'Transaction(type={self.type}, name="{self.name}", args={self.args})'
+
+
+TYPE_ELEMENTS = [
+	"Normal",
+	"Fighting",
+	"Flying",
+	"Poison",
+	"Ground",
+	"Rock",
+	"Bug",
+	"Ghost",
+	"Steel",
+	"Fire",
+	"Water",
+	"Grass",
+	"Electric",
+	"Psychic",
+	"Ice",
+	"Dragon",
+	"Dark",
+]

@@ -207,28 +207,17 @@ def type_to_string(elemental_type: int) -> set[str]:
 	:returns: A set of all elemental types indicated by the bit mask.
 	"""
 
-	elements = [
-		"Normal",
-		"Fighting",
-		"Flying",
-		"Poison",
-		"Ground",
-		"Rock",
-		"Bug",
-		"Ghost",
-		"Steel",
-		"Fire",
-		"Water",
-		"Grass",
-		"Electric",
-		"Psychic",
-		"Ice",
-		"Dragon",
-		"Dark",
-	]
 	return set(
-		[flag for (index, flag) in enumerate(elements) if (elemental_type & 1 << index)]
+		[
+			flag for (index, flag) in enumerate(TYPE_ELEMENTS)
+			if (elemental_type & 1 << index)
+		]
 	)
+
+
+def type_emoji_name(t: str) -> str:
+	"""Get the name of the emoji associated with the given type."""
+	return f"type{t.lower()}"
 
 
 def build_teams_single(*parties: Union[Party, list[Pokemon]]) -> list[Team]:

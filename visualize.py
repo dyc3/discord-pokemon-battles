@@ -36,6 +36,41 @@ def scale(pos: tuple[Union[int, float], Union[int, float]],
 	return (round(x * multiplier), round(y * multiplier))
 
 
+def get_element_type_img(type: str) -> Image.Image:
+	"""Get the elemental type badge to display.
+
+	:param type: The name of the type
+	"""
+	row_size = 16
+	column_size = 32
+	start_y_px = 0
+	# map the status condition we get from the battle api into
+	# the index of the status condition in the order as they appear
+	# on the image
+	idx = {
+		"Normal": 0,
+		"Fighting": 1,
+		"Flying": 2,
+		"Poison": 3,
+		"Ground": 4,
+		"Rock": 5,
+		"Bug": 6,
+		"Ghost": 7,
+		"Steel": 8,
+		"Fire": 10,
+		"Water": 11,
+		"Grass": 12,
+		"Electric": 13,
+		"Psychic": 14,
+		"Ice": 15,
+		"Dragon": 16,
+		"Dark": 17,
+	}[type]
+	x = column_size * (idx % 4)
+	y = start_y_px + (row_size * (idx // 4))
+	return types_conditions_atlas.copy().crop((x, y, x + column_size, y + row_size))
+
+
 def get_status_condition_img(status: int) -> Image.Image:
 	"""Get the status condition badge to display.
 

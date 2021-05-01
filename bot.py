@@ -1,4 +1,5 @@
 import asyncio
+import io
 import json
 import aiohttp
 import logging, time
@@ -170,7 +171,7 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 		else:
 			async for pokemon in user.pokemon_iter():
 				await ctx.send(
-					f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
+					f"{pokemon.Name}: Lv{pokemon.Level} {util.taggify(util.type_to_string(pokemon.Type))}"
 				)
 	else:
 		await ctx.send(
@@ -266,6 +267,32 @@ async def use_test_db(ctx: commands.Context):
 		f"Now using database: {storage.db.name}. Restart required to revert this change."
 	)
 	await ctx.send(f"Using database: {storage.db.name}")
+
+
+@bot.command(
+	help="Add the bot's custom emoji to this server. This is probably not necessary."
+)
+@commands.bot_has_guild_permissions(manage_emojis=True)
+async def generate_emoji(ctx: commands.Context): # noqa: D103
+	log.info("generating and adding emoji to server")
+	logging.getLogger("discord").setLevel("DEBUG")
+	import visualize
+	guild: discord.Guild = ctx.guild
+	added_emoji = []
+	for e in TYPE_ELEMENTS:
+		with io.BytesIO() as data:
+			visualize.get_element_type_img(e).save(data, 'PNG')
+			data.seek(0)
+			ename = util.type_emoji_name(e)
+			log.debug(f"creating emoji {ename}")
+			emoji = await guild.create_custom_emoji(
+				name=ename, image=data.getvalue(), reason="Added by Brock"
+			)
+			added_emoji += [emoji]
+
+	await ctx.send(
+		f"Added custom emoji to this server: {' '.join(map(str, added_emoji))}"
+	)
 
 
 if __name__ == "__main__":
