@@ -326,6 +326,10 @@ class Transaction:
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
 				return f"{target.pokemon.Name} is {util.status_to_string(status)}!"
+			elif self.name == "CureStatusTransaction":
+				target = Target(**self.args["Target"])
+				status = self.args["StatusEffect"]
+				return f"{target.pokemon.Name} is no longer {util.status_to_string(status)}!"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
