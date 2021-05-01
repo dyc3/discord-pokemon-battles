@@ -260,8 +260,12 @@ class Transaction:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
 				move = self.args["Move"]
+				status = self.args["StatusEffect"]
 
-				return f"{target.pokemon.Name} took {self.args['Damage']} damage."
+				if status != 0:
+					return f"{target.pokemon.Name} took {self.args['Damage']} damage from {list(util.status_to_string(self.args['StatusEffect']))[0]}"
+				else:
+					return f"{target.pokemon.Name} took {self.args['Damage']} damage."
 			elif self.name == "FriendshipTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
