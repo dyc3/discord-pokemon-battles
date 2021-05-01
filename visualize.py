@@ -7,6 +7,12 @@ log = logging.getLogger(__name__)
 from PIL import Image, ImageDraw, ImageFont
 import time
 
+hp_bar_colors = [
+	(48, 181, 53), # green
+	(255, 203, 5), # yellow
+	(227, 0, 0), # red
+]
+
 
 def get_background() -> Image.Image:
 	"""Grab a battle background."""
@@ -77,10 +83,17 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 			fill=text_color,
 			font=font_sm
 		)
-	adjusted_hp_width = int((pkmn.CurrentHP / pkmn.Stats[Stat.Hp]) * hp_bar_width)
+	hp_percent = pkmn.CurrentHP / pkmn.Stats[Stat.Hp]
+	adjusted_hp_width = int(hp_percent * hp_bar_width)
+	if hp_percent > .5:
+		hp_color = hp_bar_colors[0]
+	elif hp_percent > .2:
+		hp_color = hp_bar_colors[1]
+	else:
+		hp_color = hp_bar_colors[2]
 	draw.line(
 		[(hp_bar_left, hp_bar_y), (hp_bar_left + adjusted_hp_width, hp_bar_y)],
-		fill=(48, 181, 53),
+		fill=hp_color,
 		width=hp_bar_height
 	)
 	return im
