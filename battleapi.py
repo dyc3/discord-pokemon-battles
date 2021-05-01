@@ -1,13 +1,14 @@
 from pkmntypes import *
 import aiohttp
-import logging
 import jsonpickle
 from pkmntypes import *
 from turns import *
 import os
 import config
+import logging, coloredlogs
 
 log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 
 BASE_URL = config.BATTLE_API_BASE_URL
 

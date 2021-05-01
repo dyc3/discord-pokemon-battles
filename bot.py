@@ -78,6 +78,14 @@ async def challenge(
 	level: int = 30,
 	party_size: int = 1
 ): # noqa: D103
+	if level < 1 or level > 100:
+		raise commands.BadArgument(
+			f'Level must be between 1 and 100 (inclusive), but got {level}'
+		)
+	if party_size < 1 or party_size > 6:
+		raise commands.BadArgument(
+			f'Party size must be between 1 and 6 (inclusive), but got {party_size}'
+		)
 	log.debug(f"Setting up battle: {ctx.author} challenging {opponent}")
 	start_time = time.time()
 	pkmn = [await battleapi.generate_pokemon(level=level) for _ in range(party_size * 2)]
@@ -93,7 +101,8 @@ async def challenge(
 		battle.add_user(user)
 	else:
 		battle.add_bot(opponent)
-	coordinator.battles += [battle]
+	async with coordinator.battles_lock:
+		coordinator.battles += [battle]
 	duration = time.time() - start_time
 	log.info(f"Battle setup took {duration} seconds. Starting battle...")
 	await battle.start()
@@ -133,11 +142,12 @@ async def begin(ctx: commands.Context): # noqa: D103
 
 
 @dev_command()
-async def test(ctx=commands.Context):
+async def test_prompt_message(ctx: commands.Context):
 	"""Tests the prompt_message function."""
-	Message = await ctx.send("Choose an option")
-	list_of_emojis = ["🇦", "🇧", "🇨", "🇩"]
-	result = await util.prompt_message(bot, ctx.author, Message, list_of_emojis)
+	msg = await ctx.send("Choose an option")
+	emojis = ["🇦", "🇧", "🇨", "🇩"]
+	result = await util.prompt_message(bot, ctx.author, msg, emojis)
+	await ctx.send(f"got: {result}")
 
 
 @bot.command(help='Add name to display specific Pokemon')
@@ -262,5 +272,6 @@ if __name__ == "__main__":
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
+	bot.load_extension("cogs.error_handler_fallback")
 
 	bot.run(config.BOT_TOKEN)

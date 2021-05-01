@@ -134,80 +134,85 @@ class Battle():
 
 	async def simulate(self):
 		"""Simulate the entire battle. Asynchronously blocks until the battle is completed."""
-		while True:
-			log.debug("visualizing")
-			spectator_embed = discord.Embed(
-				title=f"{self.agents[0].name} vs. {self.agents[1].name}",
-				description="Waiting for turns..."
-			)
-			spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
+		try:
+			while True:
+				log.debug("visualizing")
+				spectator_embed = discord.Embed(
+					title=f"{self.agents[0].name} vs. {self.agents[1].name}",
+					description="Waiting for turns..."
+				)
+				spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
 
-			with self.original_channel.typing():
-				ctx = await battleapi.get_battle_context(self.bid, 0)
-				with io.BytesIO() as data:
-					visualize_battle(ctx).save(data, 'PNG')
-					data.seek(0)
-					spectator_embed.set_image(url="attachment://battle.png")
-					spectator_msg: discord.Message = await self.original_channel.send(
-						spectator_content,
-						embed=spectator_embed,
-						file=discord.File(data, filename="battle.png")
-					)
-			log.debug("asking agents for turns")
-			await self.queue_turns()
-			log.debug("simulating round")
-			results = await battleapi.simulate(self.bid)
-			self.transactions += results.transactions
-			# embed descriptions can only be 2048 characters long.
-			char_limit = 2048
-			transactions_text = util.prettify_all_transactions(results.transactions)
-
-			if len(transactions_text) == 1:
-				spectator_embed.description = transactions_text[0]
-			else:
-				# if the text doesn't fit on one embed, just put all the transactions into new messages
 				with self.original_channel.typing():
-					for text in transactions_text:
-						if len(text) > char_limit:
-							log.warning(
-								f"Embed's text is too long! Truncating to {char_limit} chars."
-							)
-							text = text[:char_limit]
-						await self.original_channel.send(
-							embed=discord.
-							Embed(title=spectator_embed.title, description=text)
+					ctx = await battleapi.get_battle_context(self.bid, 0)
+					with io.BytesIO() as data:
+						visualize_battle(ctx).save(data, 'PNG')
+						data.seek(0)
+						spectator_embed.set_image(url="attachment://battle.png")
+						spectator_msg: discord.Message = await self.original_channel.send(
+							spectator_content,
+							embed=spectator_embed,
+							file=discord.File(data, filename="battle.png")
 						)
-			for agent in self.agents:
-				if agent.user:
-					if len(transactions_text) == 0:
-						transactions_text = "[No transactions]"
-						await agent.user.dm_channel.send(
-							embed=discord.Embed(description="[No transactions]")
-						)
-						continue
-					with agent.user.dm_channel.typing():
+				log.debug("asking agents for turns")
+				await self.queue_turns()
+				log.debug("simulating round")
+				results = await battleapi.simulate(self.bid)
+				self.transactions += results.transactions
+				# embed descriptions can only be 2048 characters long.
+				char_limit = 2048
+				transactions_text = util.prettify_all_transactions(results.transactions)
+
+				if len(transactions_text) == 1:
+					spectator_embed.description = transactions_text[0]
+				else:
+					# if the text doesn't fit on one embed, just put all the transactions into new messages
+					with self.original_channel.typing():
 						for text in transactions_text:
 							if len(text) > char_limit:
 								log.warning(
 									f"Embed's text is too long! Truncating to {char_limit} chars."
 								)
 								text = text[:char_limit]
-							assert len(
-								text
-							) > 0, f"found empty message in transaction_text, which should not happen {transactions_text}"
-							await agent.user.dm_channel.send(
-								embed=discord.Embed(description=text)
+							await self.original_channel.send(
+								embed=discord.
+								Embed(title=spectator_embed.title, description=text)
 							)
-			await spectator_msg.edit(embed=spectator_embed)
-			if results.ended:
-				break
-		log.info(f"Battle between {self.agents} concluded")
-		results = await battleapi.get_results(self.bid)
-		if self.original_channel:
-			await self.original_channel.send(
-				embed=self.__create_battle_summary_msg(results)
-			)
-		await self.apply_post_battle_updates(results)
+				for agent in self.agents:
+					if agent.user:
+						if len(transactions_text) == 0:
+							transactions_text = "[No transactions]"
+							await agent.user.dm_channel.send(
+								embed=discord.Embed(description="[No transactions]")
+							)
+							continue
+						with agent.user.dm_channel.typing():
+							for text in transactions_text:
+								if len(text) > char_limit:
+									log.warning(
+										f"Embed's text is too long! Truncating to {char_limit} chars."
+									)
+									text = text[:char_limit]
+								assert len(
+									text
+								) > 0, f"found empty message in transaction_text, which should not happen {transactions_text}"
+								await agent.user.dm_channel.send(
+									embed=discord.Embed(description=text)
+								)
+				await spectator_msg.edit(embed=spectator_embed)
+				if results.ended:
+					break
+			log.info(f"Battle between {self.agents} concluded")
+			results = await battleapi.get_results(self.bid)
+			if self.original_channel:
+				await self.original_channel.send(
+					embed=self.__create_battle_summary_msg(results)
+				)
+			await self.apply_post_battle_updates(results)
+		except Exception as e:
+			log.critical(f"Unhandled error occured during battlle: {e}")
+		finally:
+			await self.__cleanup()
 
 	async def apply_post_battle_updates(self, results: battleapi.BattleResults):
 		"""Apply post battle state updates to pokemon, and save them to storage."""
@@ -231,11 +236,23 @@ class Battle():
 		self, results: battleapi.BattleResults
 	) -> discord.Embed:
 		embed = discord.Embed(title="Battle Results")
-		if self.agents[results.winner].user:
-			embed.add_field(name="Winner", value=self.agents[results.winner].user)
-		else:
-			embed.add_field(name="Winner", value=self.agents[results.winner].bot)
+		embed.add_field(name="Winner", value=self.agents[results.winner].name)
 		return embed
+
+	async def __cleanup(self):
+		log.debug("cleaning up completed battle")
+		global battles
+		idx = None
+		for i, b in enumerate(battles):
+			if b is self:
+				idx = i
+				break
+		if idx == None:
+			log.critical("Unable to find battle in all registered battles.")
+			return
+		async with battles_lock:
+			del battles[idx]
 
 
 battles: list[Battle] = []
+battles_lock = asyncio.Lock()

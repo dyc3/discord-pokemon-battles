@@ -152,7 +152,8 @@ class TestTransactions(unittest.TestCase):
 				"Move": {
 					"Name": "Tackle",
 				},
-				"Damage": 14
+				"Damage": 14,
+				"StatusEffect": 0,
 			}
 		)
 		self.assertEqual(transaction.pretty(), "Altaria took 14 damage.")
