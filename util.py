@@ -85,18 +85,18 @@ async def prompt_menu(
 
 
 async def prompt_message(
-	bot: commands.Bot, user: discord.User, msg: discord.Message, list_of_emojis: list[str]
+	bot: commands.Bot, user: discord.User, msg: discord.Message, emojis: list[str]
 ):
 	"""Works very similar to prompt_menu except it takes in the message and a list of reactions instead of the specific menu_items."""
 
-	for r in list_of_emojis:
+	for r in emojis:
 		bot.loop.create_task(msg.add_reaction(r))
 
 	def check(payload):
 		log.debug(f"checking payload {payload}")
 		return payload.message_id == msg.id and payload.user_id == user.id and str(
 			payload.emoji
-		) in list_of_emojis
+		) in emojis
 
 	try:
 		log.debug("waiting for user's reaction")
@@ -106,7 +106,7 @@ async def prompt_message(
 		log.error("timed out")
 		raise e
 
-	reactionId = list_of_emojis.index(str(payload.emoji))
+	reactionId = emojis.index(str(payload.emoji))
 
 	return reactionId
 

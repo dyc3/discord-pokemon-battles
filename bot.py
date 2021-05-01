@@ -142,11 +142,12 @@ async def begin(ctx: commands.Context): # noqa: D103
 
 
 @dev_command()
-async def test(ctx=commands.Context):
+async def test_prompt_message(ctx: commands.Context):
 	"""Tests the prompt_message function."""
-	Message = await ctx.send("Choose an option")
-	list_of_emojis = ["🇦", "🇧", "🇨", "🇩"]
-	result = await util.prompt_message(bot, ctx.author, Message, list_of_emojis)
+	msg = await ctx.send("Choose an option")
+	emojis = ["🇦", "🇧", "🇨", "🇩"]
+	result = await util.prompt_message(bot, ctx.author, msg, emojis)
+	await ctx.send(f"got: {result}")
 
 
 @bot.command(help='Add name to display specific Pokemon')
