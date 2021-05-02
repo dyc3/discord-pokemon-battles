@@ -116,7 +116,7 @@ class Battle():
 	@property
 	def is_just_bots(self):
 		"""Get whether or not the battle only consists of bot agents."""
-		return all([len(a.bot) > 0 for a in self.agents])
+		return all([a.bot != None and len(a.bot) > 0 for a in self.agents])
 
 	async def start(self):
 		"""Create the battle on the battle API, making the battle ready to simulate, and starts a task asynchronously to simulate the battle."""
