@@ -9,6 +9,12 @@
 			"type": "python",
 			"request": "launch",
 			"module": "tests.unit.test_types"
+		},
+		{
+			"name": "debug integration storage",
+			"type": "python",
+			"request": "launch",
+			"module": "tests.integration.storage.test_storage"
 		}
 	]
 }

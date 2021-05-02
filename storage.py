@@ -1,4 +1,6 @@
 import asyncio
+import datetime
+import jsonpickle
 from pkmntypes import Pokemon
 from typing import Union
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
@@ -45,16 +47,19 @@ async def save_object(
 		coll = user_profiles()
 	else:
 		raise TypeError(f"Invalid type for obj: {type(obj)}")
+	pickler = jsonpickle.pickler.Pickler(unpicklable=False)
+	pickled_obj = {
+		k: pickler.flatten(v)
+		if type(v) not in [None, int, float, bool, str, datetime.datetime] else v
+		for k, v in obj.__dict__.items() if k != "_id"
+	}
 	if obj._id != None:
 		result = await coll.update_one(
-			{'_id': obj._id}, {'$set': obj.__dict__}, session=session
+			{'_id': obj._id}, {'$set': pickled_obj}, session=session
 		)
 		log.debug(f"Updated {type(obj)} ({result.modified_count} modified)")
 	else:
-		result = await coll.insert_one(
-			{k: v
-				for k, v in obj.__dict__.items() if k != "_id"}, session=session
-		)
+		result = await coll.insert_one(pickled_obj, session=session)
 		obj._id = result.inserted_id
 		log.debug(f"Inserted {type(obj)} ({obj._id})")
 
