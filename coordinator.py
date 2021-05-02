@@ -205,9 +205,13 @@ class Battle():
 			log.info(f"Battle between {self.agents} concluded")
 			results = await battleapi.get_results(self.bid)
 			if self.original_channel:
-				await self.original_channel.send(
-					embed=self.__create_battle_summary_msg(results)
-				)
+				embed = self.__create_battle_summary_msg(results)
+				battle_sum_msg: Message = await self.original_channel.send(embed=embed)
+				link = util.get_link(battle_sum_msg)
+				for agent in self.agents:
+					if agent.user:
+						embed.description = f"[Click here to go back]({link})"
+						await agent.user.dm_channel.send(embed=embed)
 			await self.apply_post_battle_updates(results)
 		except Exception as e:
 			log.critical(f"Unhandled error occured during battlle: {e}")

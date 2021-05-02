@@ -294,3 +294,8 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 	if len(current) > 0:
 		transactions_text += [current]
 	return transactions_text
+
+
+def get_link(msg: Message):
+	"""Get the direct link for a message."""
+	return f"https://discord.com/channels/{msg.guild.id}/{msg.channel.id}/{msg.id}"
