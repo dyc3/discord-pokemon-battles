@@ -4,7 +4,7 @@ import asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Iterable, Sequence, Union
+from typing import Generator, Iterable, Sequence, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = [
@@ -128,7 +128,7 @@ async def prompt_for_turn(
 	"""
 
 	title = battlecontext.pokemon.Name
-	description = f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	description = f"{battlecontext.pokemon.CurrentHP} HP {safe_display_types(bot, battlecontext.pokemon.Type)} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
 	content = "Select a move"
 
 	menu_items = []
@@ -136,7 +136,7 @@ async def prompt_for_turn(
 		menu_items.append(
 			(
 				f"{move['Name']}",
-				f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+				f"{safe_display_types(bot, move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
 			)
 		)
 
@@ -218,6 +218,17 @@ def type_to_string(elemental_type: int) -> set[str]:
 def type_emoji_name(t: str) -> str:
 	"""Get the name of the emoji associated with the given type."""
 	return f"type{t.lower()}"
+
+
+def safe_display_types(bot: commands.Bot, elemental_type: int) -> str:
+	"""Use custom emojis to display the types, if available. Otherwise, just use strings."""
+	types = list(type_to_string(elemental_type))
+	combined = []
+	for text in types:
+		emoji = discord.utils.get(bot.emojis, name=type_emoji_name(text))
+		combined += [emoji if emoji else f"[{text}]"]
+
+	return ' '.join(map(str, combined))
 
 
 def build_teams_single(*parties: Union[Party, list[Pokemon]]) -> list[Team]:
