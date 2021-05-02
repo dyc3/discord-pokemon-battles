@@ -268,7 +268,7 @@ class Transaction:
 				move = self.args["Move"]
 				status = self.args["StatusEffect"]
 
-				text = f"{target.pokemon.name_and_type} took {self.args['Damage']} damage."
+				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
 				if status != 0:
 					return text[:-1
 								] + f" from {list(util.status_to_string(self.args['StatusEffect']))[0]}."
@@ -293,22 +293,23 @@ class Transaction:
 			elif self.name == "InflictStatusTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{pkmn.name_and_type} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+				return f"{pkmn.name_and_type} was **{list(util.status_to_string(self.args['StatusEffect']))[0]}**."
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
-				return f"{target.pokemon.Name} fainted."
+				return f"{target.pokemon.Name} **fainted**."
 			elif self.name == "EndBattleTransaction":
 				return f"The battle has ended."
 			elif self.name == "MoveFailTransaction":
 				user = Pokemon(**self.args["User"])
 				reason = MoveFailReason(self.args["Reason"])
 
-				msg = "failed"
 				if reason == MoveFailReason.miss:
-					msg = "missed"
+					msg = "**missed**"
 				elif reason == MoveFailReason.dodge:
-					msg = "was dodged"
+					msg = "was **dodged**"
+				else:
+					msg = "**failed**"
 				return f"{user.name_and_type} {msg}."
 			elif self.name == "ModifyStatTransaction":
 				pkmn = Pokemon(**self.args["Target"])
@@ -337,11 +338,11 @@ class Transaction:
 			elif self.name == "ImmobilizeTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is **{util.status_to_string(status)}**!"
 			elif self.name == "CureStatusTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is no longer {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is no longer **{util.status_to_string(status)}**!"
 			elif self.name == "WeatherTransaction":
 				weather = BattleWeather(self.args["Weather"])
 				if weather == BattleWeather.ClearSkies:
