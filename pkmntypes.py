@@ -342,6 +342,22 @@ class Transaction:
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
 				return f"{target.pokemon.name_and_type} is no longer {util.status_to_string(status)}!"
+			elif self.name == "WeatherTransaction":
+				weather = BattleWeather(self.args["Weather"])
+				if weather == BattleWeather.ClearSkies:
+					return "The weather is now **clear**."
+				elif weather == BattleWeather.HarshSunlight:
+					return "The **sunlight turned harsh**."
+				elif weather == BattleWeather.Rain:
+					return "It started to **rain**."
+				elif weather == BattleWeather.Sandstorm:
+					return "A **sandstorm** brewed."
+				elif weather == BattleWeather.Hail:
+					return "It started to **hail**."
+				elif weather == BattleWeather.Fog:
+					return "The **fog** is deep..."
+				else:
+					return f"The weather is now **{weather}**."
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
@@ -371,3 +387,14 @@ TYPE_ELEMENTS = [
 	"Dragon",
 	"Dark",
 ]
+
+
+class BattleWeather(Enum):
+	"""Weather conditions that can be present on the battlefield."""
+
+	ClearSkies = 0
+	HarshSunlight = 1
+	Rain = 2
+	Sandstorm = 3
+	Hail = 4
+	Fog = 5
