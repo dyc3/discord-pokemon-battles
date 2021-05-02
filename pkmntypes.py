@@ -24,11 +24,13 @@ def _case_insensitive_pop(
 	raise KeyError(name)
 
 
-@dataclass(init=False)
+@dataclass(init=False, repr=False)
 class Move():
 	"""A Pokemon's move."""
 
 	move_id: int
+	current_pp: int
+	max_pp: int
 	name: str
 	elemental_type: int
 	category: int
@@ -54,6 +56,8 @@ class Move():
 
 	json_fields = {
 		"Id": "move_id",
+		"CurrentPP": "current_pp",
+		"MaxPP": "max_pp",
 		"Name": "name",
 		"Type": "elemental_type",
 		"Category": "category",
@@ -81,6 +85,16 @@ class Move():
 	def __init__(self, **kwargs):
 		import util
 		util.json_parse(self, kwargs)
+
+	def __getstate__(self):
+		return {
+			json_field: self.__getattribute__(attr)
+			for json_field, attr in self.json_fields.items()
+		}
+
+	def __setstate__(self, d):
+		import util
+		util.json_parse(self, d)
 
 
 @dataclass(init=False, repr=False)
@@ -227,13 +241,16 @@ class Target():
 	team: int
 	pokemon: Pokemon
 
+	json_fields = {
+		"Party": "party",
+		"Slot": "slot",
+		"Team": "team",
+		"Pokemon": "pokemon",
+	}
+
 	def __init__(self, **kwargs):
-		self.party: int = _case_insensitive_pop(kwargs, "Party", -1)
-		self.slot: int = _case_insensitive_pop(kwargs, "Slot", -1)
-		self.team: int = _case_insensitive_pop(kwargs, "Team", -1)
-		self.pokemon: Pokemon = Pokemon(
-			**_case_insensitive_pop(kwargs, "Pokemon")
-		) if "Pokemon" in kwargs or "pokemon" in kwargs else None
+		import util
+		util.json_parse(self, kwargs)
 
 
 @dataclass(init=False)
@@ -255,19 +272,18 @@ class BattleContext():
 	allies: list[Target]
 	opponents: list[Target]
 
+	json_fields = {
+		"Battle": "battle",
+		"Pokemon": "pokemon",
+		"Team": "team",
+		"Targets": "targets",
+		"Allies": "allies",
+		"Opponents": "opponents",
+	}
+
 	def __init__(self, **kwargs):
-		self.battle: dict[str, Any] = _case_insensitive_pop(kwargs, 'Battle')
-		self.pokemon: Pokemon = Pokemon(**_case_insensitive_pop(kwargs, 'Pokemon'))
-		self.team: int = _case_insensitive_pop(kwargs, 'Team')
-		self.targets: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Targets', [])
-		]
-		self.allies: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Allies', [])
-		]
-		self.opponents: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Opponents', [])
-		]
+		import util
+		util.json_parse(self, kwargs)
 
 
 class MoveFailReason(IntEnum):

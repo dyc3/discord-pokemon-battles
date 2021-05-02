@@ -23,6 +23,7 @@ class TestPkmnTypes(unittest.TestCase):
 			'{"Id":1,"Name": "Pound","Type": 1,"Category": 1,"Targets": 10,"Priority": 0,"Power": 40,"Accuracy": 100,"InitialMaxPP": 35,"MinHits": 0,"MaxHits": 0,"MinTurns": 0,"MaxTurns": 0,"Drain": 0,"Healing": 0,"CritRate": 0,"AilmentChance": 0,"FlinchChance": 0,"StatChance": 0,"Flags": 18448,"AffectedStat": 0,"StatStages": 0,"Ailment": 0}'
 		)
 		move = Move(**data)
+		self.assertEqual(move.move_id, 1)
 		self.assertEqual(move.name, "Pound")
 
 

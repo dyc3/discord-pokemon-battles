@@ -135,8 +135,8 @@ async def prompt_for_turn(
 	for i, move in enumerate(battlecontext.pokemon.Moves):
 		menu_items.append(
 			(
-				f"{move['Name']}",
-				f"{safe_display_types(move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
+				f"{move.name}",
+				f"{safe_display_types(move.elemental_type)} {move.current_pp}/{move.max_pp}"
 			)
 		)
 
@@ -309,21 +309,24 @@ def json_parse(self, kwargs: dict[str, Any]):
 	), f"json_fields must be a dict, got ({type(self.json_fields)} instead)"
 
 	def parse_obj(attr_type, obj):
-		if isinstance(obj, list):
-			item_type = attr_type.__args__[0]
-			value = [parse_obj(item_type, i) for i in obj]
-		else:
-			if isinstance(obj, dict):
-				value = attr_type(**obj)
+		try:
+			if isinstance(obj, list):
+				item_type = attr_type.__args__[0]
+				value = [parse_obj(item_type, i) for i in obj if i != None]
 			else:
-				value = attr_type(obj)
-		return value
+				if isinstance(obj, dict):
+					value = attr_type(**obj)
+				else:
+					value = attr_type(obj)
+			return value
+		except Exception as e:
+			raise Exception(
+				f"Error when parsing: attr_type={attr_type}, obj type={type(obj)}, obj={obj}"
+			) from e
 
 	for k, v in kwargs.items():
-		# log.debug(f"{k} = {v}")
 		if k in self.json_fields:
 			attr_type = self.__annotations__[self.json_fields[k]]
-			# log.debug(f"attr_type = {attr_type}")
 			attr_value = parse_obj(attr_type, v)
 			self.__setattr__(self.json_fields[k], attr_value)
 			assert self.json_fields[k] in self.__dict__
