@@ -11,6 +11,7 @@ from pkmntypes import *
 from discord.message import Message
 from visualize import visualize_battle
 import battle_ai
+import traceback
 import logging, coloredlogs
 
 log = logging.getLogger(__name__)
@@ -112,6 +113,11 @@ class Battle():
 		"""Add a bot Agent to the battle."""
 		self.agents.append(Agent(bot=botname))
 
+	@property
+	def is_just_bots(self):
+		"""Get whether or not the battle only consists of bot agents."""
+		return all([a.bot != None and len(a.bot) > 0 for a in self.agents])
+
 	async def start(self):
 		"""Create the battle on the battle API, making the battle ready to simulate, and starts a task asynchronously to simulate the battle."""
 		args = await battleapi.create_battle(self.teams)
@@ -143,17 +149,18 @@ class Battle():
 				)
 				spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
 
-				with self.original_channel.typing():
-					ctx = await battleapi.get_battle_context(self.bid, 0)
-					with io.BytesIO() as data:
-						visualize_battle(ctx).save(data, 'PNG')
-						data.seek(0)
-						spectator_embed.set_image(url="attachment://battle.png")
-						spectator_msg: discord.Message = await self.original_channel.send(
-							spectator_content,
-							embed=spectator_embed,
-							file=discord.File(data, filename="battle.png")
-						)
+				ctx = await battleapi.get_battle_context(self.bid, 0)
+				if not self.is_just_bots:
+					with self.original_channel.typing():
+						with io.BytesIO() as data:
+							visualize_battle(ctx).save(data, 'PNG')
+							data.seek(0)
+							spectator_embed.set_image(url="attachment://battle.png")
+							spectator_msg: discord.Message = await self.original_channel.send(
+								spectator_content,
+								embed=spectator_embed,
+								file=discord.File(data, filename="battle.png")
+							)
 				log.debug("asking agents for turns")
 				await self.queue_turns()
 				log.debug("simulating round")
@@ -199,18 +206,46 @@ class Battle():
 								await agent.user.dm_channel.send(
 									embed=discord.Embed(description=text)
 								)
-				await spectator_msg.edit(embed=spectator_embed)
+				if not self.is_just_bots:
+					await spectator_msg.edit(embed=spectator_embed)
+				else:
+					with io.BytesIO() as data:
+						visualize_battle(ctx).save(data, 'PNG')
+						data.seek(0)
+						spectator_embed.set_image(url="attachment://battle.png")
+						spectator_msg: discord.Message = await self.original_channel.send(
+							spectator_content,
+							embed=spectator_embed,
+							file=discord.File(data, filename="battle.png")
+						)
 				if results.ended:
 					break
+				if self.is_just_bots:
+					await asyncio.sleep(2)
 			log.info(f"Battle between {self.agents} concluded")
 			results = await battleapi.get_results(self.bid)
 			if self.original_channel:
-				await self.original_channel.send(
-					embed=self.__create_battle_summary_msg(results)
-				)
+				embed = self.__create_battle_summary_msg(results)
+				battle_sum_msg: Message = await self.original_channel.send(embed=embed)
+				if not isinstance(self.original_channel, discord.DMChannel):
+					link = util.get_link(battle_sum_msg)
+					for agent in self.agents:
+						if agent.user:
+							embed.description = f"[Click here to go back]({link})"
+							await agent.user.dm_channel.send(embed=embed)
 			await self.apply_post_battle_updates(results)
 		except Exception as e:
-			log.critical(f"Unhandled error occured during battlle: {e}")
+			log.critical(
+				f"Unhandled error occured during battlle: {e}\n{''.join(traceback.format_exception(type(e), e, e.__traceback__))}"
+			)
+			for agent in self.agents:
+				if agent.user:
+					try:
+						await agent.user.dm_channel.send(
+							"Whoops, something bad happened, so the battle has been discarded."
+						)
+					except discord.HTTPException:
+						pass
 		finally:
 			await self.__cleanup()
 
@@ -227,6 +262,8 @@ class Battle():
 				assert isinstance(resultParty, Party)
 				for pkmn, resultPkmn in zip(party.pokemon, resultParty.pokemon):
 					assert pkmn.NatDex == resultPkmn.NatDex
+					if pkmn._id == None:
+						continue
 					pkmn.__dict__.update(resultPkmn.__dict__)
 					await pkmn.save()
 		except AssertionError as e:

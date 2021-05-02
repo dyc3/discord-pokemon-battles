@@ -3,7 +3,7 @@ import asyncio
 from discord import Embed, Member, Status, Message
 from distest.TestInterface import TestInterface
 from distest import run_dtest_bot, TestCollector
-from brock_test_util import resetdb
+from brock_test_util import resetdb, ensure_profile
 
 test_collector = TestCollector()
 
@@ -11,14 +11,7 @@ test_collector = TestCollector()
 @test_collector()
 async def test_minigame(interface: TestInterface):
 	await resetdb(interface)
-
-	await interface.send_message("p!begin")
-	msg: Message = await interface.wait_for_message()
-	await interface.wait_for_reaction(msg)
-	await msg.add_reaction("🇩")
-	msg2: Message = await interface.wait_for_message()
-	await interface.assert_message_contains(msg2, "Profile created")
-	await asyncio.sleep(0.5)
+	await ensure_profile(interface)
 
 	embed = Embed(
 		title="Who's That Pokemon?",

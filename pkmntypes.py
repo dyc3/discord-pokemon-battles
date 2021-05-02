@@ -25,6 +25,85 @@ def _case_insensitive_pop(
 
 
 @dataclass(init=False, repr=False)
+class Move():
+	"""A Pokemon's move."""
+
+	move_id: int
+	current_pp: int
+	max_pp: int
+	name: str
+	elemental_type: int
+	category: int
+	targets: int
+	priority: int
+	power: int
+	accuracy: int
+	initial_max_pp: int
+	min_hits: int
+	max_hits: int
+	min_turns: int
+	max_turns: int
+	drain: int
+	healing: int
+	crit_rate: int
+	ailment_chance: int
+	flinch_chance: int
+	stat_chance: int
+	flags: int
+	affected_stat: int
+	stat_stages: int
+	ailment: int
+
+	json_fields = {
+		"Id": "move_id",
+		"CurrentPP": "current_pp",
+		"MaxPP": "max_pp",
+		"Name": "name",
+		"Type": "elemental_type",
+		"Category": "category",
+		"Targets": "targets",
+		"Priority": "priority",
+		"Power": "power",
+		"Accuracy": "accuracy",
+		"InitialMaxPP": "initial_max_pp",
+		"MinHits": "min_hits",
+		"MaxHits": "max_hits",
+		"MinTurns": "min_turns",
+		"MaxTurns": "max_turns",
+		"Drain": "drain",
+		"Healing": "healing",
+		"CritRate": "crit_rate",
+		"AilmentChance": "ailment_chance",
+		"FlinchChance": "flinch_chance",
+		"StatChance": "stat_chance",
+		"Flags": "flags",
+		"AffectedStat": "affected_stat",
+		"StatStages": "stat_stages",
+		"Ailment": "ailment",
+	}
+
+	def __init__(self, **kwargs):
+		import util
+		util.json_parse(self, kwargs)
+
+	def __getstate__(self):
+		return {
+			json_field: self.__getattribute__(attr)
+			for json_field, attr in self.json_fields.items()
+		}
+
+	def __setstate__(self, d):
+		import util
+		util.json_parse(self, d)
+
+	@property
+	def name_and_type(self):
+		"""Pretty print the move's name and type, using emoji if possible."""
+		import util
+		return f"{self.name} {util.safe_display_types(self.elemental_type)}"
+
+
+@dataclass(init=False, repr=False)
 class Pokemon():
 	"""A Pokemon.
 
@@ -65,36 +144,39 @@ class Pokemon():
 	StatusEffects: int
 	CurrentHP: int
 	HeldItem: dict[str, Any]
-	Moves: list[dict[str, Any]]
+	Moves: list[Move]
 	Friendship: int
 	OriginalTrainerID: int
 	Type: int
+
+	json_fields = {
+		"Name": "Name",
+		"NatDex": "NatDex",
+		"Level": "Level",
+		"Ability": "Ability",
+		"TotalExperience": "TotalExperience",
+		"Gender": "Gender",
+		"IVs": "IVs",
+		"EVs": "EVs",
+		"Nature": "Nature",
+		"Stats": "Stats",
+		"StatModifiers": "StatModifiers",
+		"StatusEffects": "StatusEffects",
+		"CurrentHP": "CurrentHP",
+		"HeldItem": "HeldItem",
+		"Moves": "Moves",
+		"Friendship": "Friendship",
+		"OriginalTrainerID": "OriginalTrainerID",
+		"Type": "Type",
+	}
 
 	def __init__(self, **kwargs):
 		if "_id" in kwargs:
 			self._id = kwargs.pop("_id")
 		else:
 			self._id = kwargs.pop("id", None)
-		if len(kwargs) == 0:
-			return
-		self.Name: str = _case_insensitive_pop(kwargs, 'Name')
-		self.NatDex: int = _case_insensitive_pop(kwargs, 'NatDex')
-		self.Level: int = _case_insensitive_pop(kwargs, 'Level')
-		self.Ability: int = _case_insensitive_pop(kwargs, 'Ability')
-		self.TotalExperience: int = _case_insensitive_pop(kwargs, 'TotalExperience')
-		self.Gender: int = _case_insensitive_pop(kwargs, 'Gender')
-		self.IVs: list[int] = _case_insensitive_pop(kwargs, 'IVs')
-		self.EVs: list[int] = _case_insensitive_pop(kwargs, 'EVs')
-		self.Nature: int = _case_insensitive_pop(kwargs, 'Nature')
-		self.Stats: list[int] = _case_insensitive_pop(kwargs, 'Stats')
-		self.StatModifiers: list[int] = _case_insensitive_pop(kwargs, 'StatModifiers')
-		self.StatusEffects: int = _case_insensitive_pop(kwargs, 'StatusEffects')
-		self.CurrentHP: int = _case_insensitive_pop(kwargs, 'CurrentHP')
-		self.HeldItem: dict = _case_insensitive_pop(kwargs, 'HeldItem')
-		self.Moves: list[dict] = _case_insensitive_pop(kwargs, 'Moves')
-		self.Friendship: int = _case_insensitive_pop(kwargs, 'Friendship')
-		self.OriginalTrainerID: int = _case_insensitive_pop(kwargs, 'OriginalTrainerID')
-		self.Type: int = _case_insensitive_pop(kwargs, 'Type')
+		import util
+		util.json_parse(self, kwargs)
 
 	async def save(self, session: AsyncIOMotorClientSession = None):
 		"""Alias for `storage.save_object(pokemon)`."""
@@ -165,13 +247,16 @@ class Target():
 	team: int
 	pokemon: Pokemon
 
+	json_fields = {
+		"Party": "party",
+		"Slot": "slot",
+		"Team": "team",
+		"Pokemon": "pokemon",
+	}
+
 	def __init__(self, **kwargs):
-		self.party: int = _case_insensitive_pop(kwargs, "Party", -1)
-		self.slot: int = _case_insensitive_pop(kwargs, "Slot", -1)
-		self.team: int = _case_insensitive_pop(kwargs, "Team", -1)
-		self.pokemon: Pokemon = Pokemon(
-			**_case_insensitive_pop(kwargs, "Pokemon")
-		) if "Pokemon" in kwargs or "pokemon" in kwargs else None
+		import util
+		util.json_parse(self, kwargs)
 
 
 @dataclass(init=False)
@@ -193,19 +278,18 @@ class BattleContext():
 	allies: list[Target]
 	opponents: list[Target]
 
+	json_fields = {
+		"Battle": "battle",
+		"Pokemon": "pokemon",
+		"Team": "team",
+		"Targets": "targets",
+		"Allies": "allies",
+		"Opponents": "opponents",
+	}
+
 	def __init__(self, **kwargs):
-		self.battle: dict[str, Any] = _case_insensitive_pop(kwargs, 'Battle')
-		self.pokemon: Pokemon = Pokemon(**_case_insensitive_pop(kwargs, 'Pokemon'))
-		self.team: int = _case_insensitive_pop(kwargs, 'Team')
-		self.targets: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Targets', [])
-		]
-		self.allies: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Allies', [])
-		]
-		self.opponents: list[Target] = [
-			Target(**d) for d in _case_insensitive_pop(kwargs, 'Opponents', [])
-		]
+		import util
+		util.json_parse(self, kwargs)
 
 
 class MoveFailReason(IntEnum):
@@ -265,10 +349,9 @@ class Transaction:
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
-				move = self.args["Move"]
 				status = self.args["StatusEffect"]
 
-				text = f"{target.pokemon.name_and_type} took {self.args['Damage']} damage."
+				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
 				if status != 0:
 					return text[:-1
 								] + f" from {list(util.status_to_string(self.args['StatusEffect']))[0]}."
@@ -293,22 +376,23 @@ class Transaction:
 			elif self.name == "InflictStatusTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{pkmn.name_and_type} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+				return f"{pkmn.name_and_type} was **{list(util.status_to_string(self.args['StatusEffect']))[0]}**."
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
-				return f"{target.pokemon.Name} fainted."
+				return f"{target.pokemon.name_and_type} **fainted**."
 			elif self.name == "EndBattleTransaction":
 				return f"The battle has ended."
 			elif self.name == "MoveFailTransaction":
 				user = Pokemon(**self.args["User"])
 				reason = MoveFailReason(self.args["Reason"])
 
-				msg = "failed"
 				if reason == MoveFailReason.miss:
-					msg = "missed"
+					msg = "**missed**"
 				elif reason == MoveFailReason.dodge:
-					msg = "was dodged"
+					msg = "was **dodged**"
+				else:
+					msg = "**failed**"
 				return f"{user.name_and_type} {msg}."
 			elif self.name == "ModifyStatTransaction":
 				pkmn = Pokemon(**self.args["Target"])
@@ -321,27 +405,43 @@ class Transaction:
 					direc = "decreased"
 				return f"{pkmn.name_and_type}'s {stat} {direc} by {abs(stages)}."
 			elif self.name == "PPTransaction":
-				move = self.args["Move"]
+				move = Move(**self.args["Move"])
 				if self.args["Amount"] > 0:
-					return f"{move['Name']} restored {self.args['Amount']} PP."
+					return f"{move.name_and_type} restored {self.args['Amount']} PP."
 				else:
-					return f"{move['Name']} lost {abs(self.args['Amount'])} PP."
+					return f"{move.name_and_type} lost {abs(self.args['Amount'])} PP."
 			elif self.name == "UseMoveTransaction":
 				tuser = Target(**self.args["User"])
 				target = Target(**self.args["Target"])
-				move = self.args["Move"]
-				return f"{tuser.pokemon.name_and_type} used {move['Name']} on {target.pokemon.name_and_type}!"
+				move = Move(**self.args["Move"])
+				return f"{tuser.pokemon.name_and_type} used {move.name_and_type} on {target.pokemon.name_and_type}!"
 			elif self.name == "SendOutTransaction":
 				target = Target(**self.args["Target"])
 				return f"{target.pokemon.name_and_type} was sent out."
 			elif self.name == "ImmobilizeTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is **{util.status_to_string(status)}**!"
 			elif self.name == "CureStatusTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is no longer {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is no longer **{util.status_to_string(status)}**!"
+			elif self.name == "WeatherTransaction":
+				weather = BattleWeather(self.args["Weather"])
+				if weather == BattleWeather.ClearSkies:
+					return "The weather is now **clear**."
+				elif weather == BattleWeather.HarshSunlight:
+					return "The **sunlight turned harsh**."
+				elif weather == BattleWeather.Rain:
+					return "It started to **rain**."
+				elif weather == BattleWeather.Sandstorm:
+					return "A **sandstorm** brewed."
+				elif weather == BattleWeather.Hail:
+					return "It started to **hail**."
+				elif weather == BattleWeather.Fog:
+					return "The **fog** is deep..."
+				else:
+					return f"The weather changed to **{weather}**."
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
@@ -371,3 +471,14 @@ TYPE_ELEMENTS = [
 	"Dragon",
 	"Dark",
 ]
+
+
+class BattleWeather(Enum):
+	"""Weather conditions that can be present on the battlefield."""
+
+	ClearSkies = 0
+	HarshSunlight = 1
+	Rain = 2
+	Sandstorm = 3
+	Hail = 4
+	Fog = 5

@@ -162,6 +162,14 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 		fill=hp_color,
 		width=hp_bar_height
 	)
+	draw.line(
+		[
+			(hp_bar_left, hp_bar_y - (hp_bar_height / 2) + 1),
+			(hp_bar_left + adjusted_hp_width, hp_bar_y - (hp_bar_height / 2) + 1)
+		],
+		fill=color_darken(hp_color, 50),
+		width=4,
+	)
 
 	# status conditions
 	if (status := pkmn.StatusEffects & 0b111) > 0:
@@ -199,3 +207,8 @@ def visualize_battle(ctx: BattleContext) -> Image.Image:
 	duration = time.time() - start_time
 	log.info(f"Battle visualized in {duration} seconds.")
 	return im
+
+
+def color_darken(color, amount):
+	"""Darken `color` by `amount`."""
+	return tuple(map(lambda x: min(max(x - amount, 0), 255), color))

@@ -135,8 +135,8 @@ async def prompt_for_turn(
 	for i, move in enumerate(battlecontext.pokemon.Moves):
 		menu_items.append(
 			(
-				f"{move['Name']}",
-				f"{safe_display_types(move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
+				f"{move.name}",
+				f"{safe_display_types(move.elemental_type)} {move.current_pp}/{move.max_pp}"
 			)
 		)
 
@@ -294,3 +294,39 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 	if len(current) > 0:
 		transactions_text += [current]
 	return transactions_text
+
+
+def get_link(msg: Message):
+	"""Get the direct link for a message."""
+	return f"https://discord.com/channels/{msg.guild.id}/{msg.channel.id}/{msg.id}"
+
+
+def json_parse(self, kwargs: dict[str, Any]):
+	"""Parse json dicts into the correct object according to type annotations."""
+	assert self.json_fields, f"{type(self)} does not have a json_fields attribute."
+	assert isinstance(
+		self.json_fields, dict
+	), f"json_fields must be a dict, got ({type(self.json_fields)} instead)"
+
+	def parse_obj(attr_type, obj):
+		try:
+			if isinstance(obj, list):
+				item_type = attr_type.__args__[0]
+				value = [parse_obj(item_type, i) for i in obj if i != None]
+			else:
+				if isinstance(obj, dict):
+					value = attr_type(**obj)
+				else:
+					value = attr_type(obj)
+			return value
+		except Exception as e:
+			raise Exception(
+				f"Error when parsing: attr_type={attr_type}, obj type={type(obj)}, obj={obj}"
+			) from e
+
+	for k, v in kwargs.items():
+		if k in self.json_fields:
+			attr_type = self.__annotations__[self.json_fields[k]]
+			attr_value = parse_obj(attr_type, v)
+			self.__setattr__(self.json_fields[k], attr_value)
+			assert self.json_fields[k] in self.__dict__
