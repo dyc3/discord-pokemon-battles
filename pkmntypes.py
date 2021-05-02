@@ -96,6 +96,12 @@ class Move():
 		import util
 		util.json_parse(self, d)
 
+	@property
+	def name_and_type(self):
+		"""Pretty print the move's name and type, using emoji if possible."""
+		import util
+		return f"{self.name} {util.safe_display_types(self.elemental_type)}"
+
 
 @dataclass(init=False, repr=False)
 class Pokemon():
@@ -343,7 +349,7 @@ class Transaction:
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
-				move = self.args["Move"]
+				move = Move(**self.args["Move"])
 				status = self.args["StatusEffect"]
 
 				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
@@ -400,16 +406,16 @@ class Transaction:
 					direc = "decreased"
 				return f"{pkmn.name_and_type}'s {stat} {direc} by {abs(stages)}."
 			elif self.name == "PPTransaction":
-				move = self.args["Move"]
+				move = Move(**self.args["Move"])
 				if self.args["Amount"] > 0:
-					return f"{move['Name']} restored {self.args['Amount']} PP."
+					return f"{move.name_and_type} restored {self.args['Amount']} PP."
 				else:
-					return f"{move['Name']} lost {abs(self.args['Amount'])} PP."
+					return f"{move.name_and_type} lost {abs(self.args['Amount'])} PP."
 			elif self.name == "UseMoveTransaction":
 				tuser = Target(**self.args["User"])
 				target = Target(**self.args["Target"])
-				move = self.args["Move"]
-				return f"{tuser.pokemon.name_and_type} used {move['Name']} on {target.pokemon.name_and_type}!"
+				move = Move(**self.args["Move"])
+				return f"{tuser.pokemon.name_and_type} used {move.name_and_type} on {target.pokemon.name_and_type}!"
 			elif self.name == "SendOutTransaction":
 				target = Target(**self.args["Target"])
 				return f"{target.pokemon.name_and_type} was sent out."
