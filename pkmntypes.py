@@ -357,7 +357,7 @@ class Transaction:
 				elif weather == BattleWeather.Fog:
 					return "The **fog** is deep..."
 				else:
-					return f"The weather is now **{weather}**."
+					return f"The weather changed to **{weather}**."
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:

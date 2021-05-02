@@ -3,6 +3,18 @@ from pkmntypes import *
 import util
 from hypothesis import given, reproduce_failure, strategies as st
 
+weather_transactions = st.builds(
+	Transaction,
+	type=st.just(12),
+	name=st.just("WeatherTransaction"),
+	args=st.fixed_dictionaries(
+		{
+			'Weather': st.sampled_from(BattleWeather),
+			'Turns': st.integers(min_value=1)
+		}
+	)
+)
+
 
 class TestTransactions(unittest.TestCase):
 
@@ -18,6 +30,11 @@ class TestTransactions(unittest.TestCase):
 		self.assertEqual(
 			transaction.pretty(), "Altaria [Dragon] [Flying] took 14 damage."
 		)
+
+	@given(weather_transactions)
+	def test_should_have_custom_weather_messages(self, weather_transaction: Transaction):
+		"""WeatherTransaction must have custom messages for all weather defined in :class:`BattleWeather`."""
+		self.assertFalse("The weather changed to" in weather_transaction.pretty())
 
 
 garbage_transactions = st.builds(
