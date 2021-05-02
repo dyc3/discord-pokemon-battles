@@ -24,6 +24,65 @@ def _case_insensitive_pop(
 	raise KeyError(name)
 
 
+@dataclass(init=False)
+class Move():
+	"""A Pokemon's move."""
+
+	move_id: int
+	name: str
+	elemental_type: int
+	category: int
+	targets: int
+	priority: int
+	power: int
+	accuracy: int
+	initial_max_pp: int
+	min_hits: int
+	max_hits: int
+	min_turns: int
+	max_turns: int
+	drain: int
+	healing: int
+	crit_rate: int
+	ailment_chance: int
+	flinch_chance: int
+	stat_chance: int
+	flags: int
+	affected_stat: int
+	stat_stages: int
+	ailment: int
+
+	json_fields = {
+		"Id": "move_id",
+		"Name": "name",
+		"Type": "elemental_type",
+		"Category": "category",
+		"Targets": "targets",
+		"Priority": "priority",
+		"Power": "power",
+		"Accuracy": "accuracy",
+		"InitialMaxPP": "initial_max_pp",
+		"MinHits": "min_hits",
+		"MaxHits": "max_hits",
+		"MinTurns": "min_turns",
+		"MaxTurns": "max_turns",
+		"Drain": "drain",
+		"Healing": "healing",
+		"CritRate": "crit_rate",
+		"AilmentChance": "ailment_chance",
+		"FlinchChance": "flinch_chance",
+		"StatChance": "stat_chance",
+		"Flags": "flags",
+		"AffectedStat": "affected_stat",
+		"StatStages": "stat_stages",
+		"Ailment": "ailment",
+	}
+
+	def __init__(self, **kwargs):
+		import util
+		util.json_parse(self, kwargs)
+
+
 @dataclass(init=False, repr=False)
 class Pokemon():
 	"""A Pokemon.
@@ -65,36 +124,39 @@ class Pokemon():
 	StatusEffects: int
 	CurrentHP: int
 	HeldItem: dict[str, Any]
-	Moves: list[dict[str, Any]]
+	Moves: list[Move]
 	Friendship: int
 	OriginalTrainerID: int
 	Type: int
+
+	json_fields = {
+		"Name": "Name",
+		"NatDex": "NatDex",
+		"Level": "Level",
+		"Ability": "Ability",
+		"TotalExperience": "TotalExperience",
+		"Gender": "Gender",
+		"IVs": "IVs",
+		"EVs": "EVs",
+		"Nature": "Nature",
+		"Stats": "Stats",
+		"StatModifiers": "StatModifiers",
+		"StatusEffects": "StatusEffects",
+		"CurrentHP": "CurrentHP",
+		"HeldItem": "HeldItem",
+		"Moves": "Moves",
+		"Friendship": "Friendship",
+		"OriginalTrainerID": "OriginalTrainerID",
+		"Type": "Type",
+	}
 
 	def __init__(self, **kwargs):
 		if "_id" in kwargs:
 			self._id = kwargs.pop("_id")
 		else:
 			self._id = kwargs.pop("id", None)
-		if len(kwargs) == 0:
-			return
-		self.Name: str = _case_insensitive_pop(kwargs, 'Name')
-		self.NatDex: int = _case_insensitive_pop(kwargs, 'NatDex')
-		self.Level: int = _case_insensitive_pop(kwargs, 'Level')
-		self.Ability: int = _case_insensitive_pop(kwargs, 'Ability')
-		self.TotalExperience: int = _case_insensitive_pop(kwargs, 'TotalExperience')
-		self.Gender: int = _case_insensitive_pop(kwargs, 'Gender')
-		self.IVs: list[int] = _case_insensitive_pop(kwargs, 'IVs')
-		self.EVs: list[int] = _case_insensitive_pop(kwargs, 'EVs')
-		self.Nature: int = _case_insensitive_pop(kwargs, 'Nature')
-		self.Stats: list[int] = _case_insensitive_pop(kwargs, 'Stats')
-		self.StatModifiers: list[int] = _case_insensitive_pop(kwargs, 'StatModifiers')
-		self.StatusEffects: int = _case_insensitive_pop(kwargs, 'StatusEffects')
-		self.CurrentHP: int = _case_insensitive_pop(kwargs, 'CurrentHP')
-		self.HeldItem: dict = _case_insensitive_pop(kwargs, 'HeldItem')
-		self.Moves: list[dict] = _case_insensitive_pop(kwargs, 'Moves')
-		self.Friendship: int = _case_insensitive_pop(kwargs, 'Friendship')
-		self.OriginalTrainerID: int = _case_insensitive_pop(kwargs, 'OriginalTrainerID')
-		self.Type: int = _case_insensitive_pop(kwargs, 'Type')
+		import util
+		util.json_parse(self, kwargs)
 
 	async def save(self, session: AsyncIOMotorClientSession = None):
 		"""Alias for `storage.save_object(pokemon)`."""

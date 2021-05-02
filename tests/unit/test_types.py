@@ -14,6 +14,16 @@ class TestPkmnTypes(unittest.TestCase):
 		self.assertEqual(pkmn.Name, "Regigigas")
 		self.assertEqual(pkmn.NatDex, 486)
 		self.assertEqual(pkmn.Level, 14)
+		self.assertEqual(len(pkmn.Moves), 4)
+		self.assertEqual(type(pkmn.Moves[0]), Move)
+		self.assertEqual(pkmn.Moves[0].name, "Tackle")
+
+	def test_move(self):
+		data = json.loads(
+			'{"Id":1,"Name": "Pound","Type": 1,"Category": 1,"Targets": 10,"Priority": 0,"Power": 40,"Accuracy": 100,"InitialMaxPP": 35,"MinHits": 0,"MaxHits": 0,"MinTurns": 0,"MaxTurns": 0,"Drain": 0,"Healing": 0,"CritRate": 0,"AilmentChance": 0,"FlinchChance": 0,"StatChance": 0,"Flags": 18448,"AffectedStat": 0,"StatStages": 0,"Ailment": 0}'
+		)
+		move = Move(**data)
+		self.assertEqual(move.name, "Pound")
 
 
 if __name__ == "__main__":

@@ -299,3 +299,31 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 def get_link(msg: Message):
 	"""Get the direct link for a message."""
 	return f"https://discord.com/channels/{msg.guild.id}/{msg.channel.id}/{msg.id}"
+
+
+def json_parse(self, kwargs: dict[str, Any]):
+	"""Parse json dicts into the correct object according to type annotations."""
+	assert self.json_fields, f"{type(self)} does not have a json_fields attribute."
+	assert isinstance(
+		self.json_fields, dict
+	), f"json_fields must be a dict, got ({type(self.json_fields)} instead)"
+
+	def parse_obj(attr_type, obj):
+		if isinstance(obj, list):
+			item_type = attr_type.__args__[0]
+			value = [parse_obj(item_type, i) for i in obj]
+		else:
+			if isinstance(obj, dict):
+				value = attr_type(**obj)
+			else:
+				value = attr_type(obj)
+		return value
+
+	for k, v in kwargs.items():
+		# log.debug(f"{k} = {v}")
+		if k in self.json_fields:
+			attr_type = self.__annotations__[self.json_fields[k]]
+			# log.debug(f"attr_type = {attr_type}")
+			attr_value = parse_obj(attr_type, v)
+			self.__setattr__(self.json_fields[k], attr_value)
+			assert self.json_fields[k] in self.__dict__
