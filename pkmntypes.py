@@ -380,7 +380,7 @@ class Transaction:
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
-				return f"{target.pokemon.Name} **fainted**."
+				return f"{target.pokemon.name_and_type} **fainted**."
 			elif self.name == "EndBattleTransaction":
 				return f"The battle has ended."
 			elif self.name == "MoveFailTransaction":
