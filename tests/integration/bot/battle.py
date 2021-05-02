@@ -27,7 +27,7 @@ async def test_turn_prompt_content(interface: TestInterface):
 	await interface.assert_embed_regex(
 		turn_msg, {
 			"title": r"[A-Z][a-z]+",
-			"description": r"\d+ HP \[[A-Z][a-z]+\]",
+			"description": r"\d+ HP ((<:[a-z]+:\d+>|\[[A-Z][a-z]\])\s?)+",
 		}
 	)
 
