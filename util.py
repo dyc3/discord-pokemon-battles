@@ -128,7 +128,7 @@ async def prompt_for_turn(
 	"""
 
 	title = battlecontext.pokemon.Name
-	description = f"{battlecontext.pokemon.CurrentHP} HP {safe_display_types(bot, battlecontext.pokemon.Type)} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	description = f"{battlecontext.pokemon.CurrentHP} HP {safe_display_types(battlecontext.pokemon.Type)} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
 	content = "Select a move"
 
 	menu_items = []
@@ -136,7 +136,7 @@ async def prompt_for_turn(
 		menu_items.append(
 			(
 				f"{move['Name']}",
-				f"{safe_display_types(bot, move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
+				f"{safe_display_types(move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
 			)
 		)
 
@@ -220,13 +220,26 @@ def type_emoji_name(t: str) -> str:
 	return f"type{t.lower()}"
 
 
-def safe_display_types(bot: commands.Bot, elemental_type: int) -> str:
+emoji_cache: dict[str, discord.Emoji] = {}
+
+
+def cache_emoji(emoji: discord.Emoji):
+	"""Add the given emoji to a global cache so we can access them later without a reference to `bot`."""
+	global emoji_cache
+	if emoji.name not in emoji_cache:
+		log.debug(f"Adding emoji {emoji.name} to cache")
+		emoji_cache[emoji.name] = emoji
+
+
+def safe_display_types(elemental_type: int) -> str:
 	"""Use custom emojis to display the types, if available. Otherwise, just use strings."""
 	types = list(type_to_string(elemental_type))
 	combined = []
 	for text in types:
-		emoji = discord.utils.get(bot.emojis, name=type_emoji_name(text))
-		combined += [emoji if emoji else f"[{text}]"]
+		combined += [
+			emoji_cache[ename] if
+			(ename := type_emoji_name(text)) in emoji_cache else f"[{text}]"
+		]
 
 	return ' '.join(map(str, combined))
 

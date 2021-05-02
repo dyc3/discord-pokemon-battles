@@ -291,11 +291,24 @@ async def generate_emoji(ctx: commands.Context): # noqa: D103
 			emoji = await guild.create_custom_emoji(
 				name=ename, image=data.getvalue(), reason="Added by Brock"
 			)
+			util.cache_emoji(emoji)
 			added_emoji += [emoji]
 
 	await ctx.send(
 		f"Added custom emoji to this server: {' '.join(map(str, added_emoji))}"
 	)
+
+
+@bot.event
+async def on_ready(): # noqa: D103
+	cache_all_emojis()
+
+
+def cache_all_emojis():
+	"""Cache all emojis that the bot currently has available to it."""
+	log.debug("cache_all_emojis()")
+	for emoji in bot.emojis:
+		util.cache_emoji(emoji)
 
 
 if __name__ == "__main__":
