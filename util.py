@@ -4,7 +4,7 @@ import asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Iterable, Sequence, Union
+from typing import Generator, Iterable, Sequence, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = [
@@ -128,7 +128,7 @@ async def prompt_for_turn(
 	"""
 
 	title = battlecontext.pokemon.Name
-	description = f"{battlecontext.pokemon.CurrentHP} HP {taggify(type_to_string(battlecontext.pokemon.Type))} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
+	description = f"{battlecontext.pokemon.CurrentHP} HP {safe_display_types(battlecontext.pokemon.Type)} {taggify(status_to_string(battlecontext.pokemon.StatusEffects))}"
 	content = "Select a move"
 
 	menu_items = []
@@ -136,7 +136,7 @@ async def prompt_for_turn(
 		menu_items.append(
 			(
 				f"{move['Name']}",
-				f"{taggify(type_to_string(move['Type']))} {move['CurrentPP']}/{move['MaxPP']}"
+				f"{safe_display_types(move['Type'])} {move['CurrentPP']}/{move['MaxPP']}"
 			)
 		)
 
@@ -207,28 +207,41 @@ def type_to_string(elemental_type: int) -> set[str]:
 	:returns: A set of all elemental types indicated by the bit mask.
 	"""
 
-	elements = [
-		"Normal",
-		"Fighting",
-		"Flying",
-		"Poison",
-		"Ground",
-		"Rock",
-		"Bug",
-		"Ghost",
-		"Steel",
-		"Fire",
-		"Water",
-		"Grass",
-		"Electric",
-		"Psychic",
-		"Ice",
-		"Dragon",
-		"Dark",
-	]
 	return set(
-		[flag for (index, flag) in enumerate(elements) if (elemental_type & 1 << index)]
+		[
+			flag for (index, flag) in enumerate(TYPE_ELEMENTS)
+			if (elemental_type & 1 << index)
+		]
 	)
+
+
+def type_emoji_name(t: str) -> str:
+	"""Get the name of the emoji associated with the given type."""
+	return f"type{t.lower()}"
+
+
+emoji_cache: dict[str, discord.Emoji] = {}
+
+
+def cache_emoji(emoji: discord.Emoji):
+	"""Add the given emoji to a global cache so we can access them later without a reference to `bot`."""
+	global emoji_cache
+	if emoji.name not in emoji_cache:
+		log.debug(f"Adding emoji {emoji.name} to cache")
+		emoji_cache[emoji.name] = emoji
+
+
+def safe_display_types(elemental_type: int) -> str:
+	"""Use custom emojis to display the types, if available. Otherwise, just use strings."""
+	types = sorted(type_to_string(elemental_type))
+	combined = []
+	for text in types:
+		combined += [
+			emoji_cache[ename] if
+			(ename := type_emoji_name(text)) in emoji_cache else f"[{text}]"
+		]
+
+	return ' '.join(map(str, combined))
 
 
 def build_teams_single(*parties: Union[Party, list[Pokemon]]) -> list[Team]:

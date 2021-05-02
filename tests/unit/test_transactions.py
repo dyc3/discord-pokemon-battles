@@ -156,7 +156,9 @@ class TestTransactions(unittest.TestCase):
 				"StatusEffect": 0,
 			}
 		)
-		self.assertEqual(transaction.pretty(), "Altaria took 14 damage.")
+		self.assertEqual(
+			transaction.pretty(), "Altaria [Dragon] [Flying] took 14 damage."
+		)
 
 
 if __name__ == "__main__":

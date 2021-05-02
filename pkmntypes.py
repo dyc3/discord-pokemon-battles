@@ -129,6 +129,12 @@ class Pokemon():
 
 		return silPath
 
+	@property
+	def name_and_type(self):
+		"""Pretty print the pokemon's name and type, using emoji if possible."""
+		import util
+		return f"{self.Name} {util.safe_display_types(self.Type)}"
+
 
 @dataclass(init=False)
 class Party():
@@ -262,30 +268,32 @@ class Transaction:
 				move = self.args["Move"]
 				status = self.args["StatusEffect"]
 
+				text = f"{target.pokemon.name_and_type} took {self.args['Damage']} damage."
 				if status != 0:
-					return f"{target.pokemon.Name} took {self.args['Damage']} damage from {list(util.status_to_string(self.args['StatusEffect']))[0]}"
+					return text[:-1
+								] + f" from {list(util.status_to_string(self.args['StatusEffect']))[0]}."
 				else:
-					return f"{target.pokemon.Name} took {self.args['Damage']} damage."
+					return text
 			elif self.name == "FriendshipTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
 				if self.args['Amount'] > 0:
-					return f"{pkmn.Name} friendship increased by {self.args['Amount']}."
+					return f"{pkmn.name_and_type} friendship increased by {self.args['Amount']}."
 				else:
-					return f"{pkmn.Name} friendship decreased by {abs(self.args['Amount'])}."
+					return f"{pkmn.name_and_type} friendship decreased by {abs(self.args['Amount'])}."
 			elif self.name == "EVTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 				stat = Stat(self.args['Stat'])
 
-				return f"{pkmn.Name} gained {self.args['Amount']} {stat} EVs."
+				return f"{pkmn.name_and_type} gained {self.args['Amount']} {stat} EVs."
 			elif self.name == "HealTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{pkmn.Name} restored {self.args['Amount']} HP."
+				return f"{pkmn.name_and_type} restored {self.args['Amount']} HP."
 			elif self.name == "InflictStatusTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 
-				return f"{pkmn.Name} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+				return f"{pkmn.name_and_type} was {list(util.status_to_string(self.args['StatusEffect']))[0]}."
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
@@ -301,7 +309,7 @@ class Transaction:
 					msg = "missed"
 				elif reason == MoveFailReason.dodge:
 					msg = "was dodged"
-				return f"{user.Name} {msg}."
+				return f"{user.name_and_type} {msg}."
 			elif self.name == "ModifyStatTransaction":
 				pkmn = Pokemon(**self.args["Target"])
 				stat = Stat(self.args['Stat'])
@@ -311,7 +319,7 @@ class Transaction:
 					direc = "increased"
 				else:
 					direc = "decreased"
-				return f"{pkmn.Name}'s {stat} {direc} by {abs(stages)}."
+				return f"{pkmn.name_and_type}'s {stat} {direc} by {abs(stages)}."
 			elif self.name == "PPTransaction":
 				move = self.args["Move"]
 				if self.args["Amount"] > 0:
@@ -322,18 +330,18 @@ class Transaction:
 				tuser = Target(**self.args["User"])
 				target = Target(**self.args["Target"])
 				move = self.args["Move"]
-				return f"{tuser.pokemon.Name} used {move['Name']} on {target.pokemon.Name}!"
+				return f"{tuser.pokemon.name_and_type} used {move['Name']} on {target.pokemon.name_and_type}!"
 			elif self.name == "SendOutTransaction":
 				target = Target(**self.args["Target"])
-				return f"{target.pokemon.Name} was sent out."
+				return f"{target.pokemon.name_and_type} was sent out."
 			elif self.name == "ImmobilizeTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.Name} is {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is {util.status_to_string(status)}!"
 			elif self.name == "CureStatusTransaction":
 				target = Target(**self.args["Target"])
 				status = self.args["StatusEffect"]
-				return f"{target.pokemon.Name} is no longer {util.status_to_string(status)}!"
+				return f"{target.pokemon.name_and_type} is no longer {util.status_to_string(status)}!"
 			else:
 				return f"TODO: {self.name}<{self.type}> {self.args}"
 		except Exception as e:
@@ -342,3 +350,24 @@ class Transaction:
 
 	def __repr__(self):
 		return f'Transaction(type={self.type}, name="{self.name}", args={self.args})'
+
+
+TYPE_ELEMENTS = [
+	"Normal",
+	"Fighting",
+	"Flying",
+	"Poison",
+	"Ground",
+	"Rock",
+	"Bug",
+	"Ghost",
+	"Steel",
+	"Fire",
+	"Water",
+	"Grass",
+	"Electric",
+	"Psychic",
+	"Ice",
+	"Dragon",
+	"Dark",
+]
