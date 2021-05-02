@@ -280,10 +280,13 @@ async def generate_emoji(ctx: commands.Context): # noqa: D103
 	guild: discord.Guild = ctx.guild
 	added_emoji = []
 	for e in TYPE_ELEMENTS:
+		ename = util.type_emoji_name(e)
+		if discord.utils.get(bot.emojis, name=ename) != None:
+			log.debug(f"Already have access to {ename}, skipping...")
+			continue
 		with io.BytesIO() as data:
 			visualize.get_element_type_img(e).save(data, 'PNG')
 			data.seek(0)
-			ename = util.type_emoji_name(e)
 			log.debug(f"creating emoji {ename}")
 			emoji = await guild.create_custom_emoji(
 				name=ename, image=data.getvalue(), reason="Added by Brock"
