@@ -11,6 +11,7 @@ from pkmntypes import *
 from discord.message import Message
 from visualize import visualize_battle
 import battle_ai
+import traceback
 import logging, coloredlogs
 
 log = logging.getLogger(__name__)
@@ -207,14 +208,25 @@ class Battle():
 			if self.original_channel:
 				embed = self.__create_battle_summary_msg(results)
 				battle_sum_msg: Message = await self.original_channel.send(embed=embed)
-				link = util.get_link(battle_sum_msg)
-				for agent in self.agents:
-					if agent.user:
-						embed.description = f"[Click here to go back]({link})"
-						await agent.user.dm_channel.send(embed=embed)
+				if not isinstance(self.original_channel, discord.DMChannel):
+					link = util.get_link(battle_sum_msg)
+					for agent in self.agents:
+						if agent.user:
+							embed.description = f"[Click here to go back]({link})"
+							await agent.user.dm_channel.send(embed=embed)
 			await self.apply_post_battle_updates(results)
 		except Exception as e:
-			log.critical(f"Unhandled error occured during battlle: {e}")
+			log.critical(
+				f"Unhandled error occured during battlle: {e}\n{''.join(traceback.format_exception(type(e), e, e.__traceback__))}"
+			)
+			for agent in self.agents:
+				if agent.user:
+					try:
+						await agent.user.dm_channel.send(
+							"Whoops, something bad happened, so the battle has been discarded."
+						)
+					except discord.HTTPException:
+						pass
 		finally:
 			await self.__cleanup()
 
