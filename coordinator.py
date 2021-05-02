@@ -113,6 +113,11 @@ class Battle():
 		"""Add a bot Agent to the battle."""
 		self.agents.append(Agent(bot=botname))
 
+	@property
+	def is_just_bots(self):
+		"""Get whether or not the battle only consists of bot agents."""
+		return all([len(a.bot) > 0 for a in self.agents])
+
 	async def start(self):
 		"""Create the battle on the battle API, making the battle ready to simulate, and starts a task asynchronously to simulate the battle."""
 		args = await battleapi.create_battle(self.teams)
@@ -203,6 +208,8 @@ class Battle():
 				await spectator_msg.edit(embed=spectator_embed)
 				if results.ended:
 					break
+				if self.is_just_bots:
+					await asyncio.sleep(2)
 			log.info(f"Battle between {self.agents} concluded")
 			results = await battleapi.get_results(self.bid)
 			if self.original_channel:

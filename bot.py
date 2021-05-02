@@ -109,6 +109,35 @@ async def challenge(
 	await battle.start()
 
 
+@bot.command(
+	help="Simulate a battle between 2 bots.\nUseful for simulating heavy bot usage."
+)
+async def simulate(
+	ctx: commands.Context, bot1, bot2, level=100, party_size=6
+): # noqa: D103
+	if level < 1 or level > 100:
+		raise commands.BadArgument(
+			f'Level must be between 1 and 100 (inclusive), but got {level}'
+		)
+	if party_size < 1 or party_size > 6:
+		raise commands.BadArgument(
+			f'Party size must be between 1 and 6 (inclusive), but got {party_size}'
+		)
+	log.debug(f"Setting up battle: {bot1} challenging {bot2}")
+	start_time = time.time()
+	pkmn = [await battleapi.generate_pokemon(level=level) for _ in range(party_size * 2)]
+
+	teams = util.build_teams_single(pkmn[:party_size], pkmn[party_size:])
+	battle = coordinator.Battle(teams=teams, original_channel=ctx.channel)
+	battle.add_bot(bot1)
+	battle.add_bot(bot2)
+	async with coordinator.battles_lock:
+		coordinator.battles += [battle]
+	duration = time.time() - start_time
+	log.info(f"Battle setup took {duration} seconds. Starting battle...")
+	await battle.start()
+
+
 @bot.command(help='Create a profile and choose your starter Pokemon.')
 async def begin(ctx: commands.Context): # noqa: D103
 	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
