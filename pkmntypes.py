@@ -349,7 +349,6 @@ class Transaction:
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
-				move = Move(**self.args["Move"])
 				status = self.args["StatusEffect"]
 
 				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
