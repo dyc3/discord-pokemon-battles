@@ -262,6 +262,8 @@ class Battle():
 				assert isinstance(resultParty, Party)
 				for pkmn, resultPkmn in zip(party.pokemon, resultParty.pokemon):
 					assert pkmn.NatDex == resultPkmn.NatDex
+					if pkmn._id == None:
+						continue
 					pkmn.__dict__.update(resultPkmn.__dict__)
 					await pkmn.save()
 		except AssertionError as e:
