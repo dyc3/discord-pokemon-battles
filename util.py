@@ -233,7 +233,7 @@ def cache_emoji(emoji: discord.Emoji):
 
 def safe_display_types(elemental_type: int) -> str:
 	"""Use custom emojis to display the types, if available. Otherwise, just use strings."""
-	types = list(type_to_string(elemental_type))
+	types = sorted(type_to_string(elemental_type))
 	combined = []
 	for text in types:
 		combined += [
