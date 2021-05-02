@@ -149,17 +149,18 @@ class Battle():
 				)
 				spectator_content = f"{self.agents[0].mention} vs. {self.agents[1].mention}"
 
-				with self.original_channel.typing():
-					ctx = await battleapi.get_battle_context(self.bid, 0)
-					with io.BytesIO() as data:
-						visualize_battle(ctx).save(data, 'PNG')
-						data.seek(0)
-						spectator_embed.set_image(url="attachment://battle.png")
-						spectator_msg: discord.Message = await self.original_channel.send(
-							spectator_content,
-							embed=spectator_embed,
-							file=discord.File(data, filename="battle.png")
-						)
+				ctx = await battleapi.get_battle_context(self.bid, 0)
+				if not self.is_just_bots:
+					with self.original_channel.typing():
+						with io.BytesIO() as data:
+							visualize_battle(ctx).save(data, 'PNG')
+							data.seek(0)
+							spectator_embed.set_image(url="attachment://battle.png")
+							spectator_msg: discord.Message = await self.original_channel.send(
+								spectator_content,
+								embed=spectator_embed,
+								file=discord.File(data, filename="battle.png")
+							)
 				log.debug("asking agents for turns")
 				await self.queue_turns()
 				log.debug("simulating round")
@@ -205,7 +206,18 @@ class Battle():
 								await agent.user.dm_channel.send(
 									embed=discord.Embed(description=text)
 								)
-				await spectator_msg.edit(embed=spectator_embed)
+				if not self.is_just_bots:
+					await spectator_msg.edit(embed=spectator_embed)
+				else:
+					with io.BytesIO() as data:
+						visualize_battle(ctx).save(data, 'PNG')
+						data.seek(0)
+						spectator_embed.set_image(url="attachment://battle.png")
+						spectator_msg: discord.Message = await self.original_channel.send(
+							spectator_content,
+							embed=spectator_embed,
+							file=discord.File(data, filename="battle.png")
+						)
 				if results.ended:
 					break
 				if self.is_just_bots:
