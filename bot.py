@@ -340,6 +340,20 @@ def cache_all_emojis():
 		util.cache_emoji(emoji)
 
 
+@dev_command()
+async def ensure_profile(ctx):
+	"""Ensure that there is a profile created for the user that calls this command."""
+	profile = await userprofile.load_profile(ctx.author.id)
+	if not profile:
+		profile = userprofile.UserProfile()
+		pkmn = await battleapi.generate_pokemon()
+		await pkmn.save()
+		profile.add_pokemon(pkmn)
+	profile.user_id = ctx.author.id
+	await profile.save()
+	await ctx.send("OK")
+
+
 if __name__ == "__main__":
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html

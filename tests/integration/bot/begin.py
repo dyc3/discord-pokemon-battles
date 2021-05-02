@@ -4,7 +4,7 @@ from discord import Embed, Member, Status, Message
 from distest.TestInterface import TestInterface
 from distest import run_dtest_bot, TestCollector
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
-from brock_test_util import resetdb
+from brock_test_util import resetdb, ensure_profile
 
 test_collector = TestCollector()
 
@@ -20,13 +20,8 @@ async def test_begin_prompt_should_have_reactions(interface: TestInterface):
 @test_collector()
 async def test_begin_no_duplicates(interface: TestInterface):
 	await resetdb(interface)
-	await interface.send_message("p!begin")
-	msg: Message = await interface.wait_for_message()
-	await interface.wait_for_reaction(msg)
-	await msg.add_reaction("🇩")
-	msg2: Message = await interface.wait_for_message()
-	await interface.assert_message_contains(msg2, "Profile created")
-	await asyncio.sleep(0.5)
+	await ensure_profile(interface)
+
 	await interface.send_message("p!begin")
 	msg3: Message = await interface.wait_for_message()
 	await interface.assert_message_equals(msg3, "You've already started a profile!")
