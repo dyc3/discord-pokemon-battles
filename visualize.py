@@ -1,7 +1,7 @@
 import logging
 from os import name
 from typing import Union
-from pkmntypes import BattleContext, Pokemon, Stat
+from pkmntypes import BattleContext, Pokemon, Stat, StatusCondition
 
 log = logging.getLogger(__name__)
 from PIL import Image, ImageDraw, ImageFont
@@ -71,12 +71,12 @@ def get_element_type_img(type: str) -> Image.Image:
 	return types_conditions_atlas.copy().crop((x, y, x + column_size, y + row_size))
 
 
-def get_status_condition_img(status: int) -> Image.Image:
+def get_status_condition_img(status: StatusCondition) -> Image.Image:
 	"""Get the status condition badge to display.
 
 	:param status: Non-volatile status condition.
 	"""
-	assert status <= 0b111, f"Only takes non-volatile status conditions, got {status:b}"
+	assert isinstance(status, StatusCondition)
 	row_size = 8
 	column_size = 32
 	start_y_px = 96
@@ -84,13 +84,13 @@ def get_status_condition_img(status: int) -> Image.Image:
 	# the index of the status condition in the order as they appear
 	# on the image
 	idx = {
-		1: 4,
-		2: 3,
-		3: 1,
-		4: 0,
-		5: 0,
-		6: 2,
-	}[status]
+		StatusCondition.NonVolatile.burn: 4,
+		StatusCondition.NonVolatile.freeze: 3,
+		StatusCondition.NonVolatile.paralyze: 1,
+		StatusCondition.NonVolatile.poison: 0,
+		StatusCondition.NonVolatile.badly_poison: 0,
+		StatusCondition.NonVolatile.sleep: 2,
+	}[status.non_volatile]
 	x = column_size * (idx % 4)
 	y = start_y_px + (row_size * (idx // 4))
 	shave = 6
@@ -172,8 +172,8 @@ def render_info_box(pkmn: Pokemon, is_opponent=False, size=1) -> Image.Image:
 	)
 
 	# status conditions
-	if (status := pkmn.StatusEffects & 0b111) > 0:
-		cond = get_status_condition_img(status)
+	if pkmn.StatusEffects.non_volatile > 0:
+		cond = get_status_condition_img(pkmn.StatusEffects)
 		cond = cond.resize(
 			(int(cond.width * size * 1.5), int(cond.height * size * 1.5)), Image.NEAREST
 		)

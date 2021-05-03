@@ -2,6 +2,13 @@ import unittest
 from turns import *
 import json
 from pkmntypes import *
+from hypothesis import given, reproduce_failure, strategies as st
+
+status_condition_strategy = st.builds(
+	StatusCondition,
+	non_volatile=st.sampled_from(StatusCondition.NonVolatile),
+	volatile=st.sampled_from(StatusCondition.Volatile)
+)
 
 
 class TestPkmnTypes(unittest.TestCase):
@@ -25,6 +32,20 @@ class TestPkmnTypes(unittest.TestCase):
 		move = Move(**data)
 		self.assertEqual(move.move_id, 1)
 		self.assertEqual(move.name, "Pound")
+
+	@given(status_condition_strategy)
+	def test_status_condition_parse(self, status: StatusCondition):
+		self.assertEqual(status.value, StatusCondition(status.value).value)
+
+	@given(status_condition_strategy)
+	def test_status_condition_past_tense(self, status: StatusCondition):
+		self.assertFalse(status.past_tense.startswith(","))
+		self.assertFalse(status.past_tense.endswith(","))
+
+	@given(status_condition_strategy)
+	def test_status_condition_past_tense_no_enum_types(self, status: StatusCondition):
+		self.assertFalse("Volatile" in status.past_tense)
+		self.assertFalse("NonVolatile" in status.past_tense)
 
 
 if __name__ == "__main__":

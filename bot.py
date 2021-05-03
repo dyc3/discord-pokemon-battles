@@ -304,7 +304,6 @@ async def use_test_db(ctx: commands.Context):
 @commands.bot_has_guild_permissions(manage_emojis=True)
 async def generate_emoji(ctx: commands.Context): # noqa: D103
 	log.info("generating and adding emoji to server")
-	logging.getLogger("discord").setLevel("DEBUG")
 	import visualize
 	guild: discord.Guild = ctx.guild
 	added_emoji = []
@@ -314,14 +313,35 @@ async def generate_emoji(ctx: commands.Context): # noqa: D103
 			log.debug(f"Already have access to {ename}, skipping...")
 			continue
 		with io.BytesIO() as data:
-			visualize.get_element_type_img(e).save(data, 'PNG')
+			im = visualize.get_element_type_img(e)
+			im.resize(visualize.scale(im.size, 4), Image.NEAREST).save(data, 'PNG')
 			data.seek(0)
 			log.debug(f"creating emoji {ename}")
 			emoji = await guild.create_custom_emoji(
 				name=ename, image=data.getvalue(), reason="Added by Brock"
 			)
-			util.cache_emoji(emoji)
-			added_emoji += [emoji]
+		util.cache_emoji(emoji)
+		added_emoji += [emoji]
+	for cond in StatusCondition.NonVolatile:
+		if cond in [
+			StatusCondition.NonVolatile.none, StatusCondition.NonVolatile.badly_poison
+		]:
+			continue
+		status = StatusCondition(non_volatile=cond)
+		ename = f"status{cond}"
+		if discord.utils.get(bot.emojis, name=ename) != None:
+			log.debug(f"Already have access to {ename}, skipping...")
+			continue
+		with io.BytesIO() as data:
+			im = visualize.get_status_condition_img(status)
+			im.resize(visualize.scale(im.size, 6), Image.NEAREST).save(data, 'PNG')
+			data.seek(0)
+			log.debug(f"creating emoji {ename}")
+			emoji = await guild.create_custom_emoji(
+				name=ename, image=data.getvalue(), reason="Added by Brock"
+			)
+		util.cache_emoji(emoji)
+		added_emoji += [emoji]
 
 	await ctx.send(
 		f"Added custom emoji to this server: {' '.join(map(str, added_emoji))}"

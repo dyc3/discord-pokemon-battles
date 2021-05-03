@@ -5,7 +5,7 @@ from typing import Any, Optional
 from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, IntFlag
 from pathlib import Path
 
 log = logging.getLogger(__name__)
@@ -22,6 +22,158 @@ def _case_insensitive_pop(
 	if default != None:
 		return default
 	raise KeyError(name)
+
+
+@dataclass(init=False)
+class StatusCondition():
+	"""Pokmon status condition. Represented as a bit field."""
+
+	class NonVolatile(IntEnum):
+		"""Status conditions that drastically cripple a pokemon."""
+
+		none = 0
+		burn = 1
+		freeze = 2
+		paralyze = 3
+		poison = 4
+		badly_poison = 5
+		sleep = 6
+
+		def __str__(self):
+			if self == self.none:
+				return "none"
+			elif self == self.burn:
+				return "burn"
+			elif self == self.freeze:
+				return "freeze"
+			elif self == self.paralyze:
+				return "paralyze"
+			elif self == self.poison:
+				return "poison"
+			elif self == self.badly_poison:
+				return "badly_poison"
+			elif self == self.sleep:
+				return "sleep"
+
+		@property
+		def past_tense(self):
+			"""Get the past tense form of this condition."""
+
+			if self == self.burn:
+				return "burned"
+			elif self == self.freeze:
+				return "frozen"
+			elif self == self.paralyze:
+				return "paralyzed"
+			elif self == self.poison:
+				return "poisoned"
+			elif self == self.badly_poison:
+				return "badly poisoned"
+			elif self == self.sleep:
+				return "asleep"
+			else:
+				return ""
+
+		@property
+		def emoji(self):
+			"""Get the emoji for this condition."""
+			ename = f"status{self.name}"
+			import util
+			if ename in util.emoji_cache:
+				return util.emoji_cache[ename]
+
+	class Volatile(IntFlag):
+		"""Other status conditions."""
+
+		none = 0
+		bound = 1 << 0
+		cant_escape = 1 << 1
+		confusion = 1 << 2
+		cursed = 1 << 3
+		embargo = 1 << 4
+		flinch = 1 << 5
+		heal_block = 1 << 6
+		identified = 1 << 7
+		infatuation = 1 << 8
+		leech_seed = 1 << 9
+		nightmare = 1 << 10
+		perish_song = 1 << 11
+		taunt = 1 << 12
+		torment = 1 << 13
+
+		@property
+		def past_tense(self):
+			"""Get the past tense form of this condition."""
+
+			conds = []
+			for cond in type(self):
+				if self & cond > 0:
+					if self == self.bound:
+						val = "bound"
+					elif self == self.cant_escape:
+						val = "can't escape"
+					elif self == self.confusion:
+						val = "confused"
+					elif self == self.cursed:
+						val = "cursed"
+					elif self == self.embargo:
+						val = "embargoed"
+					elif self == self.flinch:
+						val = "flinched"
+					elif self == self.heal_block:
+						val = "heal blocked"
+					elif self == self.identified:
+						val = "infatuated"
+					elif self == self.infatuation:
+						val = "identified"
+					elif self == self.leech_seed:
+						val = "leeched"
+					elif self == self.nightmare:
+						val = "nightmared"
+					elif self == self.perish_song:
+						val = "perished"
+					elif self == self.taunt:
+						val = "taunted"
+					elif self == self.torment:
+						val = "tormented"
+					else:
+						val = None
+					if val:
+						conds += [val]
+			return ', '.join(conds)
+
+	non_volatile: NonVolatile = NonVolatile.none
+	volatile: Volatile = Volatile.none
+
+	def __init__(self, value=None, *, non_volatile=None, volatile=None):
+		assert not (value != None and (non_volatile != None or volatile != None))
+		if value:
+			self.__setstate__(value)
+		if non_volatile:
+			self.non_volatile = non_volatile
+		if volatile:
+			self.volatile = volatile
+
+	@property
+	def value(self) -> int:
+		"""Get the combined value of this condition."""
+		return int(self.non_volatile & (self.volatile << 3))
+
+	def __getstate__(self):
+		return self.value
+
+	def __setstate__(self, value):
+		self.non_volatile = self.NonVolatile(value & 0b111)
+		self.volatile = self.Volatile(value >> 3)
+
+	def __eq__(self, other):
+		return self.value == other
+
+	@property
+	def past_tense(self):
+		"""Get the past tense form of this condition."""
+		return ', '.join([self.non_volatile.past_tense,
+							self.volatile.past_tense]).strip(', ')
 
 
 @dataclass(init=False, repr=False)
@@ -141,7 +293,7 @@ class Pokemon():
 	Nature: int
 	Stats: list[int]
 	StatModifiers: list[int]
-	StatusEffects: int
+	StatusEffects: StatusCondition
 	CurrentHP: int
 	HeldItem: dict[str, Any]
 	Moves: list[Move]
@@ -349,12 +501,11 @@ class Transaction:
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
-				status = self.args["StatusEffect"]
+				status = StatusCondition(self.args["StatusEffect"])
 
 				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
 				if status != 0:
-					return text[:-1
-								] + f" from {list(util.status_to_string(self.args['StatusEffect']))[0]}."
+					return text[:-1] + f" from being {status.past_tense}."
 				else:
 					return text
 			elif self.name == "FriendshipTransaction":
@@ -375,8 +526,9 @@ class Transaction:
 				return f"{pkmn.name_and_type} restored {self.args['Amount']} HP."
 			elif self.name == "InflictStatusTransaction":
 				pkmn = Pokemon(**self.args["Target"])
+				status = StatusCondition(self.args["StatusEffect"])
 
-				return f"{pkmn.name_and_type} was **{list(util.status_to_string(self.args['StatusEffect']))[0]}**."
+				return f"{pkmn.name_and_type} was **{status.past_tense}**."
 			elif self.name == "FaintTransaction":
 				target = Target(**self.args["Target"])
 
@@ -420,12 +572,12 @@ class Transaction:
 				return f"{target.pokemon.name_and_type} was sent out."
 			elif self.name == "ImmobilizeTransaction":
 				target = Target(**self.args["Target"])
-				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is **{util.status_to_string(status)}**!"
+				status = StatusCondition(self.args["StatusEffect"])
+				return f"{target.pokemon.name_and_type} is **{status.past_tense}**!"
 			elif self.name == "CureStatusTransaction":
 				target = Target(**self.args["Target"])
-				status = self.args["StatusEffect"]
-				return f"{target.pokemon.name_and_type} is no longer **{util.status_to_string(status)}**!"
+				status = StatusCondition(self.args["StatusEffect"])
+				return f"{target.pokemon.name_and_type} is no longer **{status.past_tense}**!"
 			elif self.name == "WeatherTransaction":
 				weather = BattleWeather(self.args["Weather"])
 				if weather == BattleWeather.ClearSkies:
