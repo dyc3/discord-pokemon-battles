@@ -406,5 +406,7 @@ if __name__ == "__main__":
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
 	bot.load_extension("cogs.error_handler_fallback")
+	import storage
+	bot.loop.create_task(storage.set_validators())
 
 	bot.run(config.BOT_TOKEN)

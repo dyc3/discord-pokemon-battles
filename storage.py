@@ -2,13 +2,14 @@ import asyncio
 import datetime
 import jsonpickle
 from pkmntypes import Pokemon
-from typing import Union
+from typing import OrderedDict, Union
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
-import logging
+import logging, coloredlogs
 from userprofile import UserProfile
 from bson import ObjectId
 
 log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 client: AsyncIOMotorClient = AsyncIOMotorClient('mongodb://db/brock')
 db: AsyncIOMotorDatabase = client.brock
 
@@ -78,3 +79,33 @@ async def load_pokemon(id: ObjectId) -> Pokemon:
 	if result == None:
 		raise Exception(f"No pokemon found with id: {id}")
 	return Pokemon(**result)
+
+
+async def set_validators():
+	"""Set up mongodb validators for collections."""
+	log.info("Setting validator for profiles")
+	result = await db.command(
+		OrderedDict(
+			[
+				("collMod", "profiles"),
+				(
+					"validator", {
+						"$jsonSchema": {
+							"bsonType": "object",
+							"required": ["user_id"],
+							"properties": {
+								"user_id": {
+									"bsonType": "long",
+								},
+								"created_at": {
+									"bsonType": "date",
+								},
+							}
+						}
+					}
+				),
+				("validationLevel", "strict"),
+			]
+		)
+	)
+	log.debug(f"set validator result: {result}")
