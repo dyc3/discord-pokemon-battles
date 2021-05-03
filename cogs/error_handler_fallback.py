@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import traceback
 import sys
@@ -52,6 +53,14 @@ class CommandErrorHandler(commands.Cog):
 
 		elif isinstance(error, commands.MissingRequiredArgument):
 			await ctx.send(f"{error.param} is required, but it was not provided.")
+
+		elif isinstance(error, commands.MaxConcurrencyReached):
+			await ctx.send(
+				f"{ctx.command} has reached maximum concurrency. Wait for the other calls to complete."
+			)
+
+		elif isinstance(error, asyncio.TimeoutError):
+			await ctx.send(f"{ctx.command} timed out.")
 
 		else:
 			log.critical(

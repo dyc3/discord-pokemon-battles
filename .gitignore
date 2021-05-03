@@ -133,3 +133,5 @@ dmypy.json
 
 # generated pokemon images
 /images/**_sil.png
+
+mallard_deploy.sh
