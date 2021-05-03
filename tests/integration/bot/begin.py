@@ -10,11 +10,12 @@ test_collector = TestCollector()
 
 
 @test_collector()
-async def test_begin_prompt_should_have_reactions(interface: TestInterface):
+async def test_begin_prompt_create_profile(interface: TestInterface):
 	await resetdb(interface)
 	await interface.send_message("p!begin")
-	msg = await interface.wait_for_message()
+	msg: Message = await interface.wait_for_message()
 	await interface.wait_for_reaction(msg)
+	await msg.add_reaction("🇩")
 
 
 @test_collector()
