@@ -73,6 +73,14 @@ class StatusCondition():
 			else:
 				return ""
 
+		@property
+		def emoji(self):
+			"""Get the emoji for this condition."""
+			ename = f"status{self.name}"
+			import util
+			if ename in util.emoji_cache:
+				return util.emoji_cache[ename]
+
 	class Volatile(IntFlag):
 		"""Other status conditions."""
 
