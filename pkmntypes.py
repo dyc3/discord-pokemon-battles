@@ -24,6 +24,7 @@ def _case_insensitive_pop(
 	raise KeyError(name)
 
 
+@dataclass(init=False)
 class StatusCondition():
 	"""Pokmon status condition. Represented as a bit field."""
 
@@ -102,11 +103,44 @@ class StatusCondition():
 
 		@property
 		def past_tense(self):
-			"""Get the past tense form of this condition.
+			"""Get the past tense form of this condition."""
 
-			TODO: implement
-			"""
-			return str(self)
+			conds = []
+			for cond in type(self):
+				if self & cond > 0:
+					if self == self.bound:
+						val = "bound"
+					elif self == self.cant_escape:
+						val = "can't escape"
+					elif self == self.confusion:
+						val = "confused"
+					elif self == self.cursed:
+						val = "cursed"
+					elif self == self.embargo:
+						val = "embargoed"
+					elif self == self.flinch:
+						val = "flinched"
+					elif self == self.heal_block:
+						val = "heal blocked"
+					elif self == self.identified:
+						val = "infatuated"
+					elif self == self.infatuation:
+						val = "identified"
+					elif self == self.leech_seed:
+						val = "leeched"
+					elif self == self.nightmare:
+						val = "nightmared"
+					elif self == self.perish_song:
+						val = "perished"
+					elif self == self.taunt:
+						val = "taunted"
+					elif self == self.torment:
+						val = "tormented"
+					else:
+						val = None
+					if val:
+						conds += [val]
+			return ', '.join(conds)
 
 	non_volatile: NonVolatile = NonVolatile.none
 	volatile: Volatile = Volatile.none

@@ -42,6 +42,11 @@ class TestPkmnTypes(unittest.TestCase):
 		self.assertFalse(status.past_tense.startswith(","))
 		self.assertFalse(status.past_tense.endswith(","))
 
+	@given(status_condition_strategy)
+	def test_status_condition_past_tense_no_enum_types(self, status: StatusCondition):
+		self.assertFalse("Volatile" in status.past_tense)
+		self.assertFalse("NonVolatile" in status.past_tense)
+
 
 if __name__ == "__main__":
 	unittest.main()
