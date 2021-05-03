@@ -374,6 +374,11 @@ async def ensure_profile(ctx):
 	await ctx.send("OK")
 
 
+@bot.command(help="Start the minigame in this channel.")
+async def encounter(ctx): # noqa: D103
+	await minigame(ctx.channel)
+
+
 if __name__ == "__main__":
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
