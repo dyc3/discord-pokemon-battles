@@ -155,15 +155,24 @@ async def begin(ctx: commands.Context): # noqa: D103
 		for natdex in starter_dexnums
 	]
 	items = [pkmn.Name for pkmn in starters]
-	selection = await util.prompt_menu(
-		bot,
-		ctx.author,
-		content=f"<@!{ctx.author.id}>",
-		title="Choose your starter",
-		description="Don't worry, you'll be able to get more later!",
-		items=items,
-		use_channel=ctx.channel
-	)
+	try:
+		selection = await asyncio.wait_for(
+			util.prompt_menu(
+				bot,
+				ctx.author,
+				content=f"<@!{ctx.author.id}>",
+				title="Choose your starter",
+				description="Don't worry, you'll be able to get more later!",
+				items=items,
+				use_channel=ctx.channel
+			),
+			timeout=60
+		)
+	except asyncio.TimeoutError:
+		await ctx.send(
+			"`begin`: You took too long to respond. You'll have to run the command again."
+		)
+		return
 	selected_pokemon = starters[selection]
 	log.debug(f"{ctx.author} selected {selected_pokemon.Name}")
 	await selected_pokemon.save()
@@ -250,27 +259,36 @@ async def minigame(
 			"guess"
 		)
 
-	while True:
-		message = await bot.wait_for("message", check=check)
-		guess = message.content.split()[-1]
-		profile = await userprofile.load_profile(message.author.id)
+	async def run():
+		while True:
+			message: Message = await bot.wait_for("message", check=check)
+			guess = message.content.split()[-1]
+			profile = await userprofile.load_profile(message.author.id)
 
-		if profile is None:
-			await channel.send(
-				f"{message.author.mention} you need to run `p!begin` before you can play the game"
-			)
-		elif guess.lower() == "hint":
-			await channel.send(
-				f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
-			)
-		elif guess.lower() == name.lower(): # a correct guess ends the minigame
-			break
-		elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
-			await channel.send(
-				f"{message.author.mention} that guess was close, but not quite right"
-			)
-		else:
-			await channel.send("That's incorrect, please guess again")
+			if profile is None:
+				await channel.send(
+					f"{message.author.mention} you need to run `p!begin` before you can play the game"
+				)
+			elif guess.lower() == "hint":
+				await channel.send(
+					f"The name of this **{util.type_to_string(pokemon.Type).pop()} type** pokemon starts with the letter **{name[0]}**"
+				)
+			elif guess.lower() == name.lower(): # a correct guess ends the minigame
+				return message, profile
+			elif Levenshtein.distance(guess.lower(), name.lower()) < 3:
+				await channel.send(
+					f"{message.author.mention} that guess was close, but not quite right"
+				)
+			else:
+				await channel.send("That's incorrect, please guess again")
+
+	try:
+		message, profile = await asyncio.wait_for(run(), timeout=60)
+	except asyncio.TimeoutError:
+		await channel.send(
+			f"Aw, nobody guessed right, and **{pokemon.name_and_type}** ran away..."
+		)
+		return
 
 	embed = discord.Embed(
 		title="Correct!",
