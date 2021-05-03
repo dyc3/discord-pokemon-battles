@@ -363,7 +363,7 @@ def cache_all_emojis():
 
 
 @dev_command()
-async def ensure_profile(ctx):
+async def ensure_profile(ctx: commands.Context):
 	"""Ensure that there is a profile created for the user that calls this command."""
 	profile = await userprofile.load_profile(ctx.author.id)
 	if not profile:
@@ -379,7 +379,7 @@ async def ensure_profile(ctx):
 @bot.command(help="Start the minigame in this channel.")
 @commands.guild_only()
 @commands.max_concurrency(1, per=BucketType.channel, wait=False)
-async def encounter(ctx): # noqa: D103
+async def encounter(ctx: commands.Context): # noqa: D103
 	await minigame(ctx.channel)
 
 
