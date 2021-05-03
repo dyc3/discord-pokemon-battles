@@ -1,3 +1,4 @@
+import asyncio
 import discord
 import traceback
 import sys
@@ -57,6 +58,9 @@ class CommandErrorHandler(commands.Cog):
 			await ctx.send(
 				f"{ctx.command} has reached maximum concurrency. Wait for the other calls to complete."
 			)
+
+		elif isinstance(error, asyncio.TimeoutError):
+			await ctx.send(f"{ctx.command} timed out.")
 
 		else:
 			log.critical(
