@@ -138,7 +138,8 @@ class StatusCondition():
 	@property
 	def past_tense(self):
 		"""Get the past tense form of this condition."""
-		return ', '.join([self.non_volatile.past_tense, self.volatile.past_tense])
+		return ', '.join([self.non_volatile.past_tense,
+							self.volatile.past_tense]).strip(', ')
 
 
 @dataclass(init=False, repr=False)
