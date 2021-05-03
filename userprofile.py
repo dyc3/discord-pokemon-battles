@@ -36,7 +36,10 @@ class UserProfile:
 		for oid in self.pokemon:
 			# TODO: replace with helper function
 			doc = await storage.pokemon().find_one({"_id": oid})
-			yield Pokemon(**doc)
+			if doc:
+				yield Pokemon(**doc)
+			else:
+				log.warning(f"Could not find pokemon. id={oid}")
 
 	async def save(self, session: AsyncIOMotorClientSession = None):
 		"""Alias for `storage.save_object(profile)`."""
