@@ -5,6 +5,7 @@ import aiohttp
 import logging, time
 import discord
 from discord.ext import commands, tasks
+from discord.ext.commands.cooldowns import BucketType
 from discord.message import Message
 import serve, coordinator
 from pkmntypes import *
@@ -139,6 +140,7 @@ async def simulate(
 
 
 @bot.command(help='Create a profile and choose your starter Pokemon.')
+@commands.max_concurrency(1, per=BucketType.user, wait=False)
 async def begin(ctx: commands.Context): # noqa: D103
 	if (profile := await userprofile.load_profile(ctx.author.id)) != None:
 		assert isinstance(profile, userprofile.UserProfile)
@@ -375,6 +377,8 @@ async def ensure_profile(ctx):
 
 
 @bot.command(help="Start the minigame in this channel.")
+@commands.guild_only()
+@commands.max_concurrency(1, per=BucketType.channel, wait=False)
 async def encounter(ctx): # noqa: D103
 	await minigame(ctx.channel)
 

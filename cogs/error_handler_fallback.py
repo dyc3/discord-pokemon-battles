@@ -53,6 +53,11 @@ class CommandErrorHandler(commands.Cog):
 		elif isinstance(error, commands.MissingRequiredArgument):
 			await ctx.send(f"{error.param} is required, but it was not provided.")
 
+		elif isinstance(error, commands.MaxConcurrencyReached):
+			await ctx.send(
+				f"{ctx.command} has reached maximum concurrency. Wait for the other calls to complete."
+			)
+
 		else:
 			log.critical(
 				f"Unhandled exception in {ctx.command}:\n{''.join(traceback.format_exception(type(error), error, error.__traceback__))}"
