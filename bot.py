@@ -371,6 +371,7 @@ async def generate_emoji(ctx: commands.Context): # noqa: D103
 @bot.event
 async def on_ready(): # noqa: D103
 	cache_all_emojis()
+	await bot.change_presence(activity=discord.Game(name="p!help for commands"))
 
 
 def cache_all_emojis():
