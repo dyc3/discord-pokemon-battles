@@ -2,13 +2,14 @@ import asyncio
 import datetime
 import jsonpickle
 from pkmntypes import Pokemon
-from typing import Union
+from typing import OrderedDict, Union
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorClientSession, AsyncIOMotorCollection, AsyncIOMotorDatabase
-import logging
+import logging, coloredlogs
 from userprofile import UserProfile
-from bson import ObjectId
+from bson.objectid import ObjectId
 
 log = logging.getLogger(__name__)
+coloredlogs.install(level='DEBUG', logger=log)
 client: AsyncIOMotorClient = AsyncIOMotorClient('mongodb://db/brock')
 db: AsyncIOMotorDatabase = client.brock
 
@@ -47,12 +48,31 @@ async def save_object(
 		coll = user_profiles()
 	else:
 		raise TypeError(f"Invalid type for obj: {type(obj)}")
-	pickler = jsonpickle.pickler.Pickler(unpicklable=False)
-	pickled_obj = {
-		k: pickler.flatten(v)
-		if type(v) not in [None, int, float, bool, str, datetime.datetime] else v
-		for k, v in obj.__dict__.items() if k != "_id"
-	}
+	pickler = jsonpickle.pickler.Pickler(unpicklable=False, make_refs=False)
+
+	def pickle(o):
+
+		def one(so):
+			if isinstance(so, (int, float, bool, str, datetime.datetime, ObjectId)):
+				return so
+			else:
+				return pickler.flatten(so)
+
+		if hasattr(o, "__dict__"):
+			pobj = {}
+			for k, v in o.__dict__.items():
+				if k == "_id":
+					continue
+				if isinstance(v, list):
+					pobj[k] = [pickle(x) for x in v]
+				else:
+					pobj[k] = one(v)
+			return pobj
+		else:
+			return one(o)
+
+	pickled_obj = pickle(obj)
+	log.debug(f"Pickled {type(obj)} into {pickled_obj}")
 	if obj._id != None:
 		result = await coll.update_one(
 			{'_id': obj._id}, {'$set': pickled_obj}, session=session
@@ -78,3 +98,33 @@ async def load_pokemon(id: ObjectId) -> Pokemon:
 	if result == None:
 		raise Exception(f"No pokemon found with id: {id}")
 	return Pokemon(**result)
+
+
+async def set_validators():
+	"""Set up mongodb validators for collections."""
+	log.info("Setting validator for profiles")
+	result = await db.command(
+		OrderedDict(
+			[
+				("collMod", "profiles"),
+				(
+					"validator", {
+						"$jsonSchema": {
+							"bsonType": "object",
+							"required": ["user_id"],
+							"properties": {
+								"user_id": {
+									"bsonType": "long",
+								},
+								"created_at": {
+									"bsonType": "date",
+								},
+							}
+						}
+					}
+				),
+				("validationLevel", "strict"),
+			]
+		)
+	)
+	log.debug(f"set validator result: {result}")
