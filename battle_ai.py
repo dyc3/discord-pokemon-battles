@@ -30,3 +30,22 @@ def simple(ctx: BattleContext) -> Turn:
 		move=random.randint(0,
 							len(ctx.pokemon.Moves) - 1)
 	)
+
+
+@battle_strategy
+def inflicter(ctx: BattleContext):
+	"""Battle strategy that uses status inflicting moves if the opponent does not have a status condition, and then damage dealing moves."""
+	status_moves = list(
+		filter(lambda x: x.ailment.value > 0 or x.flinch_chance > 0, ctx.pokemon.Moves)
+	)
+	non_status_moves = list(filter(lambda x: x.category != 0, ctx.pokemon.Moves))
+
+	target = ctx.opponents[0]
+	if target.pokemon.StatusEffects.value == 0 and len(status_moves) > 0:
+		log.debug("opponent doesn't have any status condition, attempting to inflict one")
+		move = random.choice(status_moves)
+	elif len(non_status_moves) > 0:
+		move = random.choice(non_status_moves)
+	else:
+		move = random.choice(ctx.pokemon.Moves)
+	return ctx.fight(target, move)

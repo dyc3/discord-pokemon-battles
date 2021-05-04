@@ -104,6 +104,11 @@ async def challenge(
 			return
 		battle.add_user(user)
 	else:
+		import battle_ai
+		if opponent not in battle_ai.strategies:
+			raise commands.BadArgument(
+				f"{opponent} is not a valid battle bot. See `p!battlebots`."
+			)
 		battle.add_bot(opponent)
 	async with coordinator.battles_lock:
 		coordinator.battles += [battle]
@@ -122,6 +127,15 @@ async def challenge(
 async def simulate(
 	ctx: commands.Context, bot1, bot2, level=100, party_size=6
 ): # noqa: D103
+	import battle_ai
+	if bot1 not in battle_ai.strategies:
+		raise commands.BadArgument(
+			f"{bot1} is not a valid battle bot. See `p!battlebots`."
+		)
+	if bot2 not in battle_ai.strategies:
+		raise commands.BadArgument(
+			f"{bot2} is not a valid battle bot. See `p!battlebots`."
+		)
 	if level < 1 or level > 100:
 		raise commands.BadArgument(
 			f'Level must be between 1 and 100 (inclusive), but got {level}'

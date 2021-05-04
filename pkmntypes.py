@@ -1,4 +1,5 @@
 import logging, coloredlogs
+from turns import FightTurn
 import json
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -204,7 +205,7 @@ class Move():
 	flags: int
 	affected_stat: int
 	stat_stages: int
-	ailment: int
+	ailment: StatusCondition
 
 	json_fields = {
 		"Id": "move_id",
@@ -442,6 +443,12 @@ class BattleContext():
 	def __init__(self, **kwargs):
 		import util
 		util.json_parse(self, kwargs)
+
+	def fight(self, target: Target, move: Move):
+		"""Create a :class:`FightTurn` a little bit easier."""
+		return FightTurn(
+			party=target.party, slot=target.slot, move=self.pokemon.Moves.index(move)
+		)
 
 
 class MoveFailReason(IntEnum):
