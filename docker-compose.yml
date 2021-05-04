@@ -25,6 +25,7 @@ services:
       main:
         aliases:
           - api
+    restart: unless-stopped
   db:
     image: mongo:latest
     ports:
