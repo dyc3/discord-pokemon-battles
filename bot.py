@@ -71,8 +71,10 @@ async def ping(ctx: commands.Context): # noqa: D103
 
 
 @bot.command(
-	help=
-	'Start a battle with another user! Add an oppoent to the end of this command to challenge someone.'
+	help="""Start a battle with another user or a battle bot.
+
+	See available battle bots with `p!battlebots`.
+	"""
 )
 async def challenge(
 	ctx: commands.Context,
@@ -111,7 +113,11 @@ async def challenge(
 
 
 @bot.command(
-	help="Simulate a battle between 2 bots.\nUseful for simulating heavy bot usage."
+	help="""Simulate a battle between 2 bots.
+
+	Useful for simulating heavy bot usage.
+	See available battle bots with `p!battlebots`.
+	"""
 )
 async def simulate(
 	ctx: commands.Context, bot1, bot2, level=100, party_size=6
@@ -371,6 +377,7 @@ async def generate_emoji(ctx: commands.Context): # noqa: D103
 @bot.event
 async def on_ready(): # noqa: D103
 	cache_all_emojis()
+	await bot.change_presence(activity=discord.Game(name="p!help for commands"))
 
 
 def cache_all_emojis():
@@ -399,6 +406,14 @@ async def ensure_profile(ctx: commands.Context):
 @commands.max_concurrency(1, per=BucketType.channel, wait=False)
 async def encounter(ctx: commands.Context): # noqa: D103
 	await minigame(ctx.channel)
+
+
+@bot.command(help="List all available battle bots")
+async def battlebots(ctx: commands.Context): # noqa: D103
+	import battle_ai
+	await ctx.send(
+		f"All available battle bots: {', '.join(map(lambda x: f'`{x}`', battle_ai.strategies.keys()))}"
+	)
 
 
 if __name__ == "__main__":
