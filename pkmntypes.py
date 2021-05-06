@@ -164,8 +164,12 @@ class StatusCondition():
 		return self.value
 
 	def __setstate__(self, value):
-		self.non_volatile = self.NonVolatile(value & 0b111)
-		self.volatile = self.Volatile(value >> 3)
+		if isinstance(value, StatusCondition):
+			self.non_volatile = value.non_volatile
+			self.volatile = value.volatile
+		else:
+			self.non_volatile = self.NonVolatile(value & 0b111)
+			self.volatile = self.Volatile(value >> 3)
 
 	def __eq__(self, other):
 		return self.value == other

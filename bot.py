@@ -104,6 +104,8 @@ async def challenge(
 			return
 		battle.add_user(user)
 	else:
+		if opponent == "bot":
+			opponent = "simple"
 		import battle_ai
 		if opponent not in battle_ai.strategies:
 			raise commands.BadArgument(
@@ -127,6 +129,10 @@ async def challenge(
 async def simulate(
 	ctx: commands.Context, bot1, bot2, level=100, party_size=6
 ): # noqa: D103
+	if bot1 == "bot":
+		bot1 = "simple"
+	if bot2 == "bot":
+		bot2 = "simple"
 	import battle_ai
 	if bot1 not in battle_ai.strategies:
 		raise commands.BadArgument(
@@ -419,6 +425,9 @@ async def ensure_profile(ctx: commands.Context):
 @commands.guild_only()
 @commands.max_concurrency(1, per=BucketType.channel, wait=False)
 async def encounter(ctx: commands.Context): # noqa: D103
+	if await userprofile.load_profile(ctx.author.id) == None:
+		await ctx.send("You need to have a profile. Run `p!begin`.")
+		return
 	await minigame(ctx.channel)
 
 
