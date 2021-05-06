@@ -104,6 +104,8 @@ async def challenge(
 			return
 		battle.add_user(user)
 	else:
+		if opponent == "bot":
+			opponent = "simple"
 		import battle_ai
 		if opponent not in battle_ai.strategies:
 			raise commands.BadArgument(
@@ -127,6 +129,10 @@ async def challenge(
 async def simulate(
 	ctx: commands.Context, bot1, bot2, level=100, party_size=6
 ): # noqa: D103
+	if bot1 == "bot":
+		bot1 = "simple"
+	if bot2 == "bot":
+		bot2 = "simple"
 	import battle_ai
 	if bot1 not in battle_ai.strategies:
 		raise commands.BadArgument(
