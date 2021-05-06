@@ -419,6 +419,9 @@ async def ensure_profile(ctx: commands.Context):
 @commands.guild_only()
 @commands.max_concurrency(1, per=BucketType.channel, wait=False)
 async def encounter(ctx: commands.Context): # noqa: D103
+	if await userprofile.load_profile(ctx.author.id) == None:
+		await ctx.send("You need to have a profile. Run `p!begin`.")
+		return
 	await minigame(ctx.channel)
 
 
