@@ -224,25 +224,20 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	msg: Message = await ctx.send(base_msg)
 
 	user = await userprofile.load_profile(discord_id)
+	texts = []
 	if user:
-		if single:
-			async for pokemon in user.pokemon_iter():
-				if pokemon.Name == single:
-					await ctx.send(
-						f"{pokemon.Name}: {pokemon.CurrentHP} HP {util.taggify(util.type_to_string(pokemon.Type))}"
-					)
-					await ctx.send(
-						f"Level: {pokemon.Level}\nExp: {pokemon.TotalExperience}"
-					)
-		else:
-			async for pokemon in user.pokemon_iter():
-				await ctx.send(
-					f"{pokemon.Name}: Lv{pokemon.Level} {util.taggify(util.type_to_string(pokemon.Type))}"
-				)
+		async for pokemon in user.pokemon_iter():
+			if single and pokemon.Name == single or not single:
+				texts += [
+					f"{pokemon.Name}: {util.safe_display_types(pokemon.Type)} Lv{pokemon.Level} Moves: {', '.join(map(lambda m: m.name_and_type, pokemon.Moves))}"
+				]
 	else:
 		await ctx.send(
 			"Couldn't find a profile! Make sure you create a profile by typing 'p!begin'"
 		)
+		return
+
+	await ctx.send("\n".join(texts))
 
 
 @dev_command()

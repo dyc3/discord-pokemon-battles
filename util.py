@@ -331,3 +331,7 @@ def json_parse(self, kwargs: dict[str, Any]):
 			attr_value = parse_obj(attr_type, v)
 			self.__setattr__(self.json_fields[k], attr_value)
 			assert self.json_fields[k] in self.__dict__
+		elif k in self.__annotations__:
+			self.__setattr__(k, v)
+		else:
+			raise KeyError(f"Unknown keyword argument: {k}")
