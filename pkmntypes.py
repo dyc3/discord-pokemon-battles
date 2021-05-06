@@ -254,7 +254,7 @@ class Move():
 		util.json_parse(self, d)
 
 	@property
-	def name_and_type(self):
+	def name_and_type(self) -> str:
 		"""Pretty print the move's name and type, using emoji if possible."""
 		import util
 		return f"{self.name} {util.safe_display_types(self.elemental_type)}"
