@@ -223,8 +223,9 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 	if (user := await userprofile.load_profile(ctx.author.id)):
 		async for pokemon in user.pokemon_iter():
 			if single and pokemon.Name == single or not single:
+				moves = ', '.join(map(lambda m: m.name_and_type, pokemon.Moves))
 				texts += [
-					f"{pokemon.Name}: {util.safe_display_types(pokemon.Type)} Lv{pokemon.Level} Moves: {', '.join(map(lambda m: m.name_and_type, pokemon.Moves))}"
+					f"{pokemon.Name}: {util.safe_display_types(pokemon.Type)} Lv{pokemon.Level} Moves: {moves}"
 				]
 	else:
 		await ctx.send(
