@@ -217,15 +217,10 @@ async def test_prompt_message(ctx: commands.Context):
 	await ctx.send(f"got: {result}")
 
 
-@bot.command(help='Add name to display specific Pokemon')
+@bot.command(help='List your current pokemon.')
 async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
-	discord_id = ctx.author.id
-	base_msg = f"<@!{discord_id}> Here are all of your current Pokemon"
-	msg: Message = await ctx.send(base_msg)
-
-	user = await userprofile.load_profile(discord_id)
-	texts = []
-	if user:
+	texts = [f"{ctx.author.mention} Here are all of your current Pokemon"]
+	if (user := await userprofile.load_profile(ctx.author.id)):
 		async for pokemon in user.pokemon_iter():
 			if single and pokemon.Name == single or not single:
 				texts += [
@@ -233,7 +228,7 @@ async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
 				]
 	else:
 		await ctx.send(
-			"Couldn't find a profile! Make sure you create a profile by typing 'p!begin'"
+			"Couldn't find a profile! Make sure you create a profile by typing `p!begin`"
 		)
 		return
 
