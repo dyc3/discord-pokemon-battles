@@ -19,3 +19,4 @@ dependencies:
     - coloredlogs
     - pillow
     - python-Levenshtein
+    - disputils==0.1.3

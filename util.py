@@ -274,27 +274,27 @@ def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
 
 	:param transactions: The list of transactions to prettify.
 	"""
-	transactions_text: list[str] = []
+	return strings_to_embed_text([t.pretty() for t in transactions])
+
+
+def strings_to_embed_text(strings: list[str]) -> list[str]:
+	"""Concatenate/truncate a list of strings such that they fit inside the description of a :class:`discord.Embed`."""
+	texts = []
 	current = ""
 	char_limit = 2048
-	while len(transactions) > 0:
-		t = transactions.pop(0)
-		# log.debug(f"Transaction: {repr(t)}")
-		pretty = t.pretty()
-		if len(current) + len(pretty) + 1 > char_limit:
+	while len(strings) > 0:
+		value = strings.pop(0)
+		if len(current) + len(value) + 1 > char_limit:
 			if len(current) > 0:
-				transactions_text += [current]
-			if len(pretty) > char_limit:
-				log.warning(
-					f"Transaction's pretty text is too long! Truncating to {char_limit} chars."
-				)
-				transactions_text += [pretty[:char_limit]]
+				texts += [current]
+			if len(value) > char_limit:
+				texts += [value[:char_limit]]
 				continue
 			current = ""
-		current += pretty + "\n"
+		current += value + "\n"
 	if len(current) > 0:
-		transactions_text += [current]
-	return transactions_text
+		texts += [current]
+	return texts
 
 
 def get_link(msg: Message):
