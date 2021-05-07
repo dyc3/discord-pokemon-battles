@@ -219,21 +219,26 @@ async def test_prompt_message(ctx: commands.Context):
 
 @bot.command(help='List your current pokemon.')
 async def show(ctx: commands.Context, single: Optional[str]): # noqa: D103
-	texts = [f"{ctx.author.mention} Here are all of your current Pokemon"]
-	if (user := await userprofile.load_profile(ctx.author.id)):
-		async for pokemon in user.pokemon_iter():
-			if single and pokemon.Name == single or not single:
-				moves = ', '.join(map(lambda m: m.name_and_type, pokemon.Moves))
-				texts += [
-					f"{pokemon.Name}: {util.safe_display_types(pokemon.Type)} Lv{pokemon.Level} Moves: {moves}"
-				]
-	else:
+	if (user := await userprofile.load_profile(ctx.author.id)) == None:
 		await ctx.send(
 			"Couldn't find a profile! Make sure you create a profile by typing `p!begin`"
 		)
-		return
+	assert isinstance(user, userprofile.UserProfile)
 
-	await ctx.send("\n".join(texts))
+	texts = []
+	async for pokemon in user.pokemon_iter():
+		if single and pokemon.Name == single or not single:
+			moves = ', '.join(map(lambda m: m.name_and_type, pokemon.Moves))
+			texts += [
+				f"Lv{pokemon.Level} {pokemon.Name} {util.safe_display_types(pokemon.Type)}\n{moves}\n"
+			]
+	embeds = [discord.Embed(description=t) for t in util.strings_to_embed_text(texts)]
+
+	# import disputils
+	# paginator = disputils.BotEmbedPaginator(ctx, embeds)
+	# await paginator.run()
+	for embed in embeds:
+		await ctx.send(embed=embed)
 
 
 @dev_command()
@@ -428,6 +433,21 @@ async def battlebots(ctx: commands.Context): # noqa: D103
 	await ctx.send(
 		f"All available battle bots: {', '.join(map(lambda x: f'`{x}`', battle_ai.strategies.keys()))}"
 	)
+
+
+@dev_command(help="Give yourself some random pokemon.")
+async def gimmie_mons(ctx: commands.Context, num: int = 10): # noqa: D103
+	profile = await userprofile.load_profile(ctx.author.id)
+	if profile == None:
+		log.error("user does not have profile")
+		raise Exception("Profile not found")
+	assert isinstance(profile, userprofile.UserProfile)
+	pkmns = [await battleapi.generate_pokemon() for _ in range(num)]
+	for pkmn in pkmns:
+		await pkmn.save()
+		profile.add_pokemon(pkmn)
+	await profile.save()
+	await ctx.send("OK")
 
 
 if __name__ == "__main__":
