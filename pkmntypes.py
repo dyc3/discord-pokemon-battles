@@ -210,6 +210,7 @@ class Move():
 	affected_stat: int
 	stat_stages: int
 	ailment: StatusCondition
+	meta_category: int
 
 	json_fields = {
 		"Id": "move_id",
@@ -237,6 +238,7 @@ class Move():
 		"AffectedStat": "affected_stat",
 		"StatStages": "stat_stages",
 		"Ailment": "ailment",
+		"MetaCategory": "meta_category",
 	}
 
 	def __init__(self, **kwargs):
@@ -429,7 +431,7 @@ class BattleContext():
 	"""
 
 	battle: dict[str, Any]
-	pokemon: Pokemon
+	target_pokemon: Target
 	team: int
 	targets: list[Target]
 	allies: list[Target]
@@ -437,18 +439,23 @@ class BattleContext():
 
 	json_fields = {
 		"Battle": "battle",
-		"Pokemon": "pokemon",
+		"Self": "target_pokemon",
 		"Team": "team",
 		"Targets": "targets",
 		"Allies": "allies",
 		"Opponents": "opponents",
 	}
 
-	def __init__(self, **kwargs):
+	def __init__(self, **kwargs) -> None:
 		import util
 		util.json_parse(self, kwargs)
 
-	def fight(self, target: Target, move: Move):
+	@property
+	def pokemon(self) -> Pokemon:
+		"""Alias for `target_pokemon.pokemon`."""
+		return self.target_pokemon.pokemon
+
+	def fight(self, target: Target, move: Move) -> FightTurn:
 		"""Create a :class:`FightTurn` a little bit easier."""
 		return FightTurn(
 			party=target.party, slot=target.slot, move=self.pokemon.Moves.index(move)
