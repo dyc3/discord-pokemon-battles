@@ -451,6 +451,7 @@ async def gimmie_mons(ctx: commands.Context, num: int = 10): # noqa: D103
 
 
 if __name__ == "__main__":
+	log.info("Brock is starting...")
 	coordinator.set_bot(bot)
 	# reference: https://pgjones.gitlab.io/quart/how_to_guides/event_loop.html
 	bot.loop.create_task(serve.app.run_task(host="0.0.0.0", use_reloader=False))
@@ -459,3 +460,4 @@ if __name__ == "__main__":
 	bot.loop.create_task(storage.set_validators())
 
 	bot.run(config.BOT_TOKEN)
+	log.warn("Main event loop exited!")
