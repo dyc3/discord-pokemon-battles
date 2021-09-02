@@ -7,7 +7,6 @@ from motor.motor_asyncio import AsyncIOMotorClientSession
 from PIL import Image
 from enum import Enum, IntEnum, IntFlag
 from pathlib import Path
-import util
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
@@ -517,6 +516,7 @@ class Transaction:
 
 	def pretty(self, context: list[Team]) -> str:
 		"""Get a human-readable representation of this transaction."""
+		import util
 		try:
 			if self.name == "DamageTransaction":
 				target = util.resolve_target(context, Target(**self.args["Target"]))
