@@ -1,10 +1,10 @@
+from typing import Generator, Iterable, Sequence, Union, Optional, Any
 import logging, coloredlogs
 import discord
 import asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Generator, Iterable, Sequence, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = [
@@ -269,12 +269,13 @@ def taggify(s: Iterable[str]) -> str:
 	return ''.join([f'[{x}]' for x in s])
 
 
-def prettify_all_transactions(transactions: list[Transaction]) -> list[str]:
+def prettify_all_transactions(transactions: list[Transaction],
+								context: list[Team]) -> list[str]:
 	"""Prettify all transactions, and concatenate/truncate them such that they fit inside the description of a :class:`discord.Embed`.
 
 	:param transactions: The list of transactions to prettify.
 	"""
-	return strings_to_embed_text([t.pretty() for t in transactions])
+	return strings_to_embed_text([t.pretty(context) for t in transactions])
 
 
 def strings_to_embed_text(strings: list[str]) -> list[str]:
@@ -335,3 +336,13 @@ def json_parse(self, kwargs: dict[str, Any]):
 			self.__setattr__(k, v)
 		else:
 			raise KeyError(f"Unknown keyword argument: {k}")
+
+
+def resolve_target(teams: list[Team], target: Target) -> Target:
+	"""Return `target` with the `pokemon` field populated according to the party and slot in `teams`."""
+	parties = []
+	for team in teams:
+		for party in team.parties:
+			parties.append(party)
+	target.pokemon = parties[target.party].pokemon[target.slot]
+	return target

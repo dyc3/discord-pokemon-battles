@@ -1,3 +1,4 @@
+from typing import Callable, Union, Any, Optional
 import io
 import asyncio
 import aiohttp
@@ -168,7 +169,9 @@ class Battle():
 				self.transactions += results.transactions
 				# embed descriptions can only be 2048 characters long.
 				char_limit = 2048
-				transactions_text = util.prettify_all_transactions(results.transactions)
+				transactions_text = util.prettify_all_transactions(
+					results.transactions, self.teams
+				)
 
 				if len(transactions_text) == 1:
 					spectator_embed.description = transactions_text[0]

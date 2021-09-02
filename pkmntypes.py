@@ -1,6 +1,5 @@
 import logging, coloredlogs
 from turns import FightTurn
-import json
 from dataclasses import dataclass
 from typing import Any, Optional
 from bson.objectid import ObjectId
@@ -23,6 +22,9 @@ def _case_insensitive_pop(
 	if default != None:
 		return default
 	raise KeyError(name)
+
+
+__exclude_exports__ = set(dir())
 
 
 @dataclass(init=False)
@@ -210,6 +212,7 @@ class Move():
 	affected_stat: int
 	stat_stages: int
 	ailment: StatusCondition
+	meta_category: int
 
 	json_fields = {
 		"Id": "move_id",
@@ -237,6 +240,7 @@ class Move():
 		"AffectedStat": "affected_stat",
 		"StatStages": "stat_stages",
 		"Ailment": "ailment",
+		"MetaCategory": "meta_category",
 	}
 
 	def __init__(self, **kwargs):
@@ -429,7 +433,7 @@ class BattleContext():
 	"""
 
 	battle: dict[str, Any]
-	pokemon: Pokemon
+	target_pokemon: Target
 	team: int
 	targets: list[Target]
 	allies: list[Target]
@@ -437,18 +441,23 @@ class BattleContext():
 
 	json_fields = {
 		"Battle": "battle",
-		"Pokemon": "pokemon",
+		"Self": "target_pokemon",
 		"Team": "team",
 		"Targets": "targets",
 		"Allies": "allies",
 		"Opponents": "opponents",
 	}
 
-	def __init__(self, **kwargs):
+	def __init__(self, **kwargs) -> None:
 		import util
 		util.json_parse(self, kwargs)
 
-	def fight(self, target: Target, move: Move):
+	@property
+	def pokemon(self) -> Pokemon:
+		"""Alias for `target_pokemon.pokemon`."""
+		return self.target_pokemon.pokemon
+
+	def fight(self, target: Target, move: Move) -> FightTurn:
 		"""Create a :class:`FightTurn` a little bit easier."""
 		return FightTurn(
 			party=target.party, slot=target.slot, move=self.pokemon.Moves.index(move)
@@ -505,13 +514,12 @@ class Transaction:
 		self.name: str = kwargs["name"]
 		self.args: dict[str, Any] = kwargs["args"]
 
-	def pretty(self) -> str:
+	def pretty(self, context: list[Team]) -> str:
 		"""Get a human-readable representation of this transaction."""
 		import util
-
 		try:
 			if self.name == "DamageTransaction":
-				target = Target(**self.args["Target"])
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 				status = StatusCondition(self.args["StatusEffect"])
 
 				text = f"{target.pokemon.name_and_type} took **{self.args['Damage']} damage**."
@@ -520,34 +528,34 @@ class Transaction:
 				else:
 					return text
 			elif self.name == "FriendshipTransaction":
-				pkmn = Pokemon(**self.args["Target"])
+				pkmn = util.resolve_target(context, Target(**self.args["Target"])).pokemon
 
 				if self.args['Amount'] > 0:
 					return f"{pkmn.name_and_type} friendship increased by {self.args['Amount']}."
 				else:
 					return f"{pkmn.name_and_type} friendship decreased by {abs(self.args['Amount'])}."
 			elif self.name == "EVTransaction":
-				pkmn = Pokemon(**self.args["Target"])
+				pkmn = util.resolve_target(context, Target(**self.args["Target"])).pokemon
 				stat = Stat(self.args['Stat'])
 
 				return f"{pkmn.name_and_type} gained {self.args['Amount']} {stat} EVs."
 			elif self.name == "HealTransaction":
-				pkmn = Pokemon(**self.args["Target"])
+				pkmn = util.resolve_target(context, Target(**self.args["Target"])).pokemon
 
 				return f"{pkmn.name_and_type} restored {self.args['Amount']} HP."
 			elif self.name == "InflictStatusTransaction":
-				pkmn = Pokemon(**self.args["Target"])
+				pkmn = util.resolve_target(context, Target(**self.args["Target"])).pokemon
 				status = StatusCondition(self.args["StatusEffect"])
 
 				return f"{pkmn.name_and_type} was **{status.past_tense}**."
 			elif self.name == "FaintTransaction":
-				target = Target(**self.args["Target"])
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 
 				return f"{target.pokemon.name_and_type} **fainted**."
 			elif self.name == "EndBattleTransaction":
 				return f"The battle has ended."
 			elif self.name == "MoveFailTransaction":
-				user = Pokemon(**self.args["User"])
+				user = util.resolve_target(context, Target(**self.args["User"])).pokemon
 				reason = MoveFailReason(self.args["Reason"])
 
 				if reason == MoveFailReason.miss:
@@ -558,7 +566,7 @@ class Transaction:
 					msg = "**failed**"
 				return f"{user.name_and_type} {msg}."
 			elif self.name == "ModifyStatTransaction":
-				pkmn = Pokemon(**self.args["Target"])
+				pkmn = util.resolve_target(context, Target(**self.args["Target"])).pokemon
 				stat = Stat(self.args['Stat'])
 				stages = self.args['Stages']
 
@@ -574,19 +582,19 @@ class Transaction:
 				else:
 					return f"{move.name_and_type} lost {abs(self.args['Amount'])} PP."
 			elif self.name == "UseMoveTransaction":
-				tuser = Target(**self.args["User"])
-				target = Target(**self.args["Target"])
+				tuser = util.resolve_target(context, Target(**self.args["User"]))
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 				move = Move(**self.args["Move"])
 				return f"{tuser.pokemon.name_and_type} used {move.name_and_type} on {target.pokemon.name_and_type}!"
 			elif self.name == "SendOutTransaction":
-				target = Target(**self.args["Target"])
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 				return f"{target.pokemon.name_and_type} was sent out."
 			elif self.name == "ImmobilizeTransaction":
-				target = Target(**self.args["Target"])
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 				status = StatusCondition(self.args["StatusEffect"])
 				return f"{target.pokemon.name_and_type} is **{status.past_tense}**!"
 			elif self.name == "CureStatusTransaction":
-				target = Target(**self.args["Target"])
+				target = util.resolve_target(context, Target(**self.args["Target"]))
 				status = StatusCondition(self.args["StatusEffect"])
 				return f"{target.pokemon.name_and_type} is no longer **{status.past_tense}**!"
 			elif self.name == "WeatherTransaction":
@@ -645,3 +653,11 @@ class BattleWeather(Enum):
 	Sandstorm = 3
 	Hail = 4
 	Fog = 5
+
+
+#__all__ = [x for x in dir() if not x.startswith("_") or x not in __exclude_exports__]
+__all__ = [
+	"StatusCondition", "Move", "Pokemon", "Party", "Team", "Target", "Stat",
+	"BattleContext", "MoveFailReason", "Transaction", "Stat", "TYPE_ELEMENTS",
+	"BattleWeather"
+] # HACK: because type checker can't parse dynamic __all__

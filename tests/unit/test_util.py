@@ -1,6 +1,7 @@
 import unittest
 from turns import *
 from pkmntypes import *
+from typing import Union
 import util
 from parameterized import parameterized, parameterized_class
 from hypothesis import given, reproduce_failure, strategies as st
