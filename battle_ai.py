@@ -24,11 +24,11 @@ def battle_strategy(func: battle_strategy_type):
 def simple(ctx: BattleContext) -> Turn:
 	"""Battle strategy that randomly uses moves."""
 	target = ctx.opponents[0]
+	available_moves = [
+		i for i, move in enumerate(ctx.pokemon.Moves) if move.current_pp > 0
+	]
 	return FightTurn(
-		party=target.party,
-		slot=target.slot,
-		move=random.randint(0,
-							len(ctx.pokemon.Moves) - 1)
+		party=target.party, slot=target.slot, move=random.choice(available_moves)
 	)
 
 
