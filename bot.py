@@ -1,3 +1,4 @@
+from typing import Callable, Union, Any, Optional
 import asyncio
 import io
 import json
@@ -14,8 +15,8 @@ import battleapi
 import coloredlogs
 import userprofile
 import Levenshtein
-from typing import Callable, Union, Any
 import config
+from PIL import Image
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)

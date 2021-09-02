@@ -1,6 +1,5 @@
 import logging, coloredlogs
 from turns import FightTurn
-import json
 from dataclasses import dataclass
 from typing import Any, Optional
 from bson.objectid import ObjectId
@@ -23,6 +22,9 @@ def _case_insensitive_pop(
 	if default != None:
 		return default
 	raise KeyError(name)
+
+
+__exclude_exports__ = set(dir())
 
 
 @dataclass(init=False)
@@ -514,8 +516,6 @@ class Transaction:
 
 	def pretty(self) -> str:
 		"""Get a human-readable representation of this transaction."""
-		import util
-
 		try:
 			if self.name == "DamageTransaction":
 				target = Target(**self.args["Target"])
@@ -652,3 +652,11 @@ class BattleWeather(Enum):
 	Sandstorm = 3
 	Hail = 4
 	Fog = 5
+
+
+#__all__ = [x for x in dir() if not x.startswith("_") or x not in __exclude_exports__]
+__all__ = [
+	"StatusCondition", "Move", "Pokemon", "Party", "Team", "Target", "Stat",
+	"BattleContext", "MoveFailReason", "Transaction", "Stat", "TYPE_ELEMENTS",
+	"BattleWeather"
+] # HACK: because type checker can't parse dynamic __all__

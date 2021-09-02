@@ -1,10 +1,10 @@
+from typing import Generator, Iterable, Sequence, Union, Optional, Any
 import logging, coloredlogs
 import discord
 import asyncio
 from discord.ext import commands
 from discord.message import Message
 from turns import *
-from typing import Generator, Iterable, Sequence, Union
 from pkmntypes import *
 
 RESPONSE_REACTIONS = [

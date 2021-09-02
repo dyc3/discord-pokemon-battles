@@ -1,3 +1,4 @@
+from typing import Generator, Iterable, Sequence, Union, Optional, Any
 from pkmntypes import *
 import aiohttp
 import jsonpickle
@@ -11,6 +12,8 @@ log = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=log)
 
 BASE_URL = config.BATTLE_API_BASE_URL
+
+__exclude_exports__ = set(dir())
 
 
 class BattleRoundResults:
@@ -120,3 +123,6 @@ async def get_results(battle_id: int) -> BattleResults:
 			log.debug(f"battle results: {resp.status}")
 			result = await resp.json()
 	return BattleResults(result["Winner"], result["Parties"])
+
+
+__all__ = [x for x in dir() if not x.startswith("_") or x not in __exclude_exports__]
